@@ -54,7 +54,6 @@ frontend/yarn-error.log*
 uploads/
 temp/
 *.pdf
-*.png
 output/
 
 # Logs
