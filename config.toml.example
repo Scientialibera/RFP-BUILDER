@@ -1,0 +1,72 @@
+# RFP Builder Configuration
+# Copy this file to config.toml and fill in your values
+
+[azure]
+# Azure OpenAI endpoint - if provided, uses Azure DefaultAzureCredential for auth
+endpoint = "https://your-resource.openai.azure.com/"
+model = "gpt-4o"
+# Optional: deployment name if different from model
+deployment = ""
+# API version for Azure OpenAI
+api_version = "2024-02-15-preview"
+
+[openai]
+# Alternative: Direct OpenAI API (used if azure.endpoint is empty)
+api_key = ""
+model = "gpt-4o"
+# Base URL override for OpenAI-compatible endpoints
+base_url = ""
+
+[app]
+# Application settings
+debug = false
+host = "0.0.0.0"
+port = 8000
+# Maximum file size in MB
+max_file_size_mb = 50
+# Allowed file types
+allowed_extensions = ["pdf"]
+# Temp directory for uploads
+upload_dir = "./uploads"
+output_dir = "./output"
+
+[features]
+# Enable image mode - converts PDFs to images for better LLM format understanding
+enable_images = true
+# Image DPI for PDF conversion (higher = better quality but larger)
+image_dpi = 150
+# Enable frontend authentication with MSAL
+enable_auth = false
+
+[msal]
+# Microsoft Entra ID (Azure AD) settings for frontend authentication
+# Only used if features.enable_auth = true
+client_id = ""
+tenant_id = ""
+# Redirect URI for authentication
+redirect_uri = "http://localhost:3000"
+# Scopes to request
+scopes = ["User.Read"]
+
+[pdf_output]
+# PDF generation settings
+page_size = "letter"
+margin_top = 72
+margin_bottom = 72
+margin_left = 72
+margin_right = 72
+# Font settings
+font_family = "Helvetica"
+font_size_body = 11
+font_size_h1 = 24
+font_size_h2 = 18
+font_size_h3 = 14
+
+[workflow]
+# Agent Framework workflow settings
+# Timeout for LLM calls in seconds
+llm_timeout = 120
+# Maximum retries for failed LLM calls
+max_retries = 3
+# Enable verbose logging
+verbose = false
