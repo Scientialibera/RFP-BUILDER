@@ -47,7 +47,7 @@ class AppConfig(BaseModel):
     max_file_size_mb: int = 50
     allowed_extensions: list[str] = Field(default_factory=lambda: ["pdf"])
     upload_dir: str = "./uploads"
-    output_dir: str = "./output"
+    output_dir: str = "./outputs/runs"
     
     @property
     def max_file_size_bytes(self) -> int:
@@ -113,6 +113,26 @@ class MSALConfig(BaseModel):
         return bool(self.client_id.strip() and self.tenant_id.strip())
 
 
+class APIAuthConfig(BaseModel):
+    """API authentication configuration."""
+    enabled: bool = False
+    header_name: str = "X-API-Key"
+    token_type: str = "bearer"  # "bearer", "jwt", or "custom"
+    # JWT secret for validating signed tokens (only for jwt type)
+    jwt_secret: str = ""
+    # List of required token fields and their expected values
+    # Example: [{"field": "user_id", "value": "admin"}, {"field": "org", "value": "acme"}]
+    required_fields: list[dict[str, str]] = Field(
+        default_factory=list,
+        description="List of dicts with 'field' and 'value' keys. Token claims/fields must match to be valid."
+    )
+    
+    @property
+    def is_configured(self) -> bool:
+        """Check if API auth is properly configured."""
+        return self.enabled and len(self.required_fields) > 0
+
+
 class PDFOutputConfig(BaseModel):
     """PDF generation settings."""
     page_size: str = "letter"
@@ -133,7 +153,16 @@ class WorkflowConfig(BaseModel):
     max_retries: int = 3
     verbose: bool = False
     log_all_steps: bool = True
-    log_dir: str = "./logs"
+    
+    # Planner settings
+    enable_planner: bool = False
+    
+    # Critiquer settings
+    enable_critiquer: bool = False
+    max_critiques: int = 1
+    
+    # Error recovery settings
+    max_error_loops: int = 2
 
 
 class Config(BaseModel):
@@ -143,6 +172,7 @@ class Config(BaseModel):
     app: AppConfig = Field(default_factory=AppConfig)
     features: FeaturesConfig = Field(default_factory=FeaturesConfig)
     msal: MSALConfig = Field(default_factory=MSALConfig)
+    api_auth: APIAuthConfig = Field(default_factory=APIAuthConfig)
     pdf_output: PDFOutputConfig = Field(default_factory=PDFOutputConfig)
     workflow: WorkflowConfig = Field(default_factory=WorkflowConfig)
     

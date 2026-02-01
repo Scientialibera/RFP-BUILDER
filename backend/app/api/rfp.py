@@ -8,10 +8,11 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from fastapi import APIRouter, File, UploadFile, HTTPException, BackgroundTasks
+from fastapi import APIRouter, File, UploadFile, HTTPException, BackgroundTasks, Depends, Header
 from fastapi.responses import FileResponse, StreamingResponse
 
 from app.core.config import get_config
+from app.core.auth import verify_api_token
 from app.models.schemas import GenerateRFPResponse
 from app.services.pdf_service import PDFService
 from app.workflows.rfp_workflow import create_rfp_workflow
@@ -34,6 +35,7 @@ async def generate_rfp(
         None, 
         description="Company context documents (PDF)"
     ),
+    _: Optional[str] = Depends(verify_api_token),
 ):
     """
     Generate an RFP response based on the provided RFP and example responses.

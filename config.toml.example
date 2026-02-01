@@ -28,7 +28,7 @@ max_file_size_mb = 50
 allowed_extensions = ["pdf"]
 # Temp directory for uploads
 upload_dir = "./uploads"
-output_dir = "./output"
+output_dir = "./outputs/runs"
 
 [features]
 # Enable image mode - converts PDFs to images for better LLM format understanding
@@ -59,6 +59,23 @@ redirect_uri = "http://localhost:3000"
 # Scopes to request
 scopes = ["User.Read"]
 
+[api_auth]
+# API authentication for RFP generation endpoints
+enabled = false
+# Header name to check for API token (default: X-API-Key)
+header_name = "X-API-Key"
+# Token type: "bearer", "jwt", or "custom"
+token_type = "bearer"
+# JWT secret for validating signed tokens (only for jwt type)
+jwt_secret = ""
+# List of required fields and values that tokens must contain
+# Token can be plain JSON or base64-encoded JSON
+# Example: required_fields = [
+#   { field = "user_id", value = "admin123" },
+#   { field = "org", value = "acme-corp" }
+# ]
+required_fields = []
+
 [pdf_output]
 # PDF generation settings
 page_size = "letter"
@@ -81,3 +98,19 @@ llm_timeout = 120
 max_retries = 3
 # Enable verbose logging
 verbose = false
+# Log all LLM interactions to llm_interactions/ folder in run directory
+log_all_steps = true
+
+# Proposal Planner: AI-driven planning before document generation
+# When enabled, creates detailed section plans with requirement mapping and visualizations
+enable_planner = false
+
+# Proposal Critiquer: Automatic code quality review
+# When enabled, reviews generated code and requests revisions if needed
+enable_critiquer = false
+# Maximum number of critique loops before accepting the code
+max_critiques = 1
+
+# Error Recovery: Automatic regeneration on execution errors
+# Maximum number of error recovery attempts before giving up
+max_error_loops = 2

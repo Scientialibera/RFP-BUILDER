@@ -19,14 +19,23 @@ from app.core.llm_logger import create_llm_logger
 from app.prompts.system_prompts import (
     RFP_ANALYZER_SYSTEM_PROMPT,
     RFP_SECTION_GENERATOR_SYSTEM_PROMPT,
+    PROPOSAL_PLANNER_SYSTEM_PROMPT,
+    PROPOSAL_CRITIQUER_SYSTEM_PROMPT,
 )
 from app.prompts.user_prompts import (
     ANALYZE_RFP_USER_PROMPT,
     GENERATE_SECTIONS_USER_PROMPT,
+    PLAN_PROPOSAL_USER_PROMPT,
+    GENERATE_WITH_PLAN_USER_PROMPT,
+    GENERATE_WITH_ERROR_USER_PROMPT,
+    GENERATE_WITH_CRITIQUE_USER_PROMPT,
+    CRITIQUE_DOCUMENT_USER_PROMPT,
 )
 from app.functions.rfp_functions import (
     ANALYZE_RFP_FUNCTION,
     GENERATE_RFP_RESPONSE_FUNCTION,
+    PLAN_PROPOSAL_FUNCTION,
+    CRITIQUE_RESPONSE_FUNCTION,
 )
 from app.models.schemas import (
     RFPAnalysis,
@@ -34,11 +43,16 @@ from app.models.schemas import (
     RFPRequirement,
     EvaluationCriterion,
     SubmissionRequirements,
+    ProposalPlan,
+    PlannedSection,
+    CritiqueResult,
 )
 from .state import (
     WorkflowInput,
     AnalysisResult,
     GenerationResult,
+    PlanningResult,
+    CritiqueResultData,
     FinalResult,
 )
 
@@ -49,15 +63,15 @@ logger = logging.getLogger(__name__)
 class BaseExecutor:
     """Base class for workflow executors."""
     
-    def __init__(self, client: Optional[AsyncOpenAI] = None):
+    def __init__(self, client: Optional[AsyncOpenAI] = None, run_dir: Optional[Path] = None):
         self.config = get_config()
         self.client = client or create_llm_client()
         self.model = get_model_name()
         
         # Initialize LLM logger if enabled
         self.llm_logger = None
-        if self.config.workflow.log_all_steps:
-            self.llm_logger = create_llm_logger(self.config.workflow.log_dir)
+        if self.config.workflow.log_all_steps and run_dir:
+            self.llm_logger = create_llm_logger(run_dir)
     
     def _build_messages_with_images(
         self,
@@ -252,13 +266,332 @@ class SectionGeneratorExecutor(BaseExecutor):
         
         logger.info(f"Generation complete: {len(rfp_response.document_code)} chars of document code")
         return GenerationResult(response=rfp_response, raw_response=raw_response)
+    
+    async def execute_with_plan(
+        self, 
+        input_data: WorkflowInput,
+        analysis: RFPAnalysis,
+        plan: ProposalPlan
+    ) -> GenerationResult:
+        """Generate Python code for the proposal document using the proposal plan."""
+        logger.info("Starting document generation with plan")
+        
+        example_text = "\n\n---\n\n".join(input_data.example_rfps_text)
+        
+        req_list = "\n".join([
+            f"- [{req.id}] {req.description} (Category: {req.category}, Mandatory: {req.is_mandatory})"
+            for req in analysis.requirements
+        ])
+        
+        # Format the plan for the prompt
+        plan_text = f"Overview: {plan.overview}\n\nWin Strategy: {plan.win_strategy}\n\nKey Themes:\n"
+        for theme in plan.key_themes:
+            plan_text += f"- {theme}\n"
+        plan_text += "\nPlanned Sections:\n"
+        for section in plan.sections:
+            plan_text += f"\n### {section.title}\n"
+            plan_text += f"Summary: {section.summary}\n"
+            if section.related_requirements:
+                plan_text += f"Requirements: {', '.join(section.related_requirements)}\n"
+            if section.suggested_diagrams:
+                plan_text += f"Diagrams: {', '.join(section.suggested_diagrams)}\n"
+            if section.suggested_charts:
+                plan_text += f"Charts: {', '.join(section.suggested_charts)}\n"
+            if section.suggested_tables:
+                plan_text += f"Tables: {', '.join(section.suggested_tables)}\n"
+        
+        user_prompt = GENERATE_WITH_PLAN_USER_PROMPT.format(
+            rfp_analysis=analysis.summary,
+            proposal_plan=plan_text,
+            example_rfps=example_text,
+            company_context=input_data.company_context_text or "No company context provided.",
+            requirements=req_list
+        )
+        
+        all_images = []
+        if input_data.example_rfps_images:
+            for img_list in input_data.example_rfps_images:
+                all_images.extend(img_list)
+        if input_data.company_context_images:
+            all_images.extend(input_data.company_context_images)
+        
+        messages = self._build_messages_with_images(
+            RFP_SECTION_GENERATOR_SYSTEM_PROMPT,
+            user_prompt,
+            all_images if all_images else None
+        )
+        
+        response = await self._call_llm(
+            messages,
+            functions=[GENERATE_RFP_RESPONSE_FUNCTION],
+            function_call={"name": "generate_rfp_response"}
+        )
+        
+        message = response.choices[0].message
+        raw_response = str(message)
+        
+        if message.tool_calls:
+            func_args = json.loads(message.tool_calls[0].function.arguments)
+            rfp_response = RFPResponse(document_code=func_args.get("document_code", ""))
+        else:
+            rfp_response = RFPResponse(
+                document_code="doc.add_heading('Generation Failed', level=0)\ndoc.add_paragraph('Unable to generate proposal.')"
+            )
+        
+        logger.info(f"Generation with plan complete: {len(rfp_response.document_code)} chars")
+        return GenerationResult(response=rfp_response, raw_response=raw_response)
+    
+    async def execute_with_error(
+        self, 
+        input_data: WorkflowInput,
+        analysis: RFPAnalysis,
+        previous_code: str,
+        error_message: str
+    ) -> GenerationResult:
+        """Regenerate document code after fixing an execution error."""
+        logger.info(f"Regenerating document code after error: {error_message[:100]}...")
+        
+        req_list = "\n".join([
+            f"- [{req.id}] {req.description}"
+            for req in analysis.requirements
+        ])
+        
+        user_prompt = GENERATE_WITH_ERROR_USER_PROMPT.format(
+            error_message=error_message,
+            previous_code=previous_code[:5000],  # Limit code size
+            rfp_analysis=analysis.summary,
+            requirements=req_list
+        )
+        
+        messages = self._build_messages_with_images(
+            RFP_SECTION_GENERATOR_SYSTEM_PROMPT,
+            user_prompt,
+            None  # No images needed for error recovery
+        )
+        
+        response = await self._call_llm(
+            messages,
+            functions=[GENERATE_RFP_RESPONSE_FUNCTION],
+            function_call={"name": "generate_rfp_response"}
+        )
+        
+        message = response.choices[0].message
+        raw_response = str(message)
+        
+        if message.tool_calls:
+            func_args = json.loads(message.tool_calls[0].function.arguments)
+            rfp_response = RFPResponse(document_code=func_args.get("document_code", ""))
+        else:
+            rfp_response = RFPResponse(
+                document_code="doc.add_heading('Error Recovery Failed', level=0)"
+            )
+        
+        logger.info(f"Error recovery generation complete: {len(rfp_response.document_code)} chars")
+        return GenerationResult(response=rfp_response, raw_response=raw_response)
+    
+    async def execute_with_critique(
+        self, 
+        input_data: WorkflowInput,
+        analysis: RFPAnalysis,
+        previous_code: str,
+        critique: CritiqueResult
+    ) -> GenerationResult:
+        """Regenerate document code after critique."""
+        logger.info("Regenerating document code based on critique")
+        
+        req_list = "\n".join([
+            f"- [{req.id}] {req.description}"
+            for req in analysis.requirements
+        ])
+        
+        critique_text = f"Needs Revision: {critique.needs_revision}\n"
+        critique_text += f"\nCritique: {critique.critique}\n"
+        if critique.weaknesses:
+            critique_text += "\nWeaknesses:\n" + "\n".join(f"- {w}" for w in critique.weaknesses)
+        if critique.priority_fixes:
+            critique_text += "\n\nPriority Fixes:\n" + "\n".join(f"- {f}" for f in critique.priority_fixes)
+        
+        user_prompt = GENERATE_WITH_CRITIQUE_USER_PROMPT.format(
+            critique=critique_text,
+            previous_code=previous_code[:5000],
+            rfp_analysis=analysis.summary,
+            requirements=req_list
+        )
+        
+        messages = self._build_messages_with_images(
+            RFP_SECTION_GENERATOR_SYSTEM_PROMPT,
+            user_prompt,
+            None
+        )
+        
+        response = await self._call_llm(
+            messages,
+            functions=[GENERATE_RFP_RESPONSE_FUNCTION],
+            function_call={"name": "generate_rfp_response"}
+        )
+        
+        message = response.choices[0].message
+        raw_response = str(message)
+        
+        if message.tool_calls:
+            func_args = json.loads(message.tool_calls[0].function.arguments)
+            rfp_response = RFPResponse(document_code=func_args.get("document_code", ""))
+        else:
+            rfp_response = RFPResponse(
+                document_code="doc.add_heading('Critique Recovery Failed', level=0)"
+            )
+        
+        logger.info(f"Critique-based generation complete: {len(rfp_response.document_code)} chars")
+        return GenerationResult(response=rfp_response, raw_response=raw_response)
+
+
+class PlannerExecutor(BaseExecutor):
+    """Executor that creates a detailed proposal plan before generation."""
+    
+    async def execute(
+        self, 
+        input_data: WorkflowInput,
+        analysis: RFPAnalysis
+    ) -> PlanningResult:
+        """Create a detailed proposal plan."""
+        logger.info("Starting proposal planning")
+        
+        req_list = "\n".join([
+            f"- [{req.id}] {req.description} (Category: {req.category}, Mandatory: {req.is_mandatory}, Priority: {req.priority or 'medium'})"
+            for req in analysis.requirements
+        ])
+        
+        user_prompt = PLAN_PROPOSAL_USER_PROMPT.format(
+            rfp_analysis=analysis.summary,
+            requirements=req_list,
+            company_context=input_data.company_context_text or "No company context provided."
+        )
+        
+        messages = self._build_messages_with_images(
+            PROPOSAL_PLANNER_SYSTEM_PROMPT,
+            user_prompt,
+            None  # No images needed for planning
+        )
+        
+        response = await self._call_llm(
+            messages,
+            functions=[PLAN_PROPOSAL_FUNCTION],
+            function_call={"name": "plan_proposal"}
+        )
+        
+        message = response.choices[0].message
+        raw_response = str(message)
+        
+        if message.tool_calls:
+            func_args = json.loads(message.tool_calls[0].function.arguments)
+            
+            sections = [
+                PlannedSection(
+                    title=s.get("title", "Untitled Section"),
+                    summary=s.get("summary", ""),
+                    related_requirements=s.get("related_requirements", []),
+                    rfp_pages=s.get("rfp_pages", []),
+                    suggested_diagrams=s.get("suggested_diagrams", []),
+                    suggested_charts=s.get("suggested_charts", []),
+                    suggested_tables=s.get("suggested_tables", [])
+                )
+                for s in func_args.get("sections", [])
+            ]
+            
+            plan = ProposalPlan(
+                overview=func_args.get("overview", ""),
+                sections=sections,
+                key_themes=func_args.get("key_themes", []),
+                win_strategy=func_args.get("win_strategy", "")
+            )
+            
+            if self.llm_logger:
+                self.llm_logger.log_step(
+                    step_name="plan",
+                    function_name="plan_proposal",
+                    function_args=func_args,
+                    raw_response=raw_response,
+                    parsed_result={"sections_count": len(plan.sections)}
+                )
+        else:
+            plan = ProposalPlan(
+                overview="Planning not available",
+                sections=[]
+            )
+        
+        logger.info(f"Planning complete: {len(plan.sections)} sections planned")
+        return PlanningResult(plan=plan, raw_response=raw_response)
+
+
+class CritiquerExecutor(BaseExecutor):
+    """Executor that reviews generated document code and provides critique."""
+    
+    async def execute(
+        self, 
+        analysis: RFPAnalysis,
+        document_code: str
+    ) -> CritiqueResultData:
+        """Review document code and provide critique."""
+        logger.info("Starting document critique")
+        
+        req_list = "\n".join([
+            f"- [{req.id}] {req.description} (Mandatory: {req.is_mandatory})"
+            for req in analysis.requirements
+        ])
+        
+        user_prompt = CRITIQUE_DOCUMENT_USER_PROMPT.format(
+            requirements=req_list,
+            document_code=document_code[:10000]  # Limit for context window
+        )
+        
+        messages = [
+            {"role": "system", "content": PROPOSAL_CRITIQUER_SYSTEM_PROMPT},
+            {"role": "user", "content": user_prompt}
+        ]
+        
+        response = await self._call_llm(
+            messages,
+            functions=[CRITIQUE_RESPONSE_FUNCTION],
+            function_call={"name": "critique_response"}
+        )
+        
+        message = response.choices[0].message
+        raw_response = str(message)
+        
+        if message.tool_calls:
+            func_args = json.loads(message.tool_calls[0].function.arguments)
+            
+            critique = CritiqueResult(
+                needs_revision=func_args.get("needs_revision", False),
+                critique=func_args.get("critique", ""),
+                strengths=func_args.get("strengths", []),
+                weaknesses=func_args.get("weaknesses", []),
+                priority_fixes=func_args.get("priority_fixes", [])
+            )
+            
+            if self.llm_logger:
+                self.llm_logger.log_step(
+                    step_name="critique",
+                    function_name="critique_response",
+                    function_args=func_args,
+                    raw_response=raw_response,
+                    parsed_result={"needs_revision": critique.needs_revision}
+                )
+        else:
+            critique = CritiqueResult(
+                needs_revision=False,
+                critique="Unable to perform critique"
+            )
+        
+        logger.info(f"Critique complete: needs_revision={critique.needs_revision}")
+        return CritiqueResultData(critique=critique, raw_response=raw_response)
 
 
 class CodeInterpreterExecutor(BaseExecutor):
     """Executor that runs document code to generate the final Word document."""
     
-    def __init__(self, client: Optional[AsyncOpenAI] = None, output_dir: Optional[Path] = None):
-        super().__init__(client)
+    def __init__(self, client: Optional[AsyncOpenAI] = None, run_dir: Optional[Path] = None, output_dir: Optional[Path] = None):
+        super().__init__(client, run_dir)
         self.output_dir = output_dir or Path("./output")
     
     def _find_mmdc(self) -> Optional[str]:

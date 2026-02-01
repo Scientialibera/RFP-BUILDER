@@ -100,7 +100,7 @@ The code runs in an environment with:
 - `WD_ALIGN_PARAGRAPH`: From docx.enum.text
 - `WD_TABLE_ALIGNMENT`: From docx.enum.table
 - `plt`, `sns`, `np`, `pd`: matplotlib.pyplot, seaborn, numpy, pandas
-- `subprocess`, `tempfile`, `os`: For running mermaid CLI
+- `render_mermaid(code, filename)`: Helper to render mermaid diagrams to PNG
 
 ## Creating Charts with Seaborn
 ```python
@@ -123,10 +123,8 @@ doc.add_paragraph('Figure 1: Project Timeline')
 ```
 
 ## Creating Mermaid Diagrams
+Use the provided `render_mermaid(code, filename)` helper:
 ```python
-import subprocess
-import tempfile
-
 mermaid_code = '''
 flowchart TD
     A[Discovery] --> B[Design]
@@ -135,17 +133,13 @@ flowchart TD
     D --> E[Deployment]
 '''
 
-# Save mermaid code to temp file
-with tempfile.NamedTemporaryFile(mode='w', suffix='.mmd', delete=False) as f:
-    f.write(mermaid_code)
-    mmd_path = f.name
-
-diagram_path = output_dir / 'workflow_diagram.png'
-subprocess.run(['mmdc', '-i', mmd_path, '-o', str(diagram_path), '-b', 'transparent'], check=True)
-
+# Use the render_mermaid helper (handles path issues automatically)
+diagram_path = render_mermaid(mermaid_code, 'workflow_diagram')
 doc.add_picture(str(diagram_path), width=Inches(5))
 doc.add_paragraph('Figure 2: Project Workflow')
 ```
+
+MERMAID SYNTAX: Do NOT use parentheses () in node text - they break the parser. Use [square brackets] for labels.
 
 ## Document Structure
 ```python
@@ -176,10 +170,116 @@ Write complete, professional code. Do NOT call doc.save() - that's handled exter
     }
 }
 
+
+PLAN_PROPOSAL_FUNCTION = {
+    "name": "plan_proposal",
+    "description": "Create a detailed plan for the proposal before generating the document.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "overview": {
+                "type": "string",
+                "description": "High-level overview of the proposal strategy."
+            },
+            "sections": {
+                "type": "array",
+                "description": "Planned sections for the proposal.",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "Section title"
+                        },
+                        "summary": {
+                            "type": "string",
+                            "description": "High-level summary of what this section should cover"
+                        },
+                        "related_requirements": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Requirement IDs (e.g., REQ-001) this section addresses"
+                        },
+                        "rfp_pages": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "RFP page references (e.g., 'Page 5', 'Section 3.1')"
+                        },
+                        "suggested_diagrams": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Suggested mermaid diagrams (e.g., 'flowchart for process', 'sequence diagram for integration')"
+                        },
+                        "suggested_charts": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Suggested seaborn charts (e.g., 'bar chart for timeline', 'pie chart for budget allocation')"
+                        },
+                        "suggested_tables": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Suggested tables (e.g., 'team qualifications table', 'pricing breakdown')"
+                        }
+                    },
+                    "required": ["title", "summary"]
+                }
+            },
+            "key_themes": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Key themes to emphasize throughout the proposal"
+            },
+            "win_strategy": {
+                "type": "string",
+                "description": "Strategy for winning this RFP"
+            }
+        },
+        "required": ["overview", "sections"]
+    }
+}
+
+
+CRITIQUE_RESPONSE_FUNCTION = {
+    "name": "critique_response",
+    "description": "Critique the generated proposal document code and determine if revisions are needed.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "needs_revision": {
+                "type": "boolean",
+                "description": "True if the document needs revisions, False if it's acceptable"
+            },
+            "critique": {
+                "type": "string",
+                "description": "Detailed critique explaining what needs to be fixed. Required if needs_revision is True."
+            },
+            "strengths": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "What the document does well"
+            },
+            "weaknesses": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Areas that need improvement"
+            },
+            "priority_fixes": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "Priority fixes that must be addressed if needs_revision is True"
+            }
+        },
+        "required": ["needs_revision"]
+    }
+}
+
+
 # All available functions
 ALL_FUNCTIONS = [
     ANALYZE_RFP_FUNCTION,
     GENERATE_RFP_RESPONSE_FUNCTION,
+    PLAN_PROPOSAL_FUNCTION,
+    CRITIQUE_RESPONSE_FUNCTION,
 ]
 
 

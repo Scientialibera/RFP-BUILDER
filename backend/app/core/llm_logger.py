@@ -15,16 +15,20 @@ logger = logging.getLogger(__name__)
 class LLMLogger:
     """Handles logging of LLM requests and responses."""
     
-    def __init__(self, log_dir: Path):
-        """Initialize LLM logger."""
-        self.log_dir = Path(log_dir)
+    def __init__(self, run_dir: Path):
+        """Initialize LLM logger.
+        
+        Args:
+            run_dir: The run directory where logs will be stored
+        """
+        self.run_dir = Path(run_dir)
+        self.run_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create llm_interactions subdirectory
+        self.log_dir = self.run_dir / "llm_interactions"
         self.log_dir.mkdir(parents=True, exist_ok=True)
         
-        # Create session directory with timestamp
-        self.session_dir = self.log_dir / datetime.now().strftime("%Y%m%d_%H%M%S")
-        self.session_dir.mkdir(parents=True, exist_ok=True)
-        
-        logger.info(f"LLM Logger initialized: {self.session_dir}")
+        logger.info(f"LLM Logger initialized: {self.log_dir}")
     
     def log_step(
         self,
@@ -38,7 +42,7 @@ class LLMLogger:
         Log a complete workflow step with LLM interaction.
         
         Args:
-            step_name: Workflow step (e.g., 'analyze', 'generate', 'review')
+            step_name: Workflow step (e.g., 'analyze', 'generate', 'critique')
             function_name: LLM function called (e.g., 'analyze_rfp', 'generate_rfp_response')
             function_args: Parsed function arguments
             raw_response: Raw LLM response text
@@ -46,7 +50,7 @@ class LLMLogger:
         """
         try:
             # Create step log file
-            step_file = self.session_dir / f"{step_name}_{function_name}.json"
+            step_file = self.log_dir / f"{step_name}_{function_name}.json"
             
             log_entry = {
                 "timestamp": datetime.now().isoformat(),
@@ -187,14 +191,14 @@ class LLMLogger:
     
     def get_session_logs(self) -> list[Path]:
         """Get all log files in current session."""
-        return sorted(self.session_dir.glob("*.json"))
+        return sorted(self.log_dir.glob("*.json"))
     
     def get_session_summary(self) -> str:
         """Get a summary of all logs in current session."""
         logs = self.get_session_logs()
         summary_lines = [
             f"# LLM Logs Summary",
-            f"**Session**: {self.session_dir.name}",
+            f"**Run**: {self.run_dir.name}",
             f"**Logs**: {len(logs)} steps recorded",
             ""
         ]
@@ -206,6 +210,13 @@ class LLMLogger:
         return "\n".join(summary_lines)
 
 
-def create_llm_logger(log_dir: str) -> LLMLogger:
-    """Factory function to create an LLM logger."""
-    return LLMLogger(Path(log_dir))
+def create_llm_logger(run_dir: Path | str) -> LLMLogger:
+    """Factory function to create an LLM logger.
+    
+    Args:
+        run_dir: The run directory where logs will be stored
+        
+    Returns:
+        LLMLogger instance
+    """
+    return LLMLogger(Path(run_dir))

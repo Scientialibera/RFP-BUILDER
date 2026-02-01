@@ -5,10 +5,12 @@ Enterprise RFP (Request for Proposal) response generator powered by Microsoft Ag
 ## Features
 
 - **AI-Powered Analysis**: Automatically extracts requirements from RFP documents
+- **Optional Proposal Planning**: AI-driven planning before document generation (toggle `enable_planner`)
+- **Optional Quality Critique**: Automatic code review with revision loops (toggle `enable_critiquer`)
+- **Error Recovery**: Automatic error detection and code regeneration with max retry limit
 - **Style Learning**: Uses example RFPs to match your organization's proposal style
-- **Structured Output**: Generates well-formatted sections with proper hierarchy
-- **Mermaid Diagrams**: Supports automatic diagram generation and conversion to PNG
-- **PDF Generation**: Creates downloadable PDF responses
+- **Inline Visualizations**: Generates seaborn charts and mermaid diagrams directly in the document
+- **Word Document Output**: Creates professional DOCX proposals with embedded images
 - **Optional Authentication**: Toggle MSAL authentication on/off
 - **Image Mode**: Send PDFs as images for better format understanding
 - **Table-Aware Image Selection**: Prioritizes table-heavy pages for vision input
@@ -134,12 +136,14 @@ Returns frontend configuration including auth settings.
 
 ## Workflow Stages
 
-The RFP Builder uses a sequential workflow with these stages:
+The RFP Builder uses a sophisticated workflow with optional enhancements:
 
 1. **Analyze**: Extract requirements, evaluation criteria, and submission guidelines
-2. **Generate**: Create proposal sections using function calling for structured output
-3. **Review**: Check quality, compliance, and identify improvements
-4. **Finalize**: Incorporate feedback and polish the response
+2. **Plan** (optional): Create a detailed proposal plan with section strategy, visualizations, and win strategy
+3. **Generate**: Write complete Python code that creates the DOCX with inline seaborn charts and mermaid diagrams
+4. **Critique** (optional): Review generated code and request revisions if needed (configurable loop count)
+5. **Execute**: Run the document code with automatic error detection and recovery (configurable retry limit)
+6. **Output**: Generate the final DOCX proposal with all visualizations
 
 ## Configuration Options
 
@@ -193,58 +197,143 @@ max_images = 50
 min_table_rows = 2
 min_table_cols = 2
 image_ratio_examples = 0.5
-image_ratio_rfp = 0.25
-image_ratio_context = 0.25
-```
-
-Example: `max_images=50` with ratios `0.5/0.25/0.25` yields ~25 images for example PDFs, ~12 for the target RFP, and ~12 for context PDFs (remainder distributed by largest fractional). If you upload multiple example/context PDFs, that bucket is split evenly per document.
-
-### PDF Output
+### Authentication
 
 ```toml
-[pdf_output]
-page_size = "letter"    # or "a4"
-margin_top = 72         # points
-font_family = "Helvetica"
-font_size_body = 11
-font_size_h1 = 24
+[api_auth]
+# Enable API token authentication (default: false)
+enabled = false
+# Header name for API token (default: X-API-Key)
+header_name = "X-API-Key"
+# Token type: "bearer", "jwt", or "custom"
+token_type = "bearer"
+# JWT secret for validating signed tokens (only for jwt type)
+jwt_secret = ""
+# Required token fields and expected values
+# Token must be JSON (plain or base64-encoded) containing these fields
+required_fields = [
+  { field = "user_id", value = "admin123" },
+  { field = "org", value = "acme-corp" }
+]
+```
+
+When enabled, tokens are validated against the required fields. Tokens can be plain JSON or base64-encoded JSON:
+
+**Plain JSON token example:**
+```bash
+TOKEN='{"user_id":"admin123","org":"acme-corp","timestamp":"2026-02-01T12:00:00Z"}'
+curl -X POST http://localhost:8000/api/rfp/generate \
+  -H "X-API-Key: $TOKEN" \
+  -F "rfp=@rfp.pdf" \
+  -F "example_rfps=@example1.pdf"
+```
+
+**Base64-encoded JSON token:**
+```bash
+TOKEN=$(echo '{"user_id":"admin123","org":"acme-corp"}' | base64)
+curl -X POST http://localhost:8000/api/rfp/generate \
+  -H "X-API-Key: $TOKEN" \
+  -F "rfp=@rfp.pdf" \
+  -F "example_rfps=@example1.pdf"
+```
+
+Token validation:
+- All required fields in the token must match the configured values exactly
+- Missing fields cause validation to fail
+- Extra fields in the token are ignored
+- Empty `required_fields` list means any token is accepted (if auth is enabled)
+
+### Workflow Features
+
+```toml
+[workflow]
+llm_timeout = 120           # seconds
+max_retries = 3             # API call retries
+verbose = false
+log_all_steps = true        # Log all LLM interactions
+
+# Planner: Creates proposal structure before generation
+enable_planner = false
+
+# Critiquer: Reviews code and requests revisions
+enable_critiquer = false
+max_critiques = 1           # Max critique loops
+
+# Error Recovery: Retries generation on execution errors
+max_error_loops = 2         # Max error recovery attempts
 ```
 
 ## Function Calling Schema
 
-The LLM uses structured function calling to generate consistent output:
+The RFP Builder uses structured function calling for AI agents:
 
-```json
-{
-  "name": "generate_rfp_response",
-  "parameters": {
-    "sections": [
-      {
-        "section_title": "Executive Summary",
-        "section_content": "...",
-        "section_type": "h1"
-      }
-    ]
-  }
-}
+### 1. analyze_rfp
+Extracts requirements and evaluation criteria from RFP documents.
+
+### 2. plan_proposal (optional)
+Creates a detailed proposal structure:
+- Section titles and summaries
+- Requirement mapping
+- RFP page references
+- Suggested visualizations (diagrams, charts, tables)
+- Win strategy
+
+### 3. generate_rfp_response
+Generates complete Python code that:
+- Creates the DOCX document structure
+- Generates seaborn charts inline
+- Creates mermaid diagrams inline
+- Builds tables and formatted text
+
+The code has access to:
+- `python-docx` - Document creation
+- `seaborn` & `matplotlib` - Chart generation
+- `render_mermaid()` helper - Diagram rendering
+- `pandas` & `numpy` - Data manipulation
+
+### 4. critique_response (optional)
+Reviews generated code for:
+- Completeness (all requirements addressed)
+- Technical correctness (will code execute?)
+- Professional quality (formatting, structure)
+- Visualization quality (appropriate charts/diagrams)
+
+## Output Structure
+
+Each RFP generation creates a timestamped run directory with complete traceability:
+
+```
+outputs/
+└── runs/
+    └── run_20260201_152345/
+        ├── llm_interactions/
+        │   ├── analyze_analyze_rfp.json
+        │   ├── analyze_analyze_rfp.md
+        │   ├── plan_plan_proposal.json (if enabled)
+        │   ├── plan_plan_proposal.md
+        │   ├── generate_generate_rfp_response.json
+        │   ├── generate_generate_rfp_response.md
+        │   ├── critique_critique_response.json (if enabled)
+        │   ├── critique_critique_response.md
+        │   └── ...
+        ├── execution_logs/
+        │   └── execution.json
+        └── proposal.docx
 ```
 
-Section types: `h1`, `h2`, `h3`, `body`
+### LLM Interactions
+- Complete function arguments and responses
+- Raw LLM output and parsed results
+- Both JSON and formatted markdown logs
+- Full context fed to each LLM call
 
-## Mermaid Diagrams
+### Execution Logs
+- Code execution results
+- Chart/diagram generation outputs
+- Error messages and recovery attempts
 
-The LLM can include Mermaid diagrams in responses:
-
-```markdown
-```mermaid
-flowchart TD
-    A[Requirement] --> B[Analysis]
-    B --> C[Design]
-    C --> D[Implementation]
-```
-```
-
-These are automatically converted to PNG images for the PDF output.
+### Final Output
+- `proposal.docx` - The generated Word document with all visualizations
 
 ## Development
 

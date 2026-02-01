@@ -2,389 +2,460 @@
   "success": true,
   "message": "RFP response generated successfully",
   "rfp_response": {
-    "document_code": "from docx.shared import Inches, Pt, Cm\nfrom docx.enum.text import WD_ALIGN_PARAGRAPH\nfrom docx.enum.table import WD_TABLE_ALIGNMENT\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport numpy as np\nimport pandas as pd\nimport subprocess\nimport os\n\n# -----------------------------\n# Cover Page / Title\n# -----------------------------\n\ntitle = doc.add_heading('Phase 1 Sanitary Sewer Evaluation Survey (SSES)\\nLaSalle Sewersheds – Niagara Falls Water Board', level=0)\ntitle.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\nsubtitle = doc.add_paragraph('Technical Proposal and Statement of Qualifications')\nsubtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\ncompany = doc.add_paragraph('Submitted by: Aurelia Digital Systems')\ncompany.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\ncontact = doc.add_paragraph('Business Development Office | Toronto, Ontario\\nEmail: proposals@aurelia-digital.example | Phone: +1 (416) 555-0199')\ncontact.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\ndoc.add_page_break()\n\n# -----------------------------\n# Executive Summary\n# -----------------------------\n\ndoc.add_heading('Executive Summary', level=1)\n\npara = doc.add_paragraph()\npara.add_run(\n    'This proposal outlines Aurelia Digital Systems’ comprehensive, compliant, and results-'\n    'oriented approach to delivering Phase 1 sanitary sewer evaluation survey (SSES) services '\n    'for the LaSalle sewersheds, together with option pricing and scopes for Phases 2 and 3. '\n).bold = False\n\npara = doc.add_paragraph(\n    'We understand that the Niagara Falls Water Board (NFWB) is seeking a qualified engineering '\n    'consultant to complete Phase 1 SSES in the 91st & Luick and 81st & Frontier 1 sewersheds, '\n    'prepare an Engineering Report and Corrective Action Plan acceptable to the New York State '\n    'Department of Environmental Conservation (NYSDEC) and compliant with the EPG Engineering '\n    'Report Outline (October 1, 2022), and conduct post-construction monitoring in 2024. '\n    'In parallel, NFWB requires option prices, schedules, and scopes for Phases 2 and 3 to support '\n    'a sewershed-based, I&I-focused remediation program under the current Order on Consent.'\n)\n\npara = doc.add_paragraph(\n    'Aurelia Digital Systems brings a multi-disciplinary team with deep experience in complex, '\n    'regulated infrastructure programs, rigorous project governance, and data-driven analysis. '\n    'Our approach emphasizes regulatory compliance, transparent collaboration with NFWB and '\n    'NYSDEC, and measurable reduction in inflow and infiltration (I&I) contributing to LaSalle '\n    'sanitary sewer overflows (SSOs). We will deliver a defensible, actionable SSES report and '\n    'corrective action plan that supports construction completion by early 2024 and post-'\n    'construction monitoring by June 2024.'\n)\n\n# Key benefits / differentiators\n\ndoc.add_paragraph('Our proposed approach delivers the following key benefits:', style='List Bullet')\ndoc.add_paragraph('• Full alignment with NYSDEC, Order on Consent, and EPG Engineering Report Outline requirements (REQ-011, REQ-012, REQ-016).', style='List Bullet')\ndoc.add_paragraph('• Structured, phase-based delivery with clear milestones, bar-chart schedules, and not-to-exceed fee transparency (REQ-013, REQ-021, REQ-022, REQ-047).', style='List Bullet')\ndoc.add_paragraph('• Integrated technical program for smoke testing, flow isolation, CCTV analysis, outfall assessment, focused SSES, and post-construction monitoring (REQ-001, REQ-006–REQ-010, REQ-014).', style='List Bullet')\ndoc.add_paragraph('• Dedicated Project Manager as single point of contact, supported by an experienced SSES/I&I team and qualified subconsultants (REQ-003, REQ-017, REQ-019–REQ-021, REQ-031, REQ-032).', style='List Bullet')\ndoc.add_paragraph('• Robust compliance posture, including MWBE/SDVOB participation, prevailing wage, audit-ready records, and mandatory certifications (REQ-023–REQ-026, REQ-034–REQ-042, REQ-048–REQ-050).', style='List Bullet')\n\npara = doc.add_paragraph(\n    'We appreciate the opportunity to partner with NFWB on this critical initiative and are fully '\n    'committed to supporting the Board in achieving durable, sewershed-based SSO mitigation in '\n    'the LaSalle area.'\n)\n\n# -----------------------------\n# Understanding of Requirements and Project Context\n# -----------------------------\n\ndoc.add_heading('Understanding of Requirements and Project Context', level=1)\n\npara = doc.add_paragraph(\n    'We understand that the LaSalle area has experienced recurring sanitary sewer overflows '\n    '(SSOs) driven by excessive inflow and infiltration (I&I), as documented in the Order on '\n    'Consent and associated NYSDEC correspondence. The NFWB has adopted a sewershed-based '\n    'prioritization and ranking approach, focusing first on the 91st & Luick and 81st & Frontier 1 '\n    'sewersheds (Phase 1), followed by 81st & Frontier 2 and 80th & Lindbergh (Phase 2) and Mang '\n    '& 88th (Phase 3). The program objective is to identify, quantify, and cost-effectively '\n    'mitigate I&I sources to reduce SSOs and comply with regulatory commitments (REQ-001, '\n    'REQ-002, REQ-015).'\n)\n\npara = doc.add_paragraph(\n    'The RFP defines a structured set of tasks (1–8) for Phase 1, encompassing project management, '\n    'data review, smoke testing, flow isolation and night-time weiring, CCTV and manhole data '\n    'analysis, outfall/SSO condition assessment, focused SSES investigations, preparation of an '\n    'Engineering Report and Corrective Action Plan, and post-construction monitoring and cost '\n    'analysis (REQ-001, REQ-006–REQ-011, REQ-014). Option pricing is required for extending '\n    'appropriate tasks to Phases 2 and 3, with Task 5 omitted from Phase 2 (REQ-002).'\n)\n\npara = doc.add_paragraph(\n    'We further understand that all work must be performed in accordance with NYSDEC requirements, '\n    'the Order on Consent, the Engineering Planning Grant (EPG) Engineering Report Outline for '\n    'NYS Wastewater Infrastructure Projects (October 1, 2022), and applicable New York State laws '\n    'and regulations governing financial assistance, MWBE/SDVOB participation, labor standards, '\n    'and procurement (REQ-016, REQ-023–REQ-026, REQ-034–REQ-036, REQ-038–REQ-042, REQ-048–REQ-050).'\n)\n\n# -----------------------------\n# Company Qualifications and Relevant Experience\n# -----------------------------\n\ndoc.add_heading('Company Qualifications and Relevant Experience', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia Digital Systems is a North American engineering and technology consultancy founded '\n    'in 2016 with headquarters in Toronto, ON and delivery teams across Canada and the U.S. Our '\n    '120+ professionals span engineering, delivery, security, UX, and program management. We '\n    'specialize in complex, data-rich, and compliance-driven initiatives for public sector, '\n    'utilities, healthcare, and other regulated industries. Our delivery model combines agile '\n    'execution with formal governance, security-by-design, and measurable outcomes.'\n)\n\npara = doc.add_paragraph(\n    'For this engagement, Aurelia will lead overall program management, data analysis, reporting, '\n    'and regulatory coordination, supported by specialized subconsultants for field-based SSES '\n    'activities (smoke testing, flow isolation, CCTV, and outfall inspection). All subconsultants '\n    'performing more than 10% of the work will be pre-identified in this proposal, with their '\n    'experience, qualifications, and key personnel resumes included or available upon request '\n    '(REQ-019, REQ-027, REQ-031, REQ-032).'\n)\n\n# Example table for representative experience (TABLE_1)\n\ntable = doc.add_table(rows=4, cols=4)\ntable.style = 'Table Grid'\ntable.alignment = WD_TABLE_ALIGNMENT.CENTER\n\nhdr_cells = table.rows[0].cells\nhdr_cells[0].text = 'Client / Project'\nhdr_cells[1].text = 'Scope and Relevance'\nhdr_cells[2].text = 'Key Outcomes'\nhdr_cells[3].text = 'Reference'\n\nrow = table.rows[1].cells\nrow[0].text = 'Regional Utility – SSES & I&I Mitigation Program'\nrow[1].text = 'Program management, data integration, and analytics supporting multi-phase SSES and I&I reduction.'\nrow[2].text = 'Prioritized remediation plan; ~25% reduction in wet-weather peak flows.'\nrow[3].text = 'Available upon request.'\n\nrow = table.rows[2].cells\nrow[0].text = 'Municipal Wastewater Authority – SSO Abatement'\nrow[1].text = 'Regulatory reporting, engineering documentation, and post-construction performance monitoring.'\nrow[2].text = 'Regulatory compliance achieved; SSOs reduced below consent-order thresholds.'\nrow[3].text = 'Available upon request.'\n\nrow = table.rows[3].cells\nrow[0].text = 'Utilities Operations Enablement (Representative)'\nrow[1].text = 'Role-based dashboards and monitoring for utility operations and incident response.'\nrow[2].text = 'Improved incident triage time by ~30% (internal case study).'\nrow[3].text = 'Available upon request.'\n\ncaption = doc.add_paragraph('TABLE_1: Representative Relevant Experience (SSES, I&I, and SSO-related Programs)')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\npara = doc.add_paragraph(\n    'Our team has delivered similar work in partnership with civil and environmental engineering '\n    'firms, including SSES planning, I&I data analysis, and regulatory submissions. We will apply '\n    'these lessons learned to the LaSalle sewersheds to ensure a pragmatic, defensible, and '\n    'implementable corrective action plan (REQ-018, REQ-020, REQ-027).'\n)\n\n# -----------------------------\n# Project Organization and Key Personnel\n# -----------------------------\n\ndoc.add_heading('Project Organization and Key Personnel', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia will assign a dedicated Project Manager (PM) as the primary point of contact for NFWB '\n    'throughout the engagement (REQ-003). The PM will be responsible for scope, schedule, budget, '\n    'risk management, and coordination with NFWB, NYSDEC, and subconsultants. The PM will be '\n    'supported by a Solution/Program Architect, a Lead I&I Analyst, Field Services Lead(s) from '\n    'our subconsultants, and specialists in data management and reporting (REQ-017, REQ-020, '\n    'REQ-031, REQ-032).'\n)\n\n# Mermaid diagram 1 – Project organization\n\nmermaid_code_org = '''\nflowchart TD\n    A[NFWB & NYSDEC Stakeholders] --> B[Project Manager (Primary Contact)]\n    B --> C[Lead I&I Analyst]\n    B --> D[Field Services Lead]\n    B --> E[Regulatory & Reporting Lead]\n    D --> F[Smoke Testing Crew]\n    D --> G[Flow Isolation & Weir Team]\n    D --> H[CCTV & Manhole Inspection Team]\n'''\n\nmmd_file_org = output_dir / 'org_structure.mmd'\nmmd_file_org.write_text(mermaid_code_org)\norg_diagram_path = output_dir / 'org_structure.png'\n\nsubprocess.run([\n    'mmdc', '-i', str(mmd_file_org), '-o', str(org_diagram_path),\n    '-b', 'white', '-w', '900'\n], check=True, capture_output=True)\n\ndoc.add_picture(str(org_diagram_path), width=Inches(5.5))\ncaption = doc.add_paragraph('MERMAID_DIAGRAM_1: Proposed Project Organization and Communication Pathways')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\npara = doc.add_paragraph(\n    'Key project professionals will include a New York State licensed Professional Engineer (PE) '\n    'responsible for stamping and dating the SSES Engineering Report and Corrective Action Plan, '\n    'as required by NYSDEC and the EPG Engineering Report Outline (REQ-011, REQ-012, REQ-016). '\n    'Detailed resumes and specific SSES/I&I experience for all key personnel and subconsultant '\n    'leads will be provided in the attached Statement of Qualifications (REQ-018–REQ-021, '\n    'REQ-027).'\n)\n\n# -----------------------------\n# Technical Approach – Phase 1 Tasks 1–8\n# -----------------------------\n\ndoc.add_heading('Technical Approach – Phase 1 SSES (Tasks 1–8)', level=1)\n\n# Task 1 – Project Management and Data Review\n\ndoc.add_heading('Task 1 – Project Management, Coordination, and Data Review', level=2)\n\npara = doc.add_paragraph(\n    'Aurelia will establish a structured project management framework that aligns with NFWB’s '\n    'governance processes. The Project Manager will serve as the primary contact for all matters '\n    'related to scope, schedule, budget, and coordination (REQ-003). We will develop a detailed '\n    'Project Management Plan (PMP) including communication protocols, risk and issue logs, change '\n    'control, and quality management.'\n)\n\npara = doc.add_paragraph(\n    'As part of Task 1b–c, we will systematically review existing data, records, reports, the Order '\n    'on Consent, and all relevant NYSDEC correspondence related to LaSalle SSO abatement. This '\n    'will include prior SSES work, flow monitoring data, CCTV and manhole inspection records, and '\n    'any available hydraulic modeling outputs to ensure a comprehensive understanding of the '\n    'Phase 1 sewersheds and broader system context (REQ-004, REQ-015, REQ-016).'\n)\n\npara = doc.add_paragraph(\n    'We will convene a project kickoff and regular coordination meetings with NFWB staff to review '\n    'scope, discuss system response, and identify candidate locations for flow isolation and '\n    'measurement. The PM and technical leads will provide ongoing professional advice and will '\n    'participate in meetings with NFWB and NYSDEC as needed throughout the project (REQ-005, '\n    'REQ-017, REQ-049).'\n)\n\n# Task 2 – Smoke Testing\n\ndoc.add_heading('Task 2 – Smoke Testing in Phase 1 Sewersheds', level=2)\n\npara = doc.add_paragraph(\n    'Our field services subconsultant will conduct comprehensive smoke testing in the 91st & Luick '\n    'and 81st & Frontier 1 sewersheds in accordance with industry standards and NFWB requirements '\n    '(REQ-006). The scope will include:'\n)\n\ndoc.add_paragraph('• Development of a detailed Smoke Testing Work Plan and schedule, aligned to favorable weather and groundwater conditions.', style='List Bullet')\ndoc.add_paragraph('• Resident notification via door hangers, mailers, and/or public notices, describing the purpose of testing and contact information.', style='List Bullet')\ndoc.add_paragraph('• Coordination with police, fire, and emergency services to avoid false alarms and ensure public safety.', style='List Bullet')\ndoc.add_paragraph('• Deployment of all required equipment, materials, and trained staff, including traffic control where necessary.', style='List Bullet')\ndoc.add_paragraph('• Field documentation and photography of observed defects, including cross-connections, roof leaders, yard drains, and structural defects.', style='List Bullet')\ndoc.add_paragraph('• Integration of smoke testing results into GIS-compatible formats for use in the SSES report and corrective action planning.', style='List Bullet')\n\n# Task 3 – Flow Isolation and Night-Time Weiring\n\ndoc.add_heading('Task 3 – Flow Isolation and Night-Time Weiring', level=2)\n\npara = doc.add_paragraph(\n    'We will perform flow isolation and night-time weiring to quantify base infiltration rates and '\n    'identify high-priority segments (REQ-007). Our approach includes:'\n)\n\ndoc.add_paragraph('• Review of existing flow monitoring data to inform selection of weir locations and isolation segments.', style='List Bullet')\ndoc.add_paragraph('• Field reconnaissance to verify hydraulically adequate and safe weir installation locations.', style='List Bullet')\ndoc.add_paragraph('• Provision of trained personnel qualified for confined space entry, with appropriate equipment, gas monitoring, and traffic control.', style='List Bullet')\ndoc.add_paragraph('• Night-time measurements to capture minimum diurnal flow conditions and isolate infiltration rates.', style='List Bullet')\ndoc.add_paragraph('• Calculation of infiltration in gallons per day per linear foot (gpd/LF) by segment, using standardized methods and documented assumptions.', style='List Bullet')\n\npara = doc.add_paragraph(\n    'Results will be tabulated and mapped to support prioritization of corrective actions and '\n    'integration with smoke testing and CCTV findings (REQ-007, REQ-011).'\n)\n\n# Task 4 – CCTV and Manhole Data Analysis\n\ndoc.add_heading('Task 4 – CCTV and Manhole Data Analysis', level=2)\n\npara = doc.add_paragraph(\n    'Aurelia will analyze and summarize NASSCO PACP CCTV inspection reports and manhole inspection '\n    'data provided by NFWB (REQ-008). Our I&I analysts will:'\n)\n\ndoc.add_paragraph('• Ingest and normalize PACP and manhole data into a structured database.', style='List Bullet')\ndoc.add_paragraph('• Classify defects by severity, type (structural vs. I&I-related), and recommended remediation method.', style='List Bullet')\ndoc.add_paragraph('• Identify data gaps and coordinate with NFWB to schedule additional CCTV or spot repairs as necessary.', style='List Bullet')\ndoc.add_paragraph('• Integrate findings with smoke testing and flow isolation results to create a consolidated defect inventory.', style='List Bullet')\n\npara = doc.add_paragraph(\n    'We will work closely with NFWB to ensure that any immediate repairs or additional CCTV efforts '\n    'are coordinated efficiently, minimizing disruption while maximizing the value of existing data '\n    '(REQ-008, REQ-017).'\n)\n\n# Task 5 – Outfall/SSO Condition Assessment\n\ndoc.add_heading('Task 5 – Outfall/SSO Condition Assessment', level=2)\n\npara = doc.add_paragraph(\n    'For the two Phase 1 outfalls (91st & Luick and 81st & Frontier 1), we will complete a targeted '\n    'outfall/SSO condition assessment (REQ-009). This will include:'\n)\n\ndoc.add_paragraph('• Review of existing outfall information, including prior inspection reports and photographs.', style='List Bullet')\ndoc.add_paragraph('• Site visits to verify physical condition, access constraints, and environmental considerations.', style='List Bullet')\ndoc.add_paragraph('• Development of an Outfall Assessment Work Plan, including safety measures and data collection protocols.', style='List Bullet')\ndoc.add_paragraph('• Execution of the approved work plan, with GIS-compatible documentation of conditions and observed flows.', style='List Bullet')\ndoc.add_paragraph('• Recommendations to reduce extraneous flows and mitigate SSO risks at each outfall.', style='List Bullet')\n\n# Task 6 – Focused SSES (Contingency)\n\ndoc.add_heading('Task 6 – Focused SSES (Contingency Investigations)', level=2)\n\npara = doc.add_paragraph(\n    'A contingency budget of $10,000 will be reserved for focused SSES activities such as dye '\n    'testing, house inspections, and additional CCTV investigations where needed to locate or '\n    'confirm I&I sources (REQ-010, REQ-022). These activities will be undertaken only upon explicit '\n    'approval by NFWB and will be carefully documented to ensure transparency and value.'\n)\n\npara = doc.add_paragraph(\n    'Potential focused SSES activities include targeted dye testing in suspected cross-connection '\n    'areas, residential plumbing inspections in coordination with property owners, and supplemental '\n    'CCTV runs by NFWB crews guided by our analysts. All findings will be integrated into the '\n    'defect inventory and corrective action plan (REQ-010, REQ-017).'\n)\n\n# Task 7 – SSES Engineering Report and Corrective Action Plan\n\ndoc.add_heading('Task 7 – SSES Engineering Report and Corrective Action Plan', level=2)\n\npara = doc.add_paragraph(\n    'We will prepare a comprehensive SSES Engineering Report and Corrective Action Plan for Phase 1 '\n    'that identifies I&I sources, quantifies their impact, and recommends cost-effective corrective '\n    'actions with budgetary costs and implementation timelines (REQ-011). The report will be '\n    'structured to conform to the NYSDEC EPG Engineering Report Outline for NYS Wastewater '\n    'Infrastructure Projects (October 1, 2022), including all required sections, appendices, and '\n    'supporting analyses (REQ-012, REQ-016).'\n)\n\npara = doc.add_paragraph(\n    'The report will be prepared, stamped, and dated by a New York State licensed Professional '\n    'Engineer and submitted on a schedule that allows NYSDEC review early in 2023, supporting '\n    'NFWB’s goal to complete construction in 2023–early 2024 and post-construction monitoring by '\n    'June 2024 (REQ-012, REQ-013). We will work collaboratively with NFWB to respond promptly to '\n    'NYSDEC comments and incorporate any required revisions (REQ-049).'\n)\n\n# Task 8 – Post-Construction Monitoring and Cost Analysis\n\ndoc.add_heading('Task 8 – Post-Construction Monitoring and Cost Analysis', level=2)\n\npara = doc.add_paragraph(\n    'In 2024, following completion of Phase 1 improvements, Aurelia will conduct post-construction '\n    'monitoring to assess I&I reduction and cost-effectiveness (REQ-014). Our approach includes:'\n)\n\ndoc.add_paragraph('• Comparison of pre- and post-construction flow data under comparable rainfall conditions.', style='List Bullet')\ndoc.add_paragraph('• Integration of rainfall monitoring data to normalize for weather variability.', style='List Bullet')\ndoc.add_paragraph('• Calculation of I&I reduction metrics (e.g., gpd/LF, peak flow reduction) and correlation with implemented corrective measures.', style='List Bullet')\ndoc.add_paragraph('• Preparation of a Post-Construction I&I Assessment and Cost Analysis Report suitable for NYSDEC submission.', style='List Bullet')\n\npara = doc.add_paragraph(\n    'The post-construction report will clearly document the relationship between capital investment '\n    'and I&I reduction outcomes, supporting NFWB’s long-term sewershed-based remediation strategy '\n    '(REQ-014, REQ-015).'\n)\n\n# -----------------------------\n# Multi-Phase Program – Phases 2 and 3 Options\n# -----------------------------\n\ndoc.add_heading('Multi-Phase Program – Phases 2 and 3 Options', level=1)\n\npara = doc.add_paragraph(\n    'In addition to Phase 1, Aurelia will provide option prices, schedules, and scopes to extend '\n    'applicable SSES tasks to Phase 2 (81st & Frontier 2 and 80th & Lindbergh sewersheds) and '\n    'Phase 3 (Mang & 88th sewershed), omitting Task 5 for Phase 2 as specified (REQ-002). Our '\n    'phased approach allows NFWB to leverage lessons learned from Phase 1 and apply a consistent '\n    'methodology across all LaSalle sewersheds.'\n)\n\n# Mermaid diagram 2 – Multi-phase program\n\nmermaid_code_phases = '''\nflowchart LR\n    P1[Phase 1: 91st & Luick; 81st & Frontier 1] --> P2[Phase 2: 81st & Frontier 2; 80th & Lindbergh]\n    P2 --> P3[Phase 3: Mang & 88th]\n    P1 --> R1[Phase 1 Engineering Report & CAP]\n    R1 --> C1[Phase 1 Construction]\n    C1 --> M1[Post-Construction Monitoring 2024]\n    P2 --> R2[Phase 2 SSES & Options]\n    P3 --> R3[Phase 3 SSES & Options]\n'''\n\nmmd_file_phases = output_dir / 'phases_program.mmd'\nmmd_file_phases.write_text(mermaid_code_phases)\nphases_diagram_path = output_dir / 'phases_program.png'\n\nsubprocess.run([\n    'mmdc', '-i', str(mmd_file_phases), '-o', str(phases_diagram_path),\n    '-b', 'white', '-w', '900'\n], check=True, capture_output=True)\n\ndoc.add_picture(str(phases_diagram_path), width=Inches(5.5))\ncaption = doc.add_paragraph('MERMAID_DIAGRAM_2: LaSalle Multi-Phase SSES and Remediation Program')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\npara = doc.add_paragraph(\n    'For each option phase, we will provide task-level scopes, schedules, and budgetary estimates '\n    'consistent with the Phase 1 methodology, enabling NFWB to plan and sequence future work '\n    'within available funding and regulatory timelines (REQ-002, REQ-017, REQ-021, REQ-022).'\n)\n\n# -----------------------------\n# Schedule and Milestones\n# -----------------------------\n\ndoc.add_heading('Schedule and Milestones', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia will develop a detailed project schedule in collaboration with NFWB during project '\n    'initiation. The schedule will be presented in bar chart form, covering all Phase 1 tasks and '\n    'option phases, and aligned with the requirement to complete the SSES report in time for '\n    'NYSDEC review early in 2023 and post-construction monitoring by June 2024 (REQ-013, REQ-021).'\n)\n\n# Example bar chart schedule using seaborn (PYTHON_CHART_1)\n\nsns.set_style(\"whitegrid\")\nsns.set_palette(\"Blues_d\")\n\nschedule_data = pd.DataFrame({\n    'Phase': [\n        'Phase 1 – Task 1', 'Phase 1 – Tasks 2–4', 'Phase 1 – Tasks 5–6',\n        'Phase 1 – Task 7', 'Phase 1 – Task 8', 'Phase 2 – Options', 'Phase 3 – Options'\n    ],\n    'Months': [3, 4, 3, 3, 6, 4, 4]\n})\n\nplt.figure(figsize=(8, 5))\nax = sns.barplot(data=schedule_data, x='Phase', y='Months')\nax.set_title('Indicative Schedule by Phase/Task Group (Months)', fontsize=12, fontweight='bold')\nax.set_ylabel('Duration (Months)')\nax.set_xlabel('')\nplt.xticks(rotation=30, ha='right')\nplt.tight_layout()\n\nschedule_chart_path = output_dir / 'schedule_bar_chart.png'\nplt.savefig(schedule_chart_path, dpi=150, bbox_inches='tight', facecolor='white')\nplt.close()\n\ndoc.add_picture(str(schedule_chart_path), width=Inches(6))\ncaption = doc.add_paragraph('PYTHON_CHART_1: Illustrative Schedule for Phase 1 Tasks and Option Phases')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\npara = doc.add_paragraph(\n    'The final schedule will include task-level start and finish dates, dependencies, and key '\n    'milestones such as: project kickoff; completion of smoke testing and flow isolation; '\n    'completion of data analysis; submission of draft and final SSES reports; construction '\n    'completion; and post-construction monitoring windows (REQ-021).'\n)\n\n# -----------------------------\n# Effort and Budget Breakdown\n# -----------------------------\n\ndoc.add_heading('Effort and Budget Breakdown', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia will provide a detailed task/hour estimate matrix and associated not-to-exceed fee '\n    'amount, including the $10,000 contingency for Task 6, as required by the RFP (REQ-022, '\n    'REQ-047). The matrix will distinguish labor categories, estimated hours, and billing rates '\n    'for each Phase 1 task and option phases.'\n)\n\n# Example table for effort/budget breakdown (TABLE_2)\n\ntable2 = doc.add_table(rows=6, cols=5)\ntable2.style = 'Table Grid'\ntable2.alignment = WD_TABLE_ALIGNMENT.CENTER\n\nhdr_cells = table2.rows[0].cells\nhdr_cells[0].text = 'Task'\nhdr_cells[1].text = 'Labor Category'\nhdr_cells[2].text = 'Estimated Hours'\nhdr_cells[3].text = 'Rate (USD)'\nhdr_cells[4].text = 'Estimated Cost (USD)'\n\nrow = table2.rows[1].cells\nrow[0].text = 'Task 1 – Project Management'\nrow[1].text = 'Project Manager'\nrow[2].text = 'XX'\nrow[3].text = '$XXX'\nrow[4].text = '$XX,XXX'\n\nrow = table2.rows[2].cells\nrow[0].text = 'Task 2 – Smoke Testing'\nrow[1].text = 'Field Crew / Subconsultant'\nrow[2].text = 'XX'\nrow[3].text = '$XXX'\nrow[4].text = '$XX,XXX'\n\nrow = table2.rows[3].cells\nrow[0].text = 'Task 3 – Flow Isolation & Weiring'\nrow[1].text = 'Field Crew / Analyst'\nrow[2].text = 'XX'\nrow[3].text = '$XXX'\nrow[4].text = '$XX,XXX'\n\nrow = table2.rows[4].cells\nrow[0].text = 'Task 6 – Focused SSES (Contingency)'\nrow[1].text = 'Field & Analyst'\nrow[2].text = 'As Authorized'\nrow[3].text = '$XXX'\nrow[4].text = '$10,000 (Not-to-Exceed)'\n\nrow = table2.rows[5].cells\nrow[0].text = 'All Tasks – Total Not-to-Exceed'\nrow[1].text = ''\nrow[2].text = ''\nrow[3].text = ''\nrow[4].text = '$XXX,XXX'\n\ncaption = doc.add_paragraph('TABLE_2: Illustrative Effort and Budget Breakdown (Final Matrix to be Submitted in Spreadsheet Format)')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\npara = doc.add_paragraph(\n    'The final spreadsheet will be provided as an attachment in the format requested by NFWB, '\n    'with clear linkage between tasks, hours, and not-to-exceed fee amounts (REQ-022, REQ-047).'\n)\n\n# -----------------------------\n# Compliance with MWBE/SDVOB and Regulatory Requirements\n# -----------------------------\n\ndoc.add_heading('Compliance with MWBE/SDVOB and Regulatory Requirements', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia is committed to full compliance with the Mandatory State Financial Assistance Terms '\n    'and Conditions for Non-Construction contracts funded with New York State financial assistance '\n    '(Appendix F) and all related MWBE and SDVOB requirements (REQ-023). We will structure our '\n    'team to meet or exceed the goals of 30% combined MWBE participation and 6% SDVOB participation, '\n    'or will document good-faith efforts and pursue waivers where necessary (REQ-024).'\n)\n\npara = doc.add_paragraph(\n    'We will submit MWBE and SDVOB utilization plans with this proposal and, if applicable, '\n    'properly completed waiver requests, in addition to any plans required prior to contract '\n    'execution (REQ-025). During contract execution, we will comply with monthly MWBE-SDVOB '\n    'reporting requirements, including submission of Monthly MWBE-SDVOB Contractor Compliance '\n    'Reports with proof of payments to subcontractors (REQ-026).'\n)\n\npara = doc.add_paragraph(\n    'Aurelia will maintain complete and accurate project records, including financial and MWBE/SDVOB '\n    'documentation, for at least six years beyond the calendar year of creation and will provide '\n    'access for audit and inspection as required (REQ-034). We will comply with prevailing wage '\n    'requirements, including submission of Workforce Employment Utilization Reports, and will '\n    'ensure that all subconsultants do the same (REQ-036).'\n)\n\n# -----------------------------\n# Legal, Insurance, and Contractual Commitments\n# -----------------------------\n\ndoc.add_heading('Legal, Insurance, and Contractual Commitments', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia acknowledges and accepts NFWB’s standard terms regarding proposal conditions, '\n    'negotiation, exceptions handling, termination, governing law, and other general conditions as '\n    'outlined in Appendix E (REQ-048). We understand that our proposal will be firm and irrevocable '\n    'for 90 days from the submission deadline unless amended by addendum (REQ-047).'\n)\n\npara = doc.add_paragraph(\n    'We will provide all required insurance coverages and certificates, including workers’ '\n    'compensation, disability, employer’s liability, commercial general liability, automobile, '\n    'umbrella, and professional liability, naming NFWB, the Niagara Falls Public Water Authority, '\n    'and the City of Niagara Falls as additional insureds on a primary and non-contributory basis '\n    '(REQ-029). We agree to indemnify and hold harmless NFWB and related entities to the full '\n    'extent permissible by New York law for losses arising from our actions or inactions, as '\n    'specified in Appendix E, Section M (REQ-030).'\n)\n\npara = doc.add_paragraph(\n    'Aurelia will operate as an independent contractor, will identify proposed subcontractors in '\n    'the proposal, and accepts NFWB’s right to reject subcontractors (REQ-032). We will ensure that '\n    'all personnel and subcontractors meet NFWB credentialing, security, safety, and site-specific '\n    'requirements (REQ-031). We will comply with FOIL-related confidentiality marking requirements '\n    'for proprietary information (REQ-033), maintain accurate records for audit (REQ-034), and '\n    'comply with New York State breach notification and data security laws (REQ-035).'\n)\n\npara = doc.add_paragraph(\n    'We will adhere to non-discrimination and sexual harassment prevention requirements, including '\n    'submitting an EEO Policy Statement (Form No. 4) and Statement on Sexual Harassment (Form No. 5) '\n    '(REQ-038). We will certify compliance with the Iran Divestment Act, International Boycott '\n    'Prohibition, MacBride Fair Employment Principles, prohibition on tropical hardwoods, and '\n    'conflict-of-interest and political/religious activity restrictions (REQ-039). We will submit a '\n    'signed Certificate of Non-Collusion (Form No. 2), Lobbying Law Disclosure Statement (Form '\n    'No. 3), EEO Policy Statement (Form No. 4), Statement on Sexual Harassment (Form No. 5), and '\n    'RFP Acknowledgement and Certification (Form No. 6), all notarized where required (REQ-040).'\n)\n\npara = doc.add_paragraph(\n    'We will acknowledge all RFP addenda received (or indicate that none were received) using '\n    'Appendix E, Form No. 1 (REQ-041). We will comply with New York State Finance Law §§ 139-j and '\n    '139-k regarding permissible contacts during the Restricted Period; all contacts will be made '\n    'only through the designated NFWB contact, and we will certify Lobbying Law compliance on Form '\n    'No. 3 (REQ-042, REQ-050).'\n)\n\n# -----------------------------\n# Proposal Administration and Submission\n# -----------------------------\n\ndoc.add_heading('Proposal Administration and Submission', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia will attend the mandatory pre-proposal information session at the Wastewater Treatment '\n    'Plant on November 29, 2022 at noon (REQ-043). We will submit any written questions regarding '\n    'the RFP to the authorized contact by the stated deadline via email with the required subject '\n    'line and will request inclusion on the distribution list for RFP updates and addenda '\n    '(REQ-044, REQ-045).'\n)\n\npara = doc.add_paragraph(\n    'Our proposal package will include one clearly marked original and six copies, plus one '\n    'electronic copy on CD or USB, delivered by the deadline to the address on the cover page in a '\n    'sealed outer envelope labeled with our name, address, RFP number, and title, in accordance '\n    'with Appendix E, Section J (REQ-046). We will provide prompt responses to NFWB questions and '\n    'participate in informal interviews or presentations if requested during evaluation (REQ-049).'\n)\n\npara = doc.add_paragraph(\n    'We will submit a comprehensive Statement of Qualifications that includes our business structure, '\n    'licensing, years in business, similar project experience with references, key personnel, '\n    'subsidiaries/parents, other business names, debarment/default history, bankruptcy, '\n    'investigations, conflicts of interest, and details of subcontractors performing more than 10% '\n    'of the work, consistent with Appendix E, Section A (REQ-027). We will disclose any potential '\n    'conflicts of interest and our plans to resolve them (REQ-028).'\n)\n\n# -----------------------------\n# Data Management, Security, and Reporting\n# -----------------------------\n\ndoc.add_heading('Data Management, Security, and Reporting', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia applies a rigorous data management and security framework to all engagements, '\n    'including those involving regulated infrastructure and public-sector data. We will manage all '\n    'SSES-related data (flow records, CCTV, GIS layers, reports) using secure repositories with '\n    'role-based access controls, audit logs, and backup/retention policies aligned with NFWB and '\n    'New York State requirements (REQ-034, REQ-035, REQ-037).'\n)\n\npara = doc.add_paragraph(\n    'We will provide clear, concise reporting to NFWB, including monthly status reports, risk and '\n    'issue registers, and financial tracking aligned with MWBE/SDVOB and prevailing wage '\n    'requirements. Monthly invoices will be complete and accurate, supported by detailed '\n    'timesheets and documentation, and will reflect compliance with all contractual conditions '\n    '(REQ-023–REQ-026, REQ-036, REQ-037).'\n)\n\n# Mermaid diagram 3 – Data and reporting workflow\n\nmermaid_code_data = '''\nflowchart TD\n    D1[Field Data Collection\\n(Smoke, Flow, CCTV, Inspections)] --> D2[Data Ingestion & QA]\n    D2 --> D3[Analysis & I&I Quantification]\n    D3 --> D4[Defect Inventory & GIS Mapping]\n    D4 --> D5[SSES Report & CAP]\n    D5 --> D6[Construction & Post-Construction Monitoring]\n    D6 --> D7[Post-Construction I&I Assessment Report]\n'''\n\nmmd_file_data = output_dir / 'data_workflow.mmd'\nmmd_file_data.write_text(mermaid_code_data)\ndata_diagram_path = output_dir / 'data_workflow.png'\n\nsubprocess.run([\n    'mmdc', '-i', str(mmd_file_data), '-o', str(data_diagram_path),\n    '-b', 'white', '-w', '900'\n], check=True, capture_output=True)\n\ndoc.add_picture(str(data_diagram_path), width=Inches(5.5))\ncaption = doc.add_paragraph('MERMAID_DIAGRAM_3: Data Management, Analysis, and Reporting Workflow')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# Optional additional Python chart – I&I reduction concept (PYTHON_CHART_2)\n\nmonths = np.arange(1, 13)\npre_construction = np.array([100, 95, 110, 120, 130, 140, 135, 125, 115, 105, 100, 95])\npost_construction = pre_construction * 0.7\n\nplt.figure(figsize=(8, 4))\nplt.plot(months, pre_construction, label='Pre-Construction I&I Index', color='#1f77b4', linewidth=2)\nplt.plot(months, post_construction, label='Post-Construction I&I Index (Illustrative)', color='#2ca02c', linestyle='--', linewidth=2)\nplt.xlabel('Month')\nplt.ylabel('Relative I&I Index')\nplt.title('Conceptual Pre- vs. Post-Construction I&I Trend')\nplt.legend()\nplt.grid(True, alpha=0.3)\nplt.tight_layout()\n\ntrend_chart_path = output_dir / 'ii_trend_chart.png'\nplt.savefig(trend_chart_path, dpi=150, bbox_inches='tight', facecolor='white')\nplt.close()\n\ndoc.add_picture(str(trend_chart_path), width=Inches(6))\ncaption = doc.add_paragraph('PYTHON_CHART_2: Illustrative Pre- vs. Post-Construction I&I Trend (Conceptual)')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# -----------------------------\n# Conclusion and Next Steps\n# -----------------------------\n\ndoc.add_heading('Conclusion and Next Steps', level=1)\n\npara = doc.add_paragraph(\n    'Aurelia Digital Systems is prepared to partner with the Niagara Falls Water Board to deliver a '\n    'high-quality, compliant, and actionable Phase 1 SSES program for the LaSalle sewersheds, '\n    'together with well-structured options for Phases 2 and 3. Our approach integrates rigorous '\n    'technical methods, strong project management, and a clear focus on regulatory compliance and '\n    'measurable I&I reduction.'\n)\n\npara = doc.add_paragraph(\n    'Upon selection, our immediate next steps will include: confirming scope and assumptions; '\n    'finalizing the detailed schedule and task/hour matrix; mobilizing the project team and '\n    'subconsultants; and initiating Task 1 data review and coordination meetings. We look forward '\n    'to the opportunity to discuss this proposal further and to support NFWB in achieving its '\n    'LaSalle SSO abatement objectives.'\n)\n\npara = doc.add_paragraph('Respectfully submitted,')\npara = doc.add_paragraph('Aurelia Digital Systems')\n"
+    "document_code": "from docx.shared import Inches, Pt, Cm\nfrom docx.enum.text import WD_ALIGN_PARAGRAPH\nfrom docx.enum.table import WD_TABLE_ALIGNMENT\nimport matplotlib.pyplot as plt\nimport seaborn as sns\nimport numpy as np\nimport pandas as pd\n\n# ==============================\n# Title Page\n# ==============================\n\ndoc.add_heading('Phase 1 Sanitary Sewer Evaluation Survey (SSES)\\nLaSalle Area Sewersheds\\nProposal to Niagara Falls Water Board', level=0)\n\nsubtitle_para = doc.add_paragraph()\nsubtitle_para.alignment = WD_ALIGN_PARAGRAPH.CENTER\nrun = subtitle_para.add_run('Submitted by Aurelia Digital Systems')\nrun.bold = True\n\ninfo_para = doc.add_paragraph()\ninfo_para.alignment = WD_ALIGN_PARAGRAPH.CENTER\ninfo_para.add_run('Date: ').bold = True\ninfo_para.add_run('January 31, 2026')\n\ncontact_para = doc.add_paragraph()\ncontact_para.alignment = WD_ALIGN_PARAGRAPH.CENTER\ncontact_para.add_run('Primary Contact: ').bold = True\ncontact_para.add_run('Business Development Office, Aurelia Digital Systems\\n')\ncontact_para.add_run('Email: ').bold = True\ncontact_para.add_run('proposals@aurelia-digital.example  ')\ncontact_para.add_run('Phone: ').bold = True\ncontact_para.add_run('+1 (416) 555-0199')\n\n# Note on irrevocability (REQ-048)\nfootnote = doc.add_paragraph()\nfootnote.alignment = WD_ALIGN_PARAGRAPH.CENTER\nrun = footnote.add_run('This proposal is firm and irrevocable for 90 days from the submission deadline, unless extended by addendum.')\nrun.italic = True\n\ndoc.add_page_break()\n\n# ==============================\n# Executive Summary\n# ==============================\n\ndoc.add_heading('Executive Summary', level=1)\n\np = doc.add_paragraph(\n    'Aurelia Digital Systems (\"Aurelia\") is pleased to submit this proposal to the Niagara Falls Water '\n    'Board (NFWB) to perform Phase 1 sanitary sewer evaluation survey (SSES) work in the LaSalle area '\n    'sewersheds, develop an NYSDEC-compliant engineering report and corrective action plan for inflow '\n    'and infiltration (I&I) reduction, and conduct post-construction monitoring. Our team combines deep '\n    'technical expertise in complex infrastructure programs with disciplined project management, rigorous '\n    'compliance, and data-driven decision making.'\n)\n\np = doc.add_paragraph(\n    'We understand that this engagement is partially funded by a New York State Engineering Planning '\n    'Grant and must comply with Mandatory State Financial Assistance Terms and Conditions, including '\n    'MWBE and SDVOB participation, EEO, prevailing wage, and extensive reporting requirements. Aurelia '\n    'has extensive experience delivering public-sector programs under similar regulatory and funding '\n    'frameworks and will ensure full compliance with all applicable requirements.'\n)\n\np = doc.add_paragraph(\n    'Our proposed approach addresses all tasks in Phase 1 across the 91st and Luick and 81st and Frontier 1 '\n    'sewersheds (REQ-001), and provides clearly defined optional scopes and pricing for Phases 2 and 3 '\n    '(REQ-002). We will perform a comprehensive SSES program including data review, smoke testing, '\n    'night-time weiring and flow isolation, CCTV and manhole data analysis, focused SSES, and detailed '\n    'outfall and SSO assessments. The results will be synthesized into an NYSDEC-compliant SSES report '\n    'and corrective action plan (REQ-024, REQ-026), followed by a post-construction I&I assessment and '\n    'cost analysis report (REQ-027, REQ-028).'\n)\n\np = doc.add_paragraph(\n    'Aurelia will assign an experienced Project Manager (REQ-003) as the single point of contact and will '\n    'coordinate closely with NFWB staff, NYSDEC, and other stakeholders throughout the engagement '\n    '(REQ-006, REQ-007, REQ-017, REQ-058). Our team will provide all necessary staff, equipment, and '\n    'materials for smoke testing, flow isolation and measurement, and focused SSES activities '\n    '(REQ-008, REQ-010, REQ-013, REQ-022). We will execute this work in a manner satisfactory to '\n    'NYSDEC and aligned with the Engineering Report Outline for NYS Wastewater Infrastructure Projects '\n    '(October 1, 2022) (REQ-024, REQ-026).'\n)\n\np = doc.add_paragraph(\n    'The proposed schedule allows for timely completion of the Phase 1 SSES report to support potential '\n    'construction in 2023–early 2024 and post-construction monitoring by June 2024 (REQ-025, REQ-027). '\n    'We include a transparent, not-to-exceed fee structure with a dedicated $10,000 contingency for Task 6 '\n    'Focused SSES (REQ-023, REQ-030). Our MWBE/SDVOB strategy, compliance program, and risk '\n    'management approach are designed to ensure successful delivery under the Engineering Planning Grant '\n    'and State Finance Law requirements (REQ-031 through REQ-056, REQ-060).'\n)\n\n# Key value bullets\n\ndoc.add_paragraph('Our proposal delivers the following key outcomes:', style='List Bullet')\ndoc.add_paragraph('Comprehensive Phase 1 SSES for 91st and Luick and 81st and Frontier 1 sewersheds (3.0 and 1.8 miles of main).', style='List Bullet')\ndoc.add_paragraph('NYSDEC-compliant SSES engineering report and corrective action plan for cost-effective I&I reduction.', style='List Bullet')\ndoc.add_paragraph('Optional, scalable SSES scopes and pricing for Phases 2 and 3 to support future decisions.', style='List Bullet')\ndoc.add_paragraph('Post-construction I&I assessment and cost analysis to quantify realized benefits.', style='List Bullet')\ndoc.add_paragraph('Robust compliance with MWBE, SDVOB, EEO, prevailing wage, and reporting obligations.', style='List Bullet')\n\n# ==============================\n# Understanding of Requirements\n# ==============================\n\ndoc.add_heading('Understanding of Requirements', level=1)\n\np = doc.add_paragraph(\n    'NFWB is seeking a qualified engineering consultant to perform Phase 1 SSES activities in the LaSalle '\n    'area, specifically the 91st and Luick and 81st and Frontier 1 sewersheds, totaling approximately 4.8 '\n    'miles of sanitary sewer main (REQ-001). The Phase 1 work must identify and quantify I&I sources, '\n    'support the development of a corrective action plan, and inform capital planning decisions in '\n    'coordination with NYSDEC. In addition, NFWB requires optional pricing and scopes for Phases 2 and 3 '\n    'to enable future expansion of the SSES program (REQ-002).'\n)\n\np = doc.add_paragraph(\n    'The work is governed by the applicable Order on Consent and NYSDEC correspondence related to '\n    'LaSalle SSO abatement (REQ-004). The consultant must become familiar with the Phase 1 sewersheds, '\n    'system context, and history of I&I reduction, sewer repair, maintenance, and flow management, '\n    'including SCADA-controlled lift stations (REQ-005). The SSES program must include structured '\n    'coordination with NFWB staff to understand dry and wet weather system response and to select '\n    'appropriate locations for flow isolation and measurement (REQ-006, REQ-007, REQ-012).'\n)\n\np = doc.add_paragraph(\n    'The scope includes smoke testing (REQ-008 through REQ-010), night-time weiring and flow isolation '\n    'activities (REQ-011 through REQ-015), analysis of CCTV and manhole inspection data with additional '\n    'data collection as needed (REQ-016, REQ-017), outfall and SSO assessment (REQ-018 through REQ-021), '\n    'focused SSES including dye testing and house inspections (REQ-022, REQ-023), and preparation of '\n    'formal SSES and post-construction reports (REQ-024 through REQ-028). All work must be performed '\n    'in a manner satisfactory to NYSDEC, with deliverables conforming to the Engineering Report Outline '\n    'for NYS Wastewater Infrastructure Projects dated October 1, 2022 (REQ-024, REQ-026).'\n)\n\np = doc.add_paragraph(\n    'The procurement also includes extensive administrative and compliance requirements: submission of '\n    'a comprehensive proposal package, statement of qualifications, and required Appendix E and Appendix F '\n    'forms (REQ-029, REQ-031 through REQ-047, REQ-052, REQ-053); adherence to MWBE and SDVOB '\n    'utilization goals and reporting (REQ-032 through REQ-035); maintenance of insurance and prevailing '\n    'wage compliance (REQ-049, REQ-050); implementation of a sexual harassment prevention policy and '\n    'training program (REQ-051); compliance with lobbying law restrictions during the Restricted Period '\n    '(REQ-056); and acceptance of contract terms including termination provisions (REQ-048, REQ-060).'\n)\n\n# ==============================\n# Company Qualifications and Statement of Qualifications\n# ==============================\n\ndoc.add_heading('Statement of Qualifications and Company Overview', level=1)\n\np = doc.add_paragraph(\n    'Aurelia Digital Systems is a privately held engineering and technology consulting firm founded in 2016 '\n    'and headquartered in Toronto, Ontario, with delivery teams across Canada and the United States. We '\n    'employ more than 120 professionals across engineering, delivery, security, user experience, and program '\n    'management disciplines. Our primary focus areas include enterprise software delivery, cloud '\n    'modernization, data and AI, and managed services for public-sector, healthcare, utilities, financial '\n    'services, and logistics clients.'\n)\n\np = doc.add_paragraph(\n    'Our utilities and public-sector work has included complex infrastructure enablement, operations '\n    'dashboards, incident management tooling, and data integration programs that support regulatory '\n    'compliance and capital planning. We apply the same rigorous delivery model to SSES and I&I assessment '\n    'engagements: iterative delivery with clear governance, formal design reviews, and transparent reporting '\n    'of progress, risks, and decisions.'\n)\n\n# Explicitly address REQ-036 and REQ-037\np = doc.add_paragraph(\n    'This section is intended to satisfy the statement of qualifications requirements (REQ-036, REQ-037) by '\n    'describing Aurelia’s business structure, licensing, experience, and disclosures.'\n)\n\n# Business structure and licensing\n\ndoc.add_heading('Business Structure and Licensing', level=2)\n\np = doc.add_paragraph(\n    'Aurelia Digital Systems operates as a corporation in good standing. We will perform all engineering '\n    'services under the responsible charge of a New York State licensed Professional Engineer, who will '\n    'review, stamp, and sign all engineering reports and deliverables as required (REQ-026). Any additional '\n    'state or local registrations required to perform the work will be obtained prior to contract execution.'\n)\n\n# Similar experience\n\ndoc.add_heading('Relevant Experience', level=2)\n\ndoc.add_paragraph('Representative engagements demonstrating similar capabilities include:', style='List Bullet')\n\ndoc.add_paragraph(\n    'Utilities Operations Enablement: Implemented role-based dashboards and alerting with audited access '\n    'for a regional utility, improving incident triage time by approximately 30 percent and enabling better '\n    'visibility into collection system performance.',\n    style='List Bullet'\n)\n\ndoc.add_paragraph(\n    'Public-Sector Service Modernization: Migrated legacy workflows to a secure cloud platform for a '\n    'municipal client, improving release cadence from quarterly to bi-weekly and strengthening compliance '\n    'auditing.',\n    style='List Bullet'\n)\n\n\ndoc.add_paragraph(\n    'In addition, our staff have participated in and supported sanitary sewer evaluation survey efforts, '\n    'collection system monitoring programs, and capital planning studies for municipal utilities, including '\n    'flow monitoring, data analytics, and reporting aligned to state regulatory expectations.'\n)\n\n# Disclosures (REQ-037, REQ-038)\n\ndoc.add_heading('Disclosures and Conflicts of Interest', level=2)\n\np = doc.add_paragraph(\n    'Aurelia will provide, in the separate statement of qualifications section of the final submission package, '\n    'all disclosures required under REQ-037, including any other names used within the past 10 years, '\n    'subsidiaries or parent entities, and any debarment, suspension, responsibility findings, defaults, '\n    'terminations, liquidated damages, bankruptcies, legal actions, investigations, or matters related to '\n    'fraud, collusion, or bribery. At the time of this proposal, Aurelia is not aware of any conditions that '\n    'would preclude responsibility determinations or eligibility for award.'\n)\n\np = doc.add_paragraph(\n    'We have conducted an internal conflict-of-interest review and are not aware of any actual or potential '\n    'conflicts related to this engagement (REQ-038). Should any potential conflict arise during the course of '\n    'performance, Aurelia will immediately disclose it to NFWB and propose a mitigation plan for review and '\n    'approval.'\n)\n\n# ==============================\n# Project Organization and Key Personnel\n# ==============================\n\ndoc.add_heading('Project Organization and Key Personnel', level=1)\n\np = doc.add_paragraph(\n    'Aurelia will staff this engagement with a multidisciplinary team that combines sanitary sewer evaluation '\n    'experience, data and analytics expertise, and rigorous project management. All personnel assigned to the '\n    'project will possess the necessary licensing, education, training, and experience to perform their duties '\n    '(REQ-057).'\n)\n\n# Project Manager identification (REQ-003)\n\ndoc.add_heading('Project Leadership', level=2)\n\np = doc.add_paragraph(\n    'Aurelia will designate a Project Manager who will serve as the primary point of contact for NFWB and '\n    'NYSDEC throughout the engagement (REQ-003). The Project Manager will be responsible for overall '\n    'project delivery, schedule, budget, coordination with NFWB staff, and quality of deliverables. The '\n    'Project Manager will lead recurring status meetings, coordinate field activities, and ensure timely '\n    'response to NFWB requests (REQ-006, REQ-007, REQ-017, REQ-058, REQ-059). Detailed resumes and '\n    'contact information for the Project Manager and other key personnel will be provided in the final '\n    'proposal package (REQ-029, REQ-036).'\n)\n\n# Typical team table\n\nteam_table = doc.add_table(rows=6, cols=3)\nteam_table.style = 'Table Grid'\nteam_table.alignment = WD_TABLE_ALIGNMENT.CENTER\n\nhdr = team_table.rows[0].cells\nhdr[0].text = 'Role'\nhdr[1].text = 'Responsibilities'\nhdr[2].text = 'FTE Allocation (Approx.)'\n\nrow = team_table.rows[1].cells\nrow[0].text = 'Project Manager'\nrow[1].text = 'Primary contact, schedule and budget management, coordination with NFWB and NYSDEC, risk management.'\nrow[2].text = '0.4 FTE'\n\nrow = team_table.rows[2].cells\nrow[0].text = 'Lead Engineer (PE, NY)'\nrow[1].text = 'Technical lead for SSES tasks, report author, QA/QC of engineering analyses, PE stamp (REQ-026).'\nrow[2].text = '0.5 FTE'\n\nrow = team_table.rows[3].cells\nrow[0].text = 'Field Operations Lead'\nrow[1].text = 'Supervision of smoke testing, weiring, flow isolation, and focused SSES field work (REQ-008, REQ-013, REQ-022).'\nrow[2].text = '0.6 FTE'\n\nrow = team_table.rows[4].cells\nrow[0].text = 'Data and Analytics Specialist'\nrow[1].text = 'Flow data analysis, I&I calculations, GIS integration, and dashboard/reporting support (REQ-015, REQ-021, REQ-027, REQ-028).'\nrow[2].text = '0.4 FTE'\n\nrow = team_table.rows[5].cells\nrow[0].text = 'Health, Safety, and Compliance Lead'\nrow[1].text = 'Confined space entry compliance, prevailing wage, MWBE/SDVOB, EEO, and safety program oversight (REQ-013, REQ-032–REQ-035, REQ-049–REQ-053, REQ-057).'\nrow[2].text = '0.2 FTE'\n\n# Subconsultants (REQ-039)\n\ndoc.add_paragraph()\ndoc.add_heading('Subconsultants and Specialized Resources', level=2)\n\np = doc.add_paragraph(\n    'If NFWB elects, Aurelia may engage qualified subconsultants to perform specialized field services such '\n    'as high-volume smoke testing crews, CCTV inspection teams, or survey support. For any subconsultant '\n    'performing more than 10 percent of the work, Aurelia will provide identity, qualifications, business '\n    'structure, key personnel resumes, and prior relevant experience in the final proposal package (REQ-039). '\n    'Subconsultants will be integrated into our MWBE and SDVOB utilization plan (REQ-032, REQ-033) and '\n    'managed under Aurelia’s quality, safety, and compliance framework.'\n)\n\n# ==============================\n# Technical Approach and Scope of Work\n# ==============================\n\ndoc.add_heading('Technical Approach and Scope of Work', level=1)\n\np = doc.add_paragraph(\n    'Our approach is structured around the tasks identified in the RFP, organized into Phase 1 base services '\n    'and optional Phase 2 and Phase 3 services. We combine field-proven SSES methods with strong data '\n    'management and analytics, ensuring that all findings are traceable, GIS-compatible, and aligned with '\n    'NYSDEC expectations (REQ-001, REQ-002, REQ-024, REQ-026).'\n)\n\n# Mermaid Diagram 1: Overall SSES workflow\n\nfrom pathlib import Path\n\nmermaid_code_overall = '''\nflowchart LR\n    A[Existing data and consent order] --> B[Phase 1 SSES planning]\n    B --> C[Field investigations]\n    C --> D[Data analysis and I I quantification]\n    D --> E[Corrective action plan]\n    E --> F[Design and construction]\n    F --> G[Post construction monitoring]\n    G --> H[Post construction I I report]\n'''\n\ndiagram_path_overall = render_mermaid(mermaid_code_overall, 'overall_sses_workflow')\ndoc.add_picture(str(diagram_path_overall), width=Inches(5.5))\ncaption = doc.add_paragraph('Figure 1: Overall SSES and Post Construction Workflow')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# Task 1: Data Review and Planning (REQ-004, REQ-005, REQ-006, REQ-007, REQ-011)\n\ndoc.add_heading('Task 1: Data Review, Planning, and Coordination', level=2)\n\np = doc.add_paragraph(\n    'We will begin with a structured review of all existing information relevant to the LaSalle area SSO '\n    'abatement program, including but not limited to: the applicable Order on Consent, NYSDEC '\n    'correspondence, prior engineering reports, flow monitoring data, CCTV and manhole inspection '\n    'records, SCADA data from lift stations, and any available GIS layers (REQ-004, REQ-005, REQ-011, '\n    'REQ-016, REQ-018).'\n)\n\np = doc.add_paragraph(\n    'Aurelia will conduct a project kickoff meeting with NFWB staff to confirm scope, objectives, success '\n    'metrics, and communication protocols (REQ-006, REQ-007, REQ-054). During this meeting, we will '\n    'review dry and wet weather system behavior, identify initial candidate locations for flow isolation and '\n    'measurement, and confirm coordination requirements with NFWB operations, including SCADA-controlled '\n    'lift stations (REQ-005, REQ-006, REQ-012, REQ-058).'\n)\n\np = doc.add_paragraph(\n    'We will develop a detailed Phase 1 SSES Work Plan, including field investigation sequencing, traffic '\n    'control needs, resident notification procedures, health and safety plans, and QA/QC protocols. The Work '\n    'Plan will be submitted to NFWB for review and comment and will be used to support NYSDEC coordination '\n    'as needed (REQ-007, REQ-020).'\n)\n\n# Mermaid Diagram 2: Coordination and governance\n\nmermaid_code_coord = '''\nflowchart TD\n    A[Kickoff with NFWB] --> B[Review consent order and letters]\n    B --> C[Confirm sewershed boundaries]\n    C --> D[Plan field investigations]\n    D --> E[Agree on communication cadence]\n    E --> F[Engage NYSDEC as needed]\n'''\n\ndiagram_path_coord = render_mermaid(mermaid_code_coord, 'coordination_governance')\ndoc.add_picture(str(diagram_path_coord), width=Inches(5))\ncaption = doc.add_paragraph('Figure 2: Governance and Coordination Workflow')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# Task 2: Smoke Testing (REQ-008, REQ-009, REQ-010)\n\ndoc.add_heading('Task 2: Smoke Testing of Phase 1 Sewersheds', level=2)\n\np = doc.add_paragraph(\n    'Aurelia will provide all staff, equipment, and materials necessary to conduct smoke testing in the 91st '\n    'and Luick and 81st and Frontier 1 sewersheds (REQ-008). Testing will be scheduled during appropriate '\n    'dry weather conditions to maximize the visibility of defects and inflow sources (REQ-010).'\n)\n\np = doc.add_paragraph(\n    'We will implement a comprehensive resident and stakeholder notification program. Residents will be '\n    'notified 2 to 4 days in advance via hand-delivered door hangers that describe the purpose of the testing, '\n    'expected timing, and contact information for questions (REQ-009). Aurelia will assist NFWB in preparing '\n    'a press release and will coordinate with local police and fire officials to ensure awareness of the smoke '\n    'testing schedule and to avoid unnecessary emergency responses (REQ-009).'\n)\n\np = doc.add_paragraph(\n    'During testing, field crews will document and photograph all observed defects and inflow sources, '\n    'including roof drains, yard drains, foundation drains, cross-connections, and structural defects. All '\n    'observations will be logged in a standardized format and georeferenced for integration into NFWB’s GIS '\n    'and SSES database (REQ-010).'\n)\n\n# Task 3: Night-Time Weiring and Flow Isolation (REQ-011–REQ-015)\n\ndoc.add_heading('Task 3: Night Time Weiring, Flow Isolation, and Measurement', level=2)\n\np = doc.add_paragraph(\n    'Prior to performing night-time weiring, Aurelia will review all available flow measurement and analysis '\n    'for the Phase 1 sewersheds to understand baseline conditions and historic I&I patterns (REQ-011). '\n    'Based on this review and input from NFWB staff, we will select an adequate number of weir locations and '\n    'measurement segments to enable complete and accurate infiltration analysis and to support sufficiently '\n    'detailed I&I corrective actions (REQ-012).'\n)\n\np = doc.add_paragraph(\n    'Aurelia will provide all staff, equipment, materials, and traffic control necessary to perform night-time '\n    'weiring and flow isolation activities (REQ-013). All personnel involved in confined space entries will '\n    'have current confined space entry training and will use appropriate equipment and safety protocols, '\n    'including gas monitoring, ventilation, retrieval systems, and permit documentation (REQ-013, REQ-057).'\n)\n\np = doc.add_paragraph(\n    'Residents in affected areas will be notified 2 to 4 days in advance of disruptive night-time activities via '\n    'door hangers, and Aurelia will assist NFWB with a targeted press release and coordination with local '\n    'authorities (REQ-014).'\n)\n\np = doc.add_paragraph(\n    'Collected flow data will be analyzed to calculate infiltration rates in gallons per day per linear foot of '\n    'sewer main for each weiring section (REQ-015). Results will be summarized in tabular and graphical '\n    'form and integrated with CCTV and smoke testing findings to prioritize corrective actions.'\n)\n\n# Mermaid Diagram 3: Field investigation detail\n\nmermaid_code_field = '''\nflowchart LR\n    A[Smoke testing] --> B[Identify inflow sources]\n    B --> C[Night time weiring]\n    C --> D[Flow isolation and measurement]\n    D --> E[I I rate calculation]\n    E --> F[Focused SSES follow up]\n'''\n\ndiagram_path_field = render_mermaid(mermaid_code_field, 'field_investigation_flow')\ndoc.add_picture(str(diagram_path_field), width=Inches(5.5))\ncaption = doc.add_paragraph('Figure 3: Field Investigation Flow from Smoke Testing to Focused SSES')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# Task 4: CCTV and Manhole Data Review (REQ-016, REQ-017)\n\ndoc.add_heading('Task 4: CCTV and Manhole Inspection Data Review', level=2)\n\np = doc.add_paragraph(\n    'Aurelia will analyze and summarize all available CCTV inspection reports and manhole inspection '\n    'reports prepared by NFWB staff (REQ-016). We will review defect codes, structural condition ratings, '\n    'and evidence of infiltration or inflow. Where needed, we will request additional data collection or '\n    're-inspection to clarify ambiguous findings (REQ-016, REQ-017).'\n)\n\np = doc.add_paragraph(\n    'We will meet with NFWB personnel to review repairs already made following prior CCTV and manhole '\n    'inspections and to understand the performance of those repairs (REQ-017). NFWB-provided recorded '\n    'CCTV footage will be used alongside any additional imaging to ensure that all critical defects and I&I '\n    'sources are identified and documented.'\n)\n\n# Task 5: Outfall and SSO Assessment (REQ-018–REQ-021)\n\ndoc.add_heading('Task 5: Outfall and SSO Assessment', level=2)\n\np = doc.add_paragraph(\n    'We will review available information for the two Phase 1 outfalls, including structure dimensions, '\n    'estimated SSO volumes, inspection reports, and discharge configurations (REQ-018). Site visits will be '\n    'conducted to document existing conditions, confirm record information, and identify any access or safety '\n    'constraints. NFWB staff will assist in locating the outfalls as needed (REQ-019).'\n)\n\np = doc.add_paragraph(\n    'Based on this review, Aurelia will develop a recommended Work Plan for assessing the outfall and SSO '\n    'locations (REQ-020). The Work Plan may include temporary flow meters, rain gauges, confined space '\n    'entry, dye testing, and coordinated CCTV inspections. Upon NFWB authorization, we will execute the '\n    'approved Work Plan and document all findings in a GIS-compatible format, including recommendations '\n    'to reduce extraneous flows (REQ-021).'\n)\n\n# Task 6: Focused SSES and Contingency (REQ-022, REQ-023)\n\ndoc.add_heading('Task 6: Focused SSES and Contingency Allowance', level=2)\n\np = doc.add_paragraph(\n    'In areas identified as significant I&I contributors, Aurelia will conduct focused SSES activities such as '\n    'dye testing, house inspections, and additional CCTV inspections performed by NFWB crews (REQ-022). '\n    'These focused investigations will be designed to confirm and precisely locate I&I sources to support '\n    'cost-effective corrective measures.'\n)\n\np = doc.add_paragraph(\n    'In accordance with the RFP, our proposal includes a $10,000 contingency allowance for Task 6 to cover '\n    'additional focused SSES or other necessary work that may be identified during the project (REQ-023). '\n    'This contingency will only be used with prior written approval from NFWB and will be tracked and '\n    'reported separately (REQ-023, REQ-030).'\n)\n\n# Task 7: SSES Report and Corrective Action Plan (REQ-024–REQ-026)\n\ndoc.add_heading('Task 7: SSES Report and Corrective Action Plan', level=2)\n\np = doc.add_paragraph(\n    'Aurelia will synthesize all field and analytical results into a comprehensive SSES report for the Phase 1 '\n    'sewersheds, prepared in a manner satisfactory to NYSDEC (REQ-024). The report will identify I&I sources '\n    'by location and type, quantify infiltration and inflow rates, and prioritize corrective measures based on '\n    'cost-effectiveness and expected I&I reduction (REQ-015, REQ-024).'\n)\n\np = doc.add_paragraph(\n    'The report will be structured to conform to the Engineering Report Outline for NYS Wastewater '\n    'Infrastructure Projects dated October 1, 2022, including required sections on existing conditions, '\n    'alternatives analysis, recommended improvements, implementation schedule, and budgetary costs '\n    '(REQ-026). The report will include a corrective action plan for I&I reduction, with budgetary cost '\n    'estimates and implementation timelines that support potential construction in 2023–early 2024 '\n    '(REQ-024, REQ-025).'\n)\n\np = doc.add_paragraph(\n    'The final SSES report will be prepared, stamped, and dated by a New York State licensed Professional '\n    'Engineer (REQ-026). We will coordinate with NFWB and NYSDEC to allow sufficient time for review, '\n    'comment, and approval, targeting early 2023 for NYSDEC review in alignment with the RFP schedule '\n    '(REQ-025).'\n)\n\n# Task 8: Post-Construction Monitoring and Reporting (REQ-027–REQ-028)\n\ndoc.add_heading('Task 8: Post Construction Monitoring and Reporting', level=2)\n\np = doc.add_paragraph(\n    'Following completion of sewer improvements in 2023 under Phase 1, Aurelia will conduct post-construction '\n    'monitoring in 2024 to assess I&I reduction (REQ-027). This will include analysis of pre- and post-construction '\n    'flow data and rainfall patterns, using consistent monitoring locations and methodologies to ensure '\n    'comparability (REQ-027).'\n)\n\np = doc.add_paragraph(\n    'We will prepare a Post Construction I&I Assessment and Cost Analysis Report for submission to '\n    'NYSDEC, documenting observed I&I reductions, cost-effectiveness of implemented measures, and '\n    'recommendations for future investments (REQ-028). This report will provide clear, data-driven evidence '\n    'of program outcomes and will inform NFWB’s ongoing capital planning and consent order compliance '\n    'strategy.'\n)\n\n# Optional Phases 2 and 3 (REQ-002)\n\ndoc.add_heading('Optional Phases 2 and 3 SSES Services', level=2)\n\np = doc.add_paragraph(\n    'In addition to the Phase 1 base scope, Aurelia will provide option prices, schedules, and scopes to perform '\n    'applicable SSES tasks for Phase 2 (81st and Frontier 2 and 80th and Lindbergh sewersheds) and Phase 3 '\n    '(Mang and 88th sewershed) as described in the RFP (REQ-002). The optional scopes will mirror the Phase 1 '\n    'methodology, tailored to the characteristics of each sewershed, and will be structured so that NFWB may '\n    'award them at its sole discretion.'\n)\n\n# ==============================\n# Schedule, Effort, and Budget (Charts and Tables)\n# ==============================\n\ndoc.add_heading('Schedule, Effort, and Budget', level=1)\n\np = doc.add_paragraph(\n    'Aurelia proposes the following high-level schedule, effort, and budget structure. A detailed project plan '\n    'and Gantt-style schedule will be finalized with NFWB during project initiation (REQ-025, REQ-030).'\n)\n\n# Seaborn Chart 1: Schedule as bar chart (REQ-030)\n\nsns.set_style('whitegrid')\nsns.set_palette('Blues_d')\n\nschedule_data = pd.DataFrame({\n    'Task': [\n        'Task 1 Planning',\n        'Task 2 Smoke Testing',\n        'Task 3 Weiring',\n        'Task 4 CCTV Review',\n        'Task 5 Outfall Assessment',\n        'Task 6 Focused SSES',\n        'Task 7 SSES Report',\n        'Task 8 Post Construction Monitoring'\n    ],\n    'DurationWeeks': [4, 6, 4, 4, 4, 6, 6, 12]\n})\n\nplt.figure(figsize=(8, 5))\nax = sns.barplot(data=schedule_data, x='DurationWeeks', y='Task')\nax.set_title('Proposed Phase 1 Schedule by Task (Indicative)', fontsize=12, fontweight='bold')\nax.set_xlabel('Duration (Weeks)')\nax.set_ylabel('Task')\nplt.tight_layout()\n\nschedule_chart_path = output_dir / 'phase1_schedule_bar.png'\nplt.savefig(schedule_chart_path, dpi=150, bbox_inches='tight', facecolor='white')\nplt.close()\n\ndoc.add_picture(str(schedule_chart_path), width=Inches(5.5))\ncaption = doc.add_paragraph('Figure 4: Proposed Phase 1 Schedule by Task (Indicative)')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# Effort and budget matrix (REQ-030)\n\ndoc.add_heading('Effort and Budget Matrix', level=2)\n\np = doc.add_paragraph(\n    'Table 1 provides an indicative effort and budget breakdown by major task. Final values will be '\n    'confirmed during contract negotiation. The total fee will be structured as a not-to-exceed amount, '\n    'inclusive of a dedicated $10,000 contingency for Task 6 Focused SSES (REQ-023, REQ-030).'\n)\n\nbudget_table = doc.add_table(rows=9, cols=5)\nbudget_table.style = 'Table Grid'\nbudget_table.alignment = WD_TABLE_ALIGNMENT.CENTER\n\nhdr = budget_table.rows[0].cells\nhdr[0].text = 'Task'\nhdr[1].text = 'Description'\nhdr[2].text = 'Estimated Hours'\nhdr[3].text = 'Billing Rate Range'\nhdr[4].text = 'Estimated Fee (USD)'\n\nrows_data = [\n    ('1', 'Planning and data review', '220', '$150–$220', '$40,000'),\n    ('2', 'Smoke testing', '260', '$130–$200', '$42,000'),\n    ('3', 'Weiring and flow isolation', '210', '$140–$210', '$38,000'),\n    ('4', 'CCTV and manhole review', '180', '$140–$210', '$32,000'),\n    ('5', 'Outfall and SSO assessment', '160', '$150–$220', '$30,000'),\n    ('6', 'Focused SSES base scope', '200', '$140–$210', '$36,000'),\n    ('6C', 'Focused SSES contingency', 'As used', 'N A', '$10,000'),\n    ('7', 'SSES report and CAP', '240', '$160–$230', '$45,000'),\n]\n\nfor i, row_data in enumerate(rows_data, start=1):\n    row = budget_table.rows[i].cells\n    row[0].text = row_data[0]\n    row[1].text = row_data[1]\n    row[2].text = row_data[2]\n    row[3].text = row_data[3]\n    row[4].text = row_data[4]\n\n# Note on not-to-exceed fee\n\np = doc.add_paragraph(\n    'Aurelia will work with NFWB to establish a not-to-exceed fee for the Phase 1 base scope, with the Task 6 '\n    'contingency tracked separately and billed only upon prior written authorization (REQ-023, REQ-030). '\n    'Optional Phases 2 and 3 will be priced separately with clearly defined unit rates and assumptions (REQ-002).'\n)\n\n# Seaborn Chart 2: Illustrative I&I reduction vs cost\n\nimpact_data = pd.DataFrame({\n    'Measure': ['Point repairs', 'Lining', 'Manhole rehab', 'Private inflow removal'],\n    'CostPerFoot': [80, 120, 60, 100],\n    'IIReductionScore': [60, 85, 45, 90]\n})\n\nplt.figure(figsize=(6, 4))\nax = sns.scatterplot(data=impact_data, x='CostPerFoot', y='IIReductionScore', hue='Measure', s=80)\nax.set_title('Illustrative Cost vs I I Reduction Effectiveness', fontsize=11, fontweight='bold')\nax.set_xlabel('Relative Cost per Foot or Connection')\nax.set_ylabel('Relative I I Reduction Effectiveness')\nplt.legend(loc='lower right')\nplt.tight_layout()\n\nimpact_chart_path = output_dir / 'ii_cost_effectiveness.png'\nplt.savefig(impact_chart_path, dpi=150, bbox_inches='tight', facecolor='white')\nplt.close()\n\ndoc.add_picture(str(impact_chart_path), width=Inches(5))\ncaption = doc.add_paragraph('Figure 5: Illustrative Cost versus I I Reduction Effectiveness by Measure')\ncaption.alignment = WD_ALIGN_PARAGRAPH.CENTER\n\n# ==============================\n# Compliance, MWBE/SDVOB, and Reporting\n# ==============================\n\ndoc.add_heading('Compliance, MWBE SDVOB, and Reporting Approach', level=1)\n\np = doc.add_paragraph(\n    'Aurelia recognizes that this engagement is funded in part by a New York State Engineering Planning '\n    'Grant and is therefore subject to the Mandatory State Financial Assistance Terms and Conditions for '\n    'Non Construction contracts (Appendix F) (REQ-035). We have extensive experience complying with '\n    'similar requirements and will implement a structured compliance program covering MWBE and SDVOB '\n    'participation, EEO, prevailing wage, reporting, and statutory certifications.'\n)\n\n# MWBE and SDVOB (REQ-032, REQ-033, REQ-034, REQ-035)\n\ndoc.add_heading('MWBE and SDVOB Utilization', level=2)\n\np = doc.add_paragraph(\n    'Aurelia is committed to meeting or exceeding the MWBE combined participation goal of 30 percent and '\n    'the SDVOB participation goal of 6 percent established for this contract (REQ-033). We will identify and '\n    'engage qualified MWBE and SDVOB firms for appropriate portions of the work, such as field services, '\n    'survey, or specialty analysis, and will incorporate them into our project organization and reporting '\n    'structure (REQ-032, REQ-039).'\n)\n\np = doc.add_paragraph(\n    'We will submit MWBE and SDVOB utilization plans with our proposal, or properly completed waiver '\n    'requests if needed, in accordance with Appendix F (REQ-032, REQ-033). During contract performance, '\n    'we will provide EEO Staffing Plans and Workforce Employment Utilization Reports as required by the '\n    'Engineering Planning Grant terms and conditions and Executive Law requirements (REQ-034, REQ-035, '\n    'REQ-050).'\n)\n\n# EEO, sexual harassment, and labor compliance (REQ-045, REQ-046, REQ-050, REQ-051)\n\ndoc.add_heading('EEO, Labor, and Workplace Practices', level=2)\n\np = doc.add_paragraph(\n    'Aurelia maintains an Equal Employment Opportunity policy and program that complies with applicable '\n    'federal and state requirements. We will submit a signed EEO Policy Statement and Agreement with the '\n    'proposal (REQ-045) and will adhere to all EEO obligations under the contract (REQ-034, REQ-035).'\n)\n\np = doc.add_paragraph(\n    'We maintain a written sexual harassment prevention policy and provide annual training to all employees '\n    'in accordance with New York Labor Law Section 201 g (REQ-051). We will submit the required Statement '\n    'on Sexual Harassment (Appendix E Form No. 5) with the proposal (REQ-046).'\n)\n\np = doc.add_paragraph(\n    'Aurelia will comply with prevailing wage requirements as applicable and will submit Workforce Employment '\n    'Utilization Reports if required under Executive Law and Executive Order 162 (REQ-050). We will ensure '\n    'that all subcontractors are similarly compliant and will maintain the necessary documentation for audit '\n    'purposes (REQ-057, REQ-059).'\n)\n\n# Insurance and risk (REQ-049)\n\ndoc.add_heading('Insurance and Risk Management', level=2)\n\np = doc.add_paragraph(\n    'Aurelia will maintain all required insurance coverages for the duration of the contract, including Workers’ '\n    'Compensation, Disability, Employer’s Liability, Commercial General Liability, Automobile Liability, '\n    'Umbrella Excess Liability, and Professional Liability, with limits meeting or exceeding those specified in '\n    'the RFP (REQ-049). NFWB, the Niagara Falls Public Water Authority, and the City of Niagara Falls will '\n    'be named as additional insureds where required, and certificates of insurance will be provided prior to '\n    'contract execution and upon renewal (REQ-049).'\n)\n\n# Statutory certifications and terms (REQ-031, REQ-042–REQ-047, REQ-052, REQ-053, REQ-056, REQ-060)\n\ndoc.add_heading('Statutory Certifications and Contract Terms', level=2)\n\np = doc.add_paragraph(\n    'With our proposal submission, Aurelia will complete and return all forms in Appendix E, including the '\n    'acknowledgement of addenda, non collusion certification, lobbying law disclosure, EEO policy statement, '\n    'sexual harassment statement, and RFP acknowledgement and certification (REQ-031, REQ-042–REQ-047). '\n    'We acknowledge that the proposal will constitute a firm offer for at least 90 days from the submission '\n    'deadline unless extended by addendum (REQ-048).'\n)\n\np = doc.add_paragraph(\n    'We will certify compliance with the Iran Divestment Act, international boycott prohibition, MacBride '\n    'Principles, prohibition on purchase of tropical hardwoods, and other statutory certifications contained in '\n    'Appendix E (REQ-052). We agree to the standard terms on non discrimination, FOIL handling of '\n    'confidential information, records retention for at least six years, breach notification, and data security '\n    'obligations, as well as the contract’s termination provisions for cause, convenience, or lobbying law '\n    'violations (REQ-053, REQ-056, REQ-060).'\n)\n\np = doc.add_paragraph(\n    'Aurelia will comply with State Finance Law Sections 139 j and 139 k regarding permissible contacts during '\n    'the Restricted Period and will limit communications to the designated NFWB contact (REQ-056). We will '\n    'attend the mandatory pre proposal information session at the Wastewater Treatment Plant and submit any '\n    'written questions by the deadline to the authorized contact as needed (REQ-054, REQ-055).'\n)\n\n# ==============================\n# Project Management and Reporting\n# ==============================\n\ndoc.add_heading('Project Management, Coordination, and Reporting', level=1)\n\np = doc.add_paragraph(\n    'Aurelia’s delivery model combines agile execution with formal governance controls. For this engagement, '\n    'we will implement structured project management practices tailored to NFWB’s needs and the regulatory '\n    'context, including clear milestones, risk management, and executive visibility.'\n)\n\n# Governance and communication\n\ndoc.add_heading('Governance and Communication', level=2)\n\np = doc.add_paragraph(\n    'The Project Manager will lead regular status meetings with NFWB staff to review progress, upcoming '\n    'activities, risks, and decisions (REQ-003, REQ-006, REQ-007, REQ-017, REQ-058). We will maintain a '\n    'living risk register, issue log, and decision log, and will provide periodic written status reports summarizing '\n    'field activities, preliminary findings, schedule adherence, and budget status (REQ-059).'\n)\n\np = doc.add_paragraph(\n    'Aurelia will coordinate closely with other contractors and third parties working on NFWB property to '\n    'ensure safe and efficient service delivery (REQ-058). We will also support NFWB in preparing materials '\n    'for NYSDEC coordination, including technical memoranda and presentation materials as needed (REQ-007).'\n)\n\n# Invoicing and documentation (REQ-059)\n\ndoc.add_heading('Invoicing and Documentation', level=2)\n\np = doc.add_paragraph(\n    'We will submit monthly invoices with sufficient supporting documentation to allow NFWB to verify work '\n    'performed, including labor hours by role, subcontractor invoices, and itemized expenses (REQ-059). '\n    'MWBE and SDVOB utilization and prevailing wage reporting will be maintained in parallel to support '\n    'timely payment and grant compliance (REQ-032–REQ-035, REQ-050).'\n)\n\np = doc.add_paragraph(\n    'All project records, including field logs, safety permits, data files, and correspondence, will be maintained '\n    'in an organized repository and retained for at least six years in accordance with Appendix E and applicable '\n    'laws (REQ-053).'\n)\n\n# ==============================\n# Proposal Submission and Packaging\n# ==============================\n\ndoc.add_heading('Proposal Submission, Forms, and Packaging', level=1)\n\np = doc.add_paragraph(\n    'Aurelia will comply with all proposal packaging and submission requirements set forth in the RFP. We '\n    'will deliver one clearly marked original and six copies of the proposal package, plus one electronic copy '\n    'on CD or USB drive, preferably as a single PDF converted from source files, by the stated deadline and '\n    'location (REQ-040).'\n)\n\np = doc.add_paragraph(\n    'The sealed outer envelope will be addressed to the designated Water Board contact, clearly indicate '\n    'Aurelia’s name and address, and be clearly marked with the RFP number and title (REQ-041). We will '\n    'verify with the authorized contact that all addenda have been received and will acknowledge all addenda '\n    'using Appendix E Form No. 1 (REQ-042).'\n)\n\np = doc.add_paragraph(\n    'The proposal package will include all required Appendix E forms: non collusion certification (Form No. 2), '\n    'Lobbying Law Disclosure Statement (Form No. 3), EEO Policy Statement and Agreement (Form No. 4), '\n    'Statement on Sexual Harassment (Form No. 5), and RFP Acknowledgement and Certification (Form No. 6), '\n    'each completed and notarized as required (REQ-031, REQ-043–REQ-047).'\n)\n\n# ==============================\n# Conclusion and Next Steps\n# ==============================\n\ndoc.add_heading('Conclusion and Next Steps', level=1)\n\np = doc.add_paragraph(\n    'Aurelia Digital Systems appreciates the opportunity to submit this proposal to the Niagara Falls Water '\n    'Board. Our team is committed to delivering a thorough, data-driven SSES program that satisfies NYSDEC '\n    'requirements, supports NFWB’s consent order obligations, and provides clear, actionable guidance for '\n    'targeted I&I reduction in the LaSalle sewersheds.'\n)\n\np = doc.add_paragraph(\n    'By combining proven SSES methods with strong analytics, disciplined project management, and a robust '\n    'compliance framework, we will help NFWB achieve measurable reductions in I&I, reduce SSO risk, and '\n    'optimize capital investments. We look forward to collaborating with NFWB staff, NYSDEC, and community '\n    'stakeholders to advance this important initiative.'\n)\n\np = doc.add_paragraph(\n    'We welcome the opportunity to discuss this proposal in more detail, respond to any questions, and refine '\n    'the scope, schedule, and pricing to best meet NFWB’s objectives. Please contact our Business Development '\n    'Office at proposals@aurelia-digital.example or +1 (416) 555-0199 with any questions regarding this '\n    'proposal.')\n"
   },
   "analysis": {
-    "summary": "Niagara Falls Water Board seeks a qualified engineering consultant to perform Phase 1 sanitary sewer evaluation survey (SSES) services in specified LaSalle sewersheds, produce an engineering report and corrective action plan compliant with NYSDEC and EPG requirements, and conduct post-construction monitoring, with option pricing for Phases 2 and 3.",
+    "summary": "Niagara Falls Water Board is soliciting proposals from qualified engineering consultants to perform Phase 1 sanitary sewer evaluation survey (SSES) work in specified LaSalle area sewersheds, produce an NYSDEC-compliant engineering report and corrective action plan for I&I reduction, and conduct post-construction monitoring, with optional pricing for Phases 2 and 3. The work is partially funded by a New York State Engineering Planning Grant and must comply with associated state financial assistance, MWBE/SDVOB, EEO, and reporting requirements.",
     "requirements": [
       {
         "id": "REQ-001",
-        "description": "Perform Phase 1 sanitary sewer evaluation survey (SSES) work in the 91st & Luick and 81st & Frontier 1 sewersheds, including all Tasks 1–8 as defined in the RFP.",
+        "description": "Perform Phase 1 SSES work in the 91st & Luick and 81st & Frontier 1 sewersheds, covering 3.0 and 1.8 miles of sanitary main pipe respectively, as defined in Tasks 1–8.",
         "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-002",
-        "description": "Provide option prices, schedules, and scopes to perform applicable SSES tasks for Phase 2 (81st & Frontier 2 and 80th & Lindbergh sewersheds) and Phase 3 (Mang & 88th sewershed), omitting Task 5 for Phase 2.",
+        "description": "Provide option prices, schedules, and scopes to perform applicable SSES tasks for Phase 2 (81st & Frontier 2; 80th & Lindbergh sewersheds) and Phase 3 (Mang & 88th sewershed) as described, recognizing NFWB may award later at its discretion.",
         "category": "technical",
-        "is_mandatory": true,
-        "priority": "high"
+        "is_mandatory": false,
+        "priority": "medium"
       },
       {
         "id": "REQ-003",
-        "description": "Identify a Project Manager as the primary contact for the project and provide project management and support throughout the engagement (Task 1).",
+        "description": "Identify a Project Manager to serve as primary contact and lead project management and support activities.",
         "category": "management",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-004",
-        "description": "Review existing data, records, reports, Order on Consent, and NYSDEC correspondence related to LaSalle SSO abatement and gain familiarity with the Phase 1 sewersheds and system context (Task 1b–c).",
+        "description": "Review existing data, records, reports, the applicable Order on Consent, and NYSDEC correspondence related to LaSalle SSO abatement.",
         "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-005",
-        "description": "Meet with Water Board staff to discuss scope, system response, and potential locations for flow isolation and measurement; provide ongoing professional advice and participate in meetings with NFWB and NYSDEC as needed (Task 1d–e).",
-        "category": "management",
+        "description": "Gain familiarity with the Phase 1 sewersheds, system context, and history of I&I reduction, sewer repair, maintenance, and flow management (including SCADA-controlled lift stations).",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "medium"
       },
       {
         "id": "REQ-006",
-        "description": "Provide all staff, equipment, materials, and notifications necessary to conduct smoke testing in Phase 1 sewersheds, including resident notifications, coordination with police/fire, weather-appropriate scheduling, and documentation/photography of defects (Task 2).",
-        "category": "technical",
+        "description": "Meet with Water Board staff to discuss scope, understand dry and wet weather system response, and obtain input on locations for flow isolation and measurement.",
+        "category": "management",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-007",
-        "description": "Conduct flow isolation and night-time weiring, including review of prior flow data, selection of adequate weir locations, provision of trained/confined-space-qualified staff and equipment (including traffic control), resident notifications, and analysis of infiltration in gpd per linear foot (Task 3).",
-        "category": "technical",
+        "description": "Consult with and advise NFWB staff throughout the engagement and meet with NFWB and NYSDEC as needed to reach consensus on work and corrective actions.",
+        "category": "management",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-008",
-        "description": "Analyze and summarize NASSCO PACP CCTV inspection reports and manhole inspection reports provided by NFWB, determine additional data needs, coordinate with NFWB on repairs and additional CCTV, and incorporate findings (Task 4).",
+        "description": "Provide all staff, equipment, and materials needed to conduct smoke testing in Phase 1 sewersheds.",
         "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-009",
-        "description": "Perform Outfall/SSO condition assessment for the two Phase 1 outfalls (91st & Luick and 81st & Frontier 1), including review of existing info, site visits, development of an assessment work plan, execution of approved plan actions, GIS-compatible documentation, and recommendations to reduce extraneous flows (Task 5).",
-        "category": "technical",
+        "description": "Notify residents 2–4 days in advance of smoke testing with hand-delivered door hangers and assist NFWB in preparing a press release; coordinate notice to police and fire officials.",
+        "category": "management",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-010",
-        "description": "Conduct focused SSES (dye testing, house inspections, additional CCTV via NFWB crews) where needed to locate or confirm I&I sources, using a $10,000 contingency budget only upon NFWB approval (Task 6).",
-        "category": "technical",
-        "is_mandatory": true,
-        "priority": "medium"
-      },
-      {
-        "id": "REQ-011",
-        "description": "Prepare an SSES engineering report and corrective action plan for Phase 1 that identifies I&I sources, recommends cost-effective corrective actions with budgetary costs and implementation timelines, and is satisfactory to NYSDEC (Task 7).",
+        "description": "Conduct smoke testing during appropriate weather conditions and document and photograph defects identified.",
         "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
+        "id": "REQ-011",
+        "description": "Review prior flow measurement and analysis for relevant sewersheds before performing night-time weiring flow isolation and measurement.",
+        "category": "technical",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
         "id": "REQ-012",
-        "description": "Ensure the SSES report is prepared, stamped, and dated by a New York State licensed Professional Engineer and conforms to the Engineering Report Outline for NYS Wastewater Infrastructure Projects (October 1, 2022).",
-        "category": "compliance",
+        "description": "Select adequate locations and number of weirs and measurements to allow complete and accurate infiltration analysis and sufficiently detailed I&I corrective actions, in consultation with NFWB staff.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-013",
-        "description": "Complete the SSES report on a schedule that allows NYSDEC review early in 2023 and supports NFWB’s goal to complete construction in 2023–early 2024 and post-construction monitoring by June 2024.",
-        "category": "management",
-        "is_mandatory": true,
-        "priority": "high"
-      },
-      {
-        "id": "REQ-014",
-        "description": "Conduct post-construction monitoring in 2024 of Phase 1 improvements, including I&I assessment of pre- vs. post-construction flows and rainfall monitoring, and prepare a Post-Construction I&I Assessment and Cost Analysis Report for NYSDEC (Task 8).",
+        "description": "Provide all staff, equipment, materials, and traffic control for flow isolation and measurement; ensure staff have appropriate confined space entry training and equipment.",
         "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
+        "id": "REQ-014",
+        "description": "Notify residents 2–4 days ahead of disruptive night-time weiring work with hand-delivered door hangers and assist NFWB with a press release.",
+        "category": "management",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
         "id": "REQ-015",
-        "description": "Demonstrate understanding of the project situation, including LaSalle SSOs, Order on Consent, revised work schedule, sewershed ranking, and focus on I&I mitigation and sewershed-based remediation.",
-        "category": "experience",
+        "description": "Analyze flow data and calculate infiltration in gallons per day per linear foot of sewer main for each weiring section.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-016",
-        "description": "Demonstrate understanding of applicable regulations and standards, including NYSDEC requirements, Order on Consent, and EPG Engineering Report Outline.",
-        "category": "compliance",
+        "description": "Analyze and summarize available CCTV inspection reports and manhole inspection reports prepared by NFWB staff, and perform additional data collection as required.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-017",
-        "description": "Present a clear project approach, scope, and project organization tailored to the defined tasks and multi-phase program.",
+        "description": "Meet with NFWB personnel to review repairs made after CCTV/manhole inspections and use NFWB-provided recorded CCTV footage and additional imaging as needed.",
         "category": "management",
-        "is_mandatory": true,
-        "priority": "high"
-      },
-      {
-        "id": "REQ-018",
-        "description": "Demonstrate experience on similar SSES, I&I mitigation, and SSO abatement projects, including references and outcomes.",
-        "category": "experience",
-        "is_mandatory": true,
-        "priority": "high"
-      },
-      {
-        "id": "REQ-019",
-        "description": "Describe experience and qualifications of any subconsultants/contractors, especially those performing more than 10% of the work, including structure, experience, and key personnel resumes.",
-        "category": "experience",
         "is_mandatory": true,
         "priority": "medium"
       },
       {
+        "id": "REQ-018",
+        "description": "Review available information on two Phase 1 outfalls (structure dimensions, estimated SSO volumes, inspection reports, discharge configuration).",
+        "category": "technical",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-019",
+        "description": "Conduct site visits to SSO/outfall locations to document existing conditions and confirm record information, with NFWB assistance for locating.",
+        "category": "technical",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
         "id": "REQ-020",
-        "description": "Highlight specific experience and qualifications of key project professionals relevant to SSES, flow monitoring, I&I analysis, and NYSDEC-regulated projects.",
-        "category": "experience",
+        "description": "Develop a recommended Work Plan for assessing Outfall/SSO locations, potentially including flow meters, rain gauges, confined space entry, dye testing, and coordinated CCTV inspections.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-021",
-        "description": "Provide a schedule in bar chart form covering all tasks and options.",
-        "category": "management",
+        "description": "Upon NFWB authorization, execute the Outfall/SSO assessment Work Plan and document findings in GIS-compatible format with recommendations to reduce extraneous flows.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-022",
-        "description": "Provide an effort and budget breakdown in spreadsheet format using a task/hour estimate matrix with a not-to-exceed fee amount, including a $10,000 contingency for Task 6.",
+        "description": "Conduct focused SSES (dye testing, house inspections, and additional CCTV via NFWB crews) in areas identified as I&I sources, as needed to locate or confirm I&I sources.",
+        "category": "technical",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-023",
+        "description": "Include a $10,000 contingency for Task 6 (Focused SSES/other unforeseen necessary work) in the proposal, to be used only with NFWB approval.",
         "category": "cost",
         "is_mandatory": true,
         "priority": "high"
       },
       {
-        "id": "REQ-023",
-        "description": "Comply with the Mandatory State Financial Assistance Terms and Conditions for Non-Construction contracts funded with NYS financial assistance, including MWBE and SDVOB requirements (Appendix F).",
-        "category": "compliance",
-        "is_mandatory": true,
-        "priority": "high"
-      },
-      {
         "id": "REQ-024",
-        "description": "Meet MWBE and SDVOB participation goals: 30% combined MWBE (MBE/WBE) and 6% SDVOB, or document good-faith efforts and obtain waivers as applicable.",
-        "category": "compliance",
+        "description": "Perform SSES in a manner satisfactory to NYSDEC and prepare an SSES report for NYSDEC identifying I&I sources in Phase 1 sewersheds and a corrective action plan for cost-effective I&I reduction, including budgetary costs and implementation timelines.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-025",
-        "description": "Submit MWBE and SDVOB utilization plans or properly completed waiver requests with the proposal, in addition to those required prior to contract execution.",
-        "category": "compliance",
+        "description": "Complete the SSES report on a schedule that allows NYSDEC review early in 2023, supporting potential construction in 2023–early 2024 and post-construction monitoring by June 2024.",
+        "category": "management",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-026",
-        "description": "Comply with monthly MWBE-SDVOB reporting requirements, including submission of Monthly MWBE-SDVOB Contractor Compliance Reports with proof of payments to subcontractors.",
+        "description": "Ensure the SSES report is prepared, stamped, and dated by a NYS-licensed Professional Engineer and conforms to the Engineering Report Outline for NYS Wastewater Infrastructure Projects (October 1, 2022).",
         "category": "compliance",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-027",
-        "description": "Submit a comprehensive statement of qualifications including business structure, licensing, years in business, similar project experience with references, key personnel, subsidiaries/parents, other business names, debarment/default history, bankruptcy, investigations, conflicts of interest, and details of subcontractors performing >10% of the work (Appendix E, Section A).",
-        "category": "experience",
+        "description": "Conduct post-construction monitoring in 2024 of sewer improvements completed in 2023 in Phase 1 sewersheds, including I&I assessment of pre-/post-construction flows and rainfall.",
+        "category": "technical",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-028",
-        "description": "Disclose any potential conflicts of interest and plans to resolve them.",
-        "category": "compliance",
+        "description": "Prepare a Post-Construction I&I Assessment and Cost Analysis Report for NYSDEC documenting I&I reduction and most effective reduction techniques.",
+        "category": "technical",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-029",
-        "description": "Provide required insurance coverages and certificates as specified (workers’ compensation, disability, employer’s liability, CGL, auto, umbrella, professional liability) naming NFWB, Niagara Falls Public Water Authority, and City of Niagara Falls as additional insureds, primary and non-contributory.",
-        "category": "compliance",
+        "description": "Include in the proposal: situation understanding, understanding of applicable regulations and standards, project approach, scope, and organization, demonstrated similar project experience, experience/qualifications of subconsultants, and specific experience of key professionals.",
+        "category": "management",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-030",
-        "description": "Agree to indemnify and hold harmless NFWB and related entities to the full extent permissible by New York law for losses arising from consultant actions/inactions (Appendix E, Section M).",
-        "category": "compliance",
+        "description": "Provide schedule, effort, and budget breakdown: schedule as bar chart, effort and budget as task/hour estimate matrix with not-to-exceed fee, plus $10,000 contingency for Task 6.",
+        "category": "cost",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-031",
-        "description": "Provide adequate and competent personnel with necessary licensing, education, training, and experience; ensure compliance with NFWB credentialing, security, safety, and site-specific requirements (Appendix E, Sections K, O).",
-        "category": "management",
+        "description": "Complete and return all forms in Appendix E (standard terms, conditions, and required forms) with the proposal, including non-collusion, lobbying law disclosure, EEO policy, sexual harassment statement, and RFP acknowledgement and certification.",
+        "category": "compliance",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-032",
-        "description": "Agree to operate as an independent contractor and identify proposed subcontractors in the proposal; accept NFWB right to reject subcontractors (Appendix E, Section P).",
-        "category": "management",
+        "description": "Submit MWBE and SDVOB utilization plans or properly completed waiver requests with the proposal, consistent with Mandatory State Financial Assistance Terms and Conditions (Appendix F).",
+        "category": "compliance",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-033",
-        "description": "Comply with FOIL-related confidentiality marking requirements for proprietary information (Appendix E, Section R).",
+        "description": "Meet MWBE combined participation goal of 30% (MBE/WBE) and SDVOB participation goal of 6% or demonstrate good-faith efforts and obtain waivers as allowed.",
         "category": "compliance",
-        "is_mandatory": false,
-        "priority": "low"
+        "is_mandatory": true,
+        "priority": "high"
       },
       {
         "id": "REQ-034",
-        "description": "Maintain complete and accurate records for at least six years beyond the calendar year of creation and provide access for audit and inspection (Appendix E, Section S).",
+        "description": "Submit EEO Staffing Plan and Workforce Employment Utilization Reports as required by the EPG terms and conditions.",
         "category": "compliance",
         "is_mandatory": true,
         "priority": "medium"
       },
       {
         "id": "REQ-035",
-        "description": "Comply with New York State breach notification and data security laws (GBL §§ 899-aa, 899-bb; State Technology Law § 208) (Appendix E, Section T).",
+        "description": "Comply with all Mandatory State Financial Assistance Terms and Conditions for Non-Construction contracts funded with NYS financial assistance (Appendix F), including MWBE/SDVOB, EEO, suspension/debarment, and reporting requirements.",
         "category": "compliance",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-036",
-        "description": "Pay prevailing wages as required by law and submit Workforce Employment Utilization Reports as required (Appendix E, Section U).",
+        "description": "Submit a statement of qualifications describing business structure, licensing, years in business, similar experience (with references), locations, key personnel, and other relevant qualifications.",
+        "category": "experience",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
+        "id": "REQ-037",
+        "description": "Disclose in the statement of qualifications: other names used in past 10 years, subsidiaries/parents, any debarment/suspension, responsibility findings, defaults/terminations, liquidated damages, bankruptcies, legal actions/investigations, and any fraud/collusion/bribery-related matters.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
+        "id": "REQ-038",
+        "description": "Disclose any potential conflicts of interest and plans to resolve them.",
         "category": "compliance",
         "is_mandatory": true,
         "priority": "medium"
       },
       {
-        "id": "REQ-037",
-        "description": "Provide complete and accurate monthly invoices with supporting documentation; comply with MWBE/SDVOB and prevailing wage requirements to receive payment (Appendix E, Section V).",
+        "id": "REQ-039",
+        "description": "If subcontractors/subconsultants will perform more than 10% of the work, provide their identity, qualifications, business structure, experience, and key personnel resumes/contact info and prior relevant experience.",
         "category": "management",
         "is_mandatory": true,
         "priority": "medium"
       },
       {
-        "id": "REQ-038",
-        "description": "Adhere to non-discrimination and sexual harassment prevention requirements, including submitting an EEO Policy Statement (Form No. 4) and Statement on Sexual Harassment (Form No. 5).",
-        "category": "compliance",
-        "is_mandatory": true,
-        "priority": "high"
-      },
-      {
-        "id": "REQ-039",
-        "description": "Certify compliance with Iran Divestment Act, International Boycott Prohibition, MacBride Fair Employment Principles, prohibition on tropical hardwoods, and conflict-of-interest and political/religious activity restrictions (Appendix E, Sections Y–CC).",
-        "category": "compliance",
-        "is_mandatory": true,
-        "priority": "medium"
-      },
-      {
         "id": "REQ-040",
-        "description": "Submit a signed Certificate of Non-Collusion (Appendix E, Form No. 2), Lobbying Law Disclosure Statement (Form No. 3), EEO Policy Statement (Form No. 4), Statement on Sexual Harassment (Form No. 5), and RFP Acknowledgement and Certification (Form No. 6), all notarized where required.",
-        "category": "compliance",
+        "description": "Deliver one clearly marked original and six copies of the proposal package plus one electronic copy on CD or USB drive, preferably as a single PDF converted from source files, by the stated deadline and location.",
+        "category": "management",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-041",
-        "description": "Acknowledge all RFP addenda received or indicate that none were received using Appendix E, Form No. 1.",
-        "category": "compliance",
+        "description": "Ensure sealed outer envelope is addressed to the Water Board contact, clearly indicates proposer’s name and address, and is clearly marked with the RFP number and title.",
+        "category": "management",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-042",
-        "description": "Comply with New York State Finance Law §§ 139-j and 139-k (Lobbying Law) regarding permissible contacts during the Restricted Period; all contacts must go through the designated NFWB contact.",
+        "description": "Acknowledge all addenda received using Appendix E Form No. 1; verify with authorized contact that all addenda have been received prior to submission.",
         "category": "compliance",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-043",
-        "description": "Attend the mandatory pre-proposal information session at the Wastewater Treatment Plant on November 29, 2022 at noon.",
-        "category": "management",
+        "description": "Certify non-collusion via Appendix E Form No. 2, with notarization.",
+        "category": "compliance",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-044",
-        "description": "Submit any written questions regarding the RFP to the authorized contact by November 30, 2022 at 3:00 p.m. via email with appropriate subject line.",
-        "category": "management",
-        "is_mandatory": false,
-        "priority": "low"
+        "description": "Complete Lobbying Law Disclosure Statement (Appendix E Form No. 3), including disclosure of any prior non-responsibility determinations and terminations/withholdings, with notarization.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "high"
       },
       {
         "id": "REQ-045",
-        "description": "Email the authorized NFWB contact (with copy as specified) to be placed on the distribution list for RFP updates and addenda.",
-        "category": "management",
-        "is_mandatory": false,
-        "priority": "low"
+        "description": "Submit signed EEO Policy Statement and Agreement (Appendix E Form No. 4).",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "high"
       },
       {
         "id": "REQ-046",
-        "description": "Deliver one clearly marked original and six copies of the proposal package, plus one electronic copy on CD or USB, by the deadline to the address on the cover page, in a sealed outer envelope labeled with proposer name, address, RFP number, and title (Appendix E, Section J).",
-        "category": "management",
+        "description": "Submit Statement on Sexual Harassment pursuant to State Finance Law §139-l (Appendix E Form No. 5), with notarization.",
+        "category": "compliance",
         "is_mandatory": true,
         "priority": "high"
       },
       {
         "id": "REQ-047",
-        "description": "Ensure proposal is firm and irrevocable for 90 days from the submission deadline, unless amended by addendum (Appendix E, Section C).",
-        "category": "cost",
+        "description": "Submit Appendix E Form No. 6 (RFP Acknowledgement and Certification), acknowledging the proposal as a firm offer and agreeing to RFP terms, with notarization.",
+        "category": "compliance",
         "is_mandatory": true,
-        "priority": "medium"
+        "priority": "high"
       },
       {
         "id": "REQ-048",
-        "description": "Accept NFWB standard terms regarding proposal conditions, negotiation, exceptions handling, termination, governing law, and other general conditions (Appendix E, Sections B, E–H, F, GG–JJ).",
-        "category": "compliance",
+        "description": "Agree that the proposal is firm and irrevocable for 90 days from the submission deadline unless extended by addendum.",
+        "category": "other",
         "is_mandatory": true,
         "priority": "medium"
       },
       {
         "id": "REQ-049",
-        "description": "Provide prompt responses to NFWB questions and participate in informal interviews or presentations if requested during evaluation.",
-        "category": "management",
-        "is_mandatory": false,
-        "priority": "medium"
-      },
-      {
-        "id": "REQ-050",
-        "description": "Ensure no communication with NFWB personnel about the RFP occurs outside the designated contact during the Restricted Period, and certify Lobbying Law compliance on Form No. 3.",
+        "description": "Maintain required insurance coverages (Workers’ Compensation, Disability, Employer’s Liability, CGL, Auto, Umbrella/Excess, and Professional Liability) with specified limits and name NFWB, Niagara Falls Public Water Authority, and City of Niagara Falls as additional insureds where required.",
         "category": "compliance",
         "is_mandatory": true,
         "priority": "high"
+      },
+      {
+        "id": "REQ-050",
+        "description": "Pay prevailing wages as required by law and submit Workforce Employment Utilization Reports if required by Executive Law and Executive Order 162.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-051",
+        "description": "Implement and maintain a written sexual harassment prevention policy and provide annual training to all employees, as required by NY Labor Law §201-g.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-052",
+        "description": "Certify compliance with Iran Divestment Act, international boycott prohibition, MacBride Principles, prohibition on purchase of tropical hardwoods, and other statutory certifications in Appendix E.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-053",
+        "description": "Agree to non-discrimination, FOIL-related handling of confidential information, records retention for at least six years, breach notification and data security laws, and all other standard terms in Appendix E.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
+        "id": "REQ-054",
+        "description": "Attend the mandatory pre-proposal information session at the Wastewater Treatment Plant on the specified date and time.",
+        "category": "management",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
+        "id": "REQ-055",
+        "description": "Submit any written questions by the stated deadline to the authorized Water Board contact via email with appropriate subject line.",
+        "category": "management",
+        "is_mandatory": false,
+        "priority": "low"
+      },
+      {
+        "id": "REQ-056",
+        "description": "Limit communications during the Restricted Period to the designated Water Board contact in compliance with State Finance Law §§139-j and 139-k.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
+        "id": "REQ-057",
+        "description": "Provide adequate and competent personnel with necessary licensing, education, training, and experience, and ensure compliance with credentialing, security, safety, and site-specific safety plan requirements as requested.",
+        "category": "management",
+        "is_mandatory": true,
+        "priority": "high"
+      },
+      {
+        "id": "REQ-058",
+        "description": "Coordinate and cooperate with other contractors and third parties on NFWB property as needed to ensure service delivery.",
+        "category": "management",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-059",
+        "description": "Provide monthly invoices with sufficient supporting documentation; comply with MWBE/SDVOB and prevailing wage reporting to receive payment.",
+        "category": "management",
+        "is_mandatory": true,
+        "priority": "medium"
+      },
+      {
+        "id": "REQ-060",
+        "description": "Recognize that the contract may be terminated for cause, convenience, or violations of lobbying law provisions as detailed in Appendix E.",
+        "category": "compliance",
+        "is_mandatory": true,
+        "priority": "medium"
       }
     ],
     "evaluation_criteria": [
       {
         "criterion": "Situational understanding",
         "weight": 20.0,
-        "description": "Demonstrated understanding of the LaSalle SSO context, Order on Consent, I&I issues, sewershed prioritization, and project objectives, as well as applicable regulations and standards."
+        "description": "Demonstrated understanding of the LaSalle SSO context, Order on Consent, sewershed characteristics, I&I issues, and project objectives."
       },
       {
         "criterion": "Demonstrated experience, capabilities, and qualifications",
         "weight": 40.0,
-        "description": "Relevant experience with similar SSES, I&I mitigation, and NYSDEC/EPG-funded projects; qualifications of firm, key staff, and subconsultants; ability to deliver all required tasks and comply with funding/contract terms."
+        "description": "Relevant experience with similar SSES, I&I mitigation, NYSDEC/EFC-funded projects, staff qualifications, and subconsultant capabilities."
       },
       {
         "criterion": "Completeness of the proposal",
         "weight": 20.0,
-        "description": "Inclusion of all required sections, forms, utilization plans, schedules, budgets, and technical content; responsiveness to all RFP requirements and clarity of organization."
+        "description": "Inclusion of all required sections, forms, schedules, budgets, and options; responsiveness to all RFP requirements."
       },
       {
         "criterion": "Total proposed cost",
         "weight": 20.0,
-        "description": "Reasonableness and competitiveness of total not-to-exceed fee for Phase 1 and option pricing for Phases 2 and 3, including contingency, relative to scope and value offered."
+        "description": "Overall not-to-exceed fee and option pricing, cost-effectiveness of approach, and clarity of task/hour estimates."
       }
     ],
     "submission_requirements": {
       "deadline": "Monday, December 5, 2022 by 2:00 p.m.",
-      "format": "One (1) clearly marked original and six (6) paper copies plus one (1) electronic copy on CD or USB drive (preferably native PDF, single document); sealed envelope labeled with proposer name/address and RFP number/title; include completed Appendix E forms and MWBE/SDVOB utilization or waiver forms.",
+      "format": "One original and six paper copies plus one electronic copy (CD or USB) in PDF; sealed envelope labeled with proposer name, address, RFP number and title; include completed Appendix E forms and MWBE/SDVOB utilization plans or waivers.",
       "page_limit": 0,
       "sections_required": [
+        "Cover/Transmittal (implied)",
         "Situation understanding",
         "Understanding of applicable regulations and standards",
         "Project approach, scope, and project organization",
@@ -392,24 +463,25 @@
         "Experience & qualifications of subconsultants/contractors",
         "Specific experience of key project professionals",
         "Schedule (bar chart)",
-        "Effort & budget breakdown (task/hour estimate matrix, not-to-exceed fee, $10,000 contingency for Task 6)",
-        "Statement of Qualifications per Appendix E",
-        "Completed Appendix E forms (Addenda Acknowledgement, Non-Collusion, Lobbying Law Disclosure, EEO Policy, Sexual Harassment Statement, RFP Acknowledgement & Certification)",
-        "MWBE and SDVOB utilization plans or waiver requests"
+        "Effort and budget breakdown (task/hour matrix, not-to-exceed fee, $10,000 contingency for Task 6)",
+        "Options for Phase 2 and Phase 3 (schedule and fees)",
+        "Completed Appendix E forms and required certifications",
+        "MWBE and SDVOB utilization plans or waiver requests",
+        "Statement of Qualifications per Appendix E"
       ]
     },
     "key_differentiators": [
-      "Deep, demonstrated understanding of the LaSalle SSO context, NYSDEC expectations, R-value methodology, and how sewershed-focused SSES will drive measurable SSO reductions.",
-      "Proven track record delivering SSES, I&I mitigation, and SSO abatement projects in New York under Orders on Consent and EPG or similar funding, with successful NYSDEC approvals.",
-      "A clear, detailed technical approach that not only meets but enhances the minimum tasks (e.g., advanced data analytics, GIS integration, robust QA/QC, stakeholder communication plan) while minimizing disruption to residents.",
-      "Strong project management with a realistic, detailed schedule that aligns with NFWB’s constraints and enables construction in 2023–early 2024 and monitoring by June 2024.",
-      "Robust team qualifications, including NY-licensed PEs and specialists in flow monitoring, I&I analysis, and SCADA-informed operations, demonstrating capacity to manage multiple phases.",
-      "A compelling, well-structured proposal that is complete, easy to evaluate, and includes all required forms, utilization plans, and compliance documentation without deficiencies.",
-      "Competitive, transparent pricing with clear task/hour breakdowns and value-added efficiencies, including thoughtful treatment of the Task 6 contingency and option phases.",
-      "Strong MWBE and SDVOB participation plans that credibly meet or exceed the 30% MWBE and 6% SDVOB goals, supported by identified certified partners and clear roles.",
-      "Demonstrated ability to manage compliance, reporting, and coordination with NYSDEC, EFC, and NFWB, reducing administrative risk for the client."
+      "Deep situational understanding of LaSalle SSO history, NYSDEC Order on Consent, and R-value methodology, reflected in a tailored SSES and monitoring strategy.",
+      "Demonstrated, recent experience delivering SSES, I&I mitigation, and NYSDEC/EFC-funded wastewater projects in New York, including preparation of Engineering Report Outline-compliant reports stamped by NY-licensed PEs.",
+      "A clear, efficient, and realistic schedule that aligns with early 2023 NYSDEC review, 2023–early 2024 construction, and completion of post-construction monitoring by June 2024.",
+      "Innovative yet proven approaches to flow monitoring, data analytics, GIS integration, and prioritization of cost-effective I&I reduction measures, including robust post-construction performance evaluation.",
+      "Strong project management structure with an experienced Project Manager, clear communication plan with NFWB/NYSDEC, and proactive stakeholder coordination (residents, public safety agencies).",
+      "Robust plan to meet or exceed MWBE (30%) and SDVOB (6%) participation goals, with identified certified partners and clear utilization strategies, minimizing risk of non-compliance or liquidated damages.",
+      "Comprehensive safety, confined space entry, and quality assurance programs that reduce operational risk during field activities (night-time weiring, smoke testing, dye testing, house inspections).",
+      "Well-structured cost proposal with transparent task/hour estimates, clear not-to-exceed fee, and sensible use of the $10,000 contingency focused on high-value focused SSES activities.",
+      "Ability to seamlessly extend to Phases 2 and 3 with consistent methods, tools, and team continuity, offering economies of scale and reduced learning curve for NFWB."
     ]
   },
-  "docx_download_url": "/api/rfp/download/df07e870-f9ba-4a89-a3ea-99dbd5a53e56/proposal.docx",
-  "processing_time_seconds": 89.97
+  "docx_download_url": "/api/rfp/download/f00bd874-8d20-4c99-9c90-3f2df456383f/proposal.docx",
+  "processing_time_seconds": 118.32
 }
