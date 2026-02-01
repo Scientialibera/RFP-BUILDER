@@ -58,11 +58,26 @@ class RFPBuilderWorkflow:
         self.output_dir.mkdir(parents=True, exist_ok=True)
     
     def _create_run_directory(self) -> Path:
-        """Create a timestamped run directory."""
+        """Create a timestamped run directory with enterprise-grade subdirectory structure."""
         from datetime import datetime
         run_name = datetime.now().strftime("run_%Y%m%d_%H%M%S")
         run_dir = self.output_dir / run_name
-        run_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create enterprise directory structure
+        subdirs = [
+            run_dir / "word_document",      # Final .docx file
+            run_dir / "image_assets",        # Generated charts (seaborn/matplotlib)
+            run_dir / "diagrams",            # Generated mermaid diagrams
+            run_dir / "llm_interactions",    # LLM logs (analysis, generation, etc.)
+            run_dir / "execution_logs",      # Code execution logs and errors
+            run_dir / "metadata",            # Plan, critique results, analysis
+            run_dir / "code_snapshots",      # Generated code at each stage
+        ]
+        
+        for subdir in subdirs:
+            subdir.mkdir(parents=True, exist_ok=True)
+        
+        logger.info(f"Created run directory structure: {run_dir}")
         return run_dir
     
     def _initialize_executors(self, run_dir: Path):
@@ -73,14 +88,103 @@ class RFPBuilderWorkflow:
         self.code_interpreter = CodeInterpreterExecutor(self.client, run_dir)
         self.planner = PlannerExecutor(self.client, run_dir)
         self.critiquer = CritiquerExecutor(self.client, run_dir)
+
+    def _should_chunk_generation(self, input_data: WorkflowInput, plan: Optional[ProposalPlan]) -> bool:
+        if not plan:
+            return False
+        if input_data.toggle_generation_chunking is not None:
+            return input_data.toggle_generation_chunking
+        return self.config.features.toggle_generation_chunking
+
+    def _chunk_sections(self, sections: list, max_sections: int) -> list[list]:
+        if max_sections <= 0:
+            return [sections]
+        return [sections[i:i + max_sections] for i in range(0, len(sections), max_sections)]
     
-    async def run(self, input_data: WorkflowInput, job_output_dir: Optional[Path] = None) -> FinalResult:
+    def _save_metadata(
+        self, 
+        run_dir: Path, 
+        analysis: RFPAnalysis,
+        plan: Optional[ProposalPlan],
+        critique_history: list[CritiqueResult]
+    ) -> None:
+        """Save metadata artifacts (analysis, plan, critiques) to metadata folder."""
+        import json
+        from datetime import datetime
+        
+        metadata_dir = run_dir / "metadata"
+        
+        # Save analysis
+        analysis_file = metadata_dir / "analysis.json"
+        try:
+            with open(analysis_file, "w") as f:
+                json.dump(analysis.model_dump(), f, indent=2, default=str)
+            logger.info(f"Saved analysis to {analysis_file}")
+        except Exception as e:
+            logger.error(f"Failed to save analysis: {e}")
+        
+        # Save plan if available
+        if plan:
+            plan_file = metadata_dir / "plan.json"
+            try:
+                with open(plan_file, "w") as f:
+                    json.dump(plan.model_dump(), f, indent=2, default=str)
+                logger.info(f"Saved plan to {plan_file}")
+            except Exception as e:
+                logger.error(f"Failed to save plan: {e}")
+        
+        # Save critique history
+        if critique_history:
+            critiques_file = metadata_dir / "critiques.json"
+            try:
+                critiques_data = [c.model_dump() for c in critique_history]
+                with open(critiques_file, "w") as f:
+                    json.dump(critiques_data, f, indent=2, default=str)
+                logger.info(f"Saved {len(critique_history)} critiques to {critiques_file}")
+            except Exception as e:
+                logger.error(f"Failed to save critiques: {e}")
+        
+        # Save run manifest
+        manifest_file = metadata_dir / "manifest.json"
+        try:
+            manifest = {
+                "timestamp": datetime.now().isoformat(),
+                "run_dir": str(run_dir),
+                "has_plan": plan is not None,
+                "critique_count": len(critique_history),
+                "subdirectories": {
+                    "word_document": "Final .docx proposal file",
+                    "image_assets": "Generated charts and visualizations",
+                    "diagrams": "Generated Mermaid diagrams",
+                    "llm_interactions": "LLM request/response logs",
+                    "execution_logs": "Code execution logs and errors",
+                    "metadata": "Analysis, plan, and critique JSON files",
+                    "code_snapshots": "Generated document code snapshots"
+                }
+            }
+            with open(manifest_file, "w") as f:
+                json.dump(manifest, f, indent=2)
+            logger.info(f"Saved run manifest to {manifest_file}")
+        except Exception as e:
+            logger.error(f"Failed to save manifest: {e}")
+    
+    def _save_code_snapshot(self, run_dir: Path, stage: str, code: str) -> None:
+        """Save a snapshot of generated code at a specific stage."""
+        snapshots_dir = run_dir / "code_snapshots"
+        snapshot_file = snapshots_dir / f"{stage}_document_code.py"
+        try:
+            with open(snapshot_file, "w") as f:
+                f.write(code)
+            logger.debug(f"Saved code snapshot to {snapshot_file}")
+        except Exception as e:
+            logger.error(f"Failed to save code snapshot: {e}")
+    
+    async def run(self, input_data: WorkflowInput) -> FinalResult:
         """
         Run the complete RFP workflow.
         
         Args:
             input_data: Workflow input with RFP and context.
-            job_output_dir: Optional job-specific output directory for images.
             
         Returns:
             FinalResult with generated proposal and docx path.
@@ -93,9 +197,6 @@ class RFPBuilderWorkflow:
         
         # Initialize executors for this run
         self._initialize_executors(run_dir)
-        
-        # Use run directory for outputs, or custom job directory
-        output_dir = job_output_dir or run_dir
         
         critique_history: list[CritiqueResult] = []
         error_recovery_count = 0
@@ -113,22 +214,80 @@ class RFPBuilderWorkflow:
             logger.info(f"Planning complete: {len(plan.sections)} sections")
         
         # Step 3: Generate document code (with optional plan)
-        if plan:
+        use_generation_chunking = self._should_chunk_generation(input_data, plan)
+        if plan and use_generation_chunking:
+            max_sections = input_data.max_sections_per_chunk if input_data.max_sections_per_chunk is not None else self.config.features.max_sections_per_chunk
+            section_chunks = self._chunk_sections(plan.sections, max_sections)
+            chunk_codes: list[str] = []
+            logger.info(f"Generation chunking enabled: {len(section_chunks)} chunks")
+
+            for idx, chunk in enumerate(section_chunks, start=1):
+                generation_result = await self.generator.execute_chunk_with_plan(
+                    input_data,
+                    analysis_result.analysis,
+                    chunk,
+                    part_number=idx,
+                    total_parts=len(section_chunks),
+                )
+
+                # Critique per chunk (if enabled)
+                if self.config.workflow.enable_critiquer:
+                    critique_count = 0
+                    chunk_req_ids = {req_id for section in chunk for req_id in (section.related_requirements or [])}
+                    chunk_requirements = [
+                        req for req in analysis_result.analysis.requirements if req.id in chunk_req_ids
+                    ]
+                    chunk_analysis = RFPAnalysis(
+                        summary=analysis_result.analysis.summary,
+                        requirements=chunk_requirements
+                    )
+
+                    while critique_count < self.config.workflow.max_critiques:
+                        critique_result = await self.critiquer.execute(
+                            chunk_analysis,
+                            generation_result.response.document_code
+                        )
+                        critique_history.append(critique_result.critique)
+
+                        if not critique_result.critique.needs_revision:
+                            break
+
+                        generation_result = await self.generator.execute_chunk_with_plan(
+                            input_data,
+                            analysis_result.analysis,
+                            chunk,
+                            part_number=idx,
+                            total_parts=len(section_chunks),
+                            critique_text=critique_result.critique.critique,
+                            previous_code=generation_result.response.document_code
+                        )
+                        critique_count += 1
+
+                chunk_codes.append(generation_result.response.document_code)
+                self._save_code_snapshot(run_dir, f"01_chunk_{idx}", generation_result.response.document_code)
+
+            generation_result = await self.generator.synthesize_from_chunks(input_data, chunk_codes)
+            logger.info(f"Synthesis complete: {len(generation_result.response.document_code)} chars of document code")
+            self._save_code_snapshot(run_dir, "02_synthesized", generation_result.response.document_code)
+        elif plan:
             generation_result = await self.generator.execute_with_plan(
-                input_data, 
+                input_data,
                 analysis_result.analysis,
                 plan
             )
+            logger.info(f"Generation complete: {len(generation_result.response.document_code)} chars of document code")
+            self._save_code_snapshot(run_dir, "01_initial", generation_result.response.document_code)
         else:
             generation_result = await self.generator.execute(
-                input_data, 
+                input_data,
                 analysis_result.analysis
             )
-        logger.info(f"Generation complete: {len(generation_result.response.document_code)} chars of document code")
+            logger.info(f"Generation complete: {len(generation_result.response.document_code)} chars of document code")
+            self._save_code_snapshot(run_dir, "01_initial", generation_result.response.document_code)
         
-        # Step 4: Optional Critique Loop
+        # Step 4: Optional Critique Loop (skip if generation chunking was used)
         critique_count = 0
-        while self.config.workflow.enable_critiquer and critique_count < self.config.workflow.max_critiques:
+        while self.config.workflow.enable_critiquer and not use_generation_chunking and critique_count < self.config.workflow.max_critiques:
             logger.info(f"Critique pass {critique_count + 1}/{self.config.workflow.max_critiques}")
             
             critique_result = await self.critiquer.execute(
@@ -148,18 +307,22 @@ class RFPBuilderWorkflow:
                 generation_result.response.document_code,
                 critique_result.critique
             )
+            # Save revised code snapshot after each critique
+            self._save_code_snapshot(run_dir, f"02_critique_revision_{critique_count + 1}", generation_result.response.document_code)
             critique_count += 1
         
         # Step 5: Execute code with error recovery loop
         max_error_loops = self.config.workflow.max_error_loops
         current_response = generation_result.response
-        docx_path = run_dir / "proposal.docx"
+        
+        # Use word_document subdirectory for .docx output
+        docx_path = run_dir / "word_document" / "proposal.docx"
         code_stats = {}
         
         for error_loop in range(max_error_loops + 1):
             docx_path, code_stats = await self.code_interpreter.execute(
                 current_response,
-                output_dir
+                run_dir / "image_assets"  # Pass image_assets directory for charts
             )
             
             if code_stats['document_success']:
@@ -179,8 +342,16 @@ class RFPBuilderWorkflow:
                     error_msg
                 )
                 current_response = generation_result.response
+                # Save error recovery code snapshot
+                self._save_code_snapshot(run_dir, f"03_error_recovery_{error_loop + 1}", current_response.document_code)
             else:
                 logger.error(f"Code execution failed after {max_error_loops + 1} attempts - giving up")
+        
+        # Save metadata artifacts to metadata folder
+        self._save_metadata(run_dir, analysis_result.analysis, plan, critique_history)
+        
+        # Save final code snapshot
+        self._save_code_snapshot(run_dir, "99_final", current_response.document_code)
         
         return FinalResult(
             response=current_response,
@@ -195,14 +366,12 @@ class RFPBuilderWorkflow:
     async def run_stream(
         self, 
         input_data: WorkflowInput,
-        job_output_dir: Path | None = None
     ) -> AsyncIterator[WorkflowEvent]:
         """
         Run the workflow with streaming events.
         
         Args:
             input_data: Workflow input with RFP and context.
-            job_output_dir: Directory for output files (charts, diagrams, docx).
             
         Yields:
             WorkflowEvent objects for each step.
@@ -212,8 +381,13 @@ class RFPBuilderWorkflow:
             message="RFP Builder workflow started"
         )
         
-        # Determine output directory
-        output_dir = job_output_dir or self.output_dir
+        # Create a run directory for this execution (consistent with run())
+        run_dir = self._create_run_directory()
+        logger.info(f"Run directory: {run_dir}")
+        
+        # Initialize executors for this run
+        self._initialize_executors(run_dir)
+        
         plan: Optional[ProposalPlan] = None
         critique_history: list[CritiqueResult] = []
         error_recovery_count = 0
@@ -259,29 +433,106 @@ class RFPBuilderWorkflow:
                 step_name="generate",
                 message="Generating proposal document code..."
             )
-            
-            if plan:
+            use_generation_chunking = self._should_chunk_generation(input_data, plan)
+
+            if plan and use_generation_chunking:
+                max_sections = input_data.max_sections_per_chunk if input_data.max_sections_per_chunk is not None else self.config.features.max_sections_per_chunk
+                section_chunks = self._chunk_sections(plan.sections, max_sections)
+                chunk_codes: list[str] = []
+
+                for idx, chunk in enumerate(section_chunks, start=1):
+                    yield WorkflowEvent(
+                        event_type="step_started",
+                        step_name="generate_chunk",
+                        message=f"Generating chunk {idx}/{len(section_chunks)}..."
+                    )
+
+                    generation_result = await self.generator.execute_chunk_with_plan(
+                        input_data,
+                        analysis_result.analysis,
+                        chunk,
+                        part_number=idx,
+                        total_parts=len(section_chunks),
+                    )
+
+                    if self.config.workflow.enable_critiquer:
+                        critique_count = 0
+                        chunk_req_ids = {req_id for section in chunk for req_id in (section.related_requirements or [])}
+                        chunk_requirements = [
+                            req for req in analysis_result.analysis.requirements if req.id in chunk_req_ids
+                        ]
+                        chunk_analysis = RFPAnalysis(
+                            summary=analysis_result.analysis.summary,
+                            requirements=chunk_requirements
+                        )
+
+                        while critique_count < self.config.workflow.max_critiques:
+                            critique_result = await self.critiquer.execute(
+                                chunk_analysis,
+                                generation_result.response.document_code
+                            )
+                            critique_history.append(critique_result.critique)
+
+                            if not critique_result.critique.needs_revision:
+                                break
+
+                            generation_result = await self.generator.execute_chunk_with_plan(
+                                input_data,
+                                analysis_result.analysis,
+                                chunk,
+                                part_number=idx,
+                                total_parts=len(section_chunks),
+                                critique_text=critique_result.critique.critique,
+                                previous_code=generation_result.response.document_code
+                            )
+                            critique_count += 1
+
+                    chunk_codes.append(generation_result.response.document_code)
+                    self._save_code_snapshot(run_dir, f"01_chunk_{idx}", generation_result.response.document_code)
+
+                    yield WorkflowEvent(
+                        event_type="step_complete",
+                        step_name="generate_chunk",
+                        message=f"Generated chunk {idx}/{len(section_chunks)}",
+                        data={"document_code_length": len(generation_result.response.document_code)}
+                    )
+
+                generation_result = await self.generator.synthesize_from_chunks(input_data, chunk_codes)
+                self._save_code_snapshot(run_dir, "02_synthesized", generation_result.response.document_code)
+
+                yield WorkflowEvent(
+                    event_type="step_complete",
+                    step_name="generate",
+                    message=f"Synthesized {len(generation_result.response.document_code)} chars of document code",
+                    data={"document_code_length": len(generation_result.response.document_code)}
+                )
+            elif plan:
                 generation_result = await self.generator.execute_with_plan(
                     input_data,
                     analysis_result.analysis,
                     plan
+                )
+                yield WorkflowEvent(
+                    event_type="step_complete",
+                    step_name="generate",
+                    message=f"Generated {len(generation_result.response.document_code)} chars of document code",
+                    data={"document_code_length": len(generation_result.response.document_code)}
                 )
             else:
                 generation_result = await self.generator.execute(
                     input_data,
                     analysis_result.analysis
                 )
+                yield WorkflowEvent(
+                    event_type="step_complete",
+                    step_name="generate",
+                    message=f"Generated {len(generation_result.response.document_code)} chars of document code",
+                    data={"document_code_length": len(generation_result.response.document_code)}
+                )
             
-            yield WorkflowEvent(
-                event_type="step_complete",
-                step_name="generate",
-                message=f"Generated {len(generation_result.response.document_code)} chars of document code",
-                data={"document_code_length": len(generation_result.response.document_code)}
-            )
-            
-            # Step 4: Optional Critique Loop
+            # Step 4: Optional Critique Loop (skip if generation chunking was used)
             critique_count = 0
-            while self.config.workflow.enable_critiquer and critique_count < self.config.workflow.max_critiques:
+            while self.config.workflow.enable_critiquer and not use_generation_chunking and critique_count < self.config.workflow.max_critiques:
                 yield WorkflowEvent(
                     event_type="step_started",
                     step_name="critique",
@@ -336,6 +587,10 @@ class RFPBuilderWorkflow:
             max_error_loops = self.config.workflow.max_error_loops
             current_response = generation_result.response
             
+            # Use image_assets subdirectory (consistent with run())
+            docx_path = run_dir / "word_document" / "proposal.docx"
+            code_stats = {}
+            
             for error_loop in range(max_error_loops + 1):
                 yield WorkflowEvent(
                     event_type="step_started",
@@ -345,7 +600,7 @@ class RFPBuilderWorkflow:
                 
                 docx_path, code_stats = await self.code_interpreter.execute(
                     current_response,
-                    output_dir
+                    run_dir / "image_assets"
                 )
                 
                 if code_stats['document_success']:
@@ -396,13 +651,18 @@ class RFPBuilderWorkflow:
                         data=code_stats
                     )
             
+            # Save metadata artifacts (consistent with run())
+            self._save_metadata(run_dir, analysis_result.analysis, plan, critique_history)
+            self._save_code_snapshot(run_dir, "99_final", current_response.document_code)
+            
             # Complete
             yield WorkflowEvent(
                 event_type="finished",
                 message="RFP generation complete",
                 data={
                     "docx_path": str(docx_path),
-                    "document_success": code_stats['document_success'],
+                    "run_dir": str(run_dir),
+                    "document_success": code_stats.get('document_success', False),
                     "error_recovery_count": error_recovery_count,
                     "critique_count": len(critique_history),
                     "planner_used": plan is not None

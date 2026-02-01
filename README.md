@@ -11,10 +11,13 @@ Enterprise RFP (Request for Proposal) response generator powered by Microsoft Ag
 - **Style Learning**: Uses example RFPs to match your organization's proposal style
 - **Inline Visualizations**: Generates seaborn charts and mermaid diagrams directly in the document
 - **Word Document Output**: Creates professional DOCX proposals with embedded images
-- **Optional Authentication**: Toggle MSAL authentication on/off
+- **Optional MSAL Auth**: Toggle Microsoft login in the frontend
+- **Optional API Auth**: Token validation for API requests
 - **Image Mode**: Send PDFs as images for better format understanding
 - **Table-Aware Image Selection**: Prioritizes table-heavy pages for vision input
-- **Image Budgeting**: Split a total image budget across example RFPs, the target RFP, and company context PDFs
+- **Image Budgeting**: Split a total image budget across example RFPs, the target RFP, and company context PDFs (per LLM call)
+- **Requirements Chunking**: Token-aware RFP chunking for large requirements extraction
+- **Generation Chunking**: Section-aware generation using the planner output + final synthesis
 
 ## Architecture
 
@@ -188,6 +191,9 @@ Image handling is driven by a total budget (`max_images`) and normalized ratios 
 
 If ratios do not sum to 1, they are normalized. Budgets are then split across documents of the same type.
 
+Note: the max image cap is applied per LLM call. When generation chunking is enabled, a hard cap is enforced
+per chunk (images are trimmed to `max_images` before each chunk call).
+
 ```toml
 [features]
 enable_images = true
@@ -197,7 +203,52 @@ max_images = 50
 min_table_rows = 2
 min_table_cols = 2
 image_ratio_examples = 0.5
-### Authentication
+image_ratio_rfp = 0.25
+image_ratio_context = 0.25
+```
+
+### Requirements Chunking (Requirements Extraction Only)
+
+When enabled, the requirements analysis step splits the RFP into token-aware chunks and
+processes them sequentially. Each chunk includes the relevant pages and the previous chunk
+output to avoid duplicate requirements.
+
+```toml
+[features]
+toggle_requirements_chunking = false
+max_tokens_reqs_chunking = 12000
+```
+
+### Generation Chunking (Planner Required)
+
+Generation chunking uses the planner output to generate sections in parts, then synthesizes a final
+document code file. Each chunk includes:
+- The first N RFP pages (intro/exposition)
+- The pages cited by the planned sections, with overlap
+- The requirements linked to those sections
+
+Critique is applied per chunk (if enabled). Final synthesis is not critiqued.
+
+```toml
+[features]
+toggle_generation_chunking = false
+max_tokens_generation_chunking = 12000
+generator_intro_pages = 3
+generation_page_overlap = 1
+max_sections_per_chunk = 3
+```
+
+### API Overrides (Generator)
+
+You can override generator formatting and chunking settings per request (multipart form fields):
+- `generator_formatting_injection`
+- `generator_intro_pages`
+- `generation_page_overlap`
+- `toggle_generation_chunking`
+- `max_tokens_generation_chunking`
+- `max_sections_per_chunk`
+
+### API Token Authentication
 
 ```toml
 [api_auth]
@@ -242,6 +293,12 @@ Token validation:
 - Missing fields cause validation to fail
 - Extra fields in the token are ignored
 - Empty `required_fields` list means any token is accepted (if auth is enabled)
+
+### Page Markers (Requirements vs Generation)
+
+The PDF text extraction uses explicit page markers:
+- Requirements analysis expects `PAGE TO CITE: <n>`
+- Generation prompts receive `PAGE NUMBER: <n>` markers (same numbers) for consistency
 
 ### Workflow Features
 
@@ -300,40 +357,109 @@ Reviews generated code for:
 
 ## Output Structure
 
-Each RFP generation creates a timestamped run directory with complete traceability:
+Each RFP generation creates a timestamped run directory with **enterprise-grade organization**:
 
 ```
 outputs/
 └── runs/
     └── run_20260201_152345/
-        ├── llm_interactions/
-        │   ├── analyze_analyze_rfp.json
+        ├── word_document/                 # Final deliverable
+        │   └── proposal.docx              # Generated DOCX with embedded charts & diagrams
+        │
+        ├── image_assets/                  # Generated visualizations
+        │   ├── chart_001.png              # Seaborn/matplotlib charts
+        │   ├── chart_002.png
+        │   └── ...
+        │
+        ├── diagrams/                      # Mermaid diagram artifacts
+        │   ├── architecture.svg
+        │   ├── timeline.svg
+        │   └── ...
+        │
+        ├── llm_interactions/              # Complete LLM interaction logs
+        │   ├── analyze_analyze_rfp.json   # RFP analysis
         │   ├── analyze_analyze_rfp.md
-        │   ├── plan_plan_proposal.json (if enabled)
+        │   ├── plan_plan_proposal.json    # Planning (if enabled)
         │   ├── plan_plan_proposal.md
         │   ├── generate_generate_rfp_response.json
         │   ├── generate_generate_rfp_response.md
         │   ├── critique_critique_response.json (if enabled)
         │   ├── critique_critique_response.md
         │   └── ...
-        ├── execution_logs/
-        │   └── execution.json
-        └── proposal.docx
+        │
+        ├── execution_logs/                # Code execution details
+        │   └── execution.json             # Generation stats, errors, timings
+        │
+        ├── metadata/                      # Structured data artifacts
+        │   ├── analysis.json              # Extracted requirements & evaluation criteria
+        │   ├── plan.json                  # Section plan with strategies (if enabled)
+        │   ├── critiques.json             # Critique feedback history (if enabled)
+        │   └── manifest.json              # Run summary and directory index
+        │
+        └── code_snapshots/                # Generated code evolution
+            ├── 01_initial_document_code.py
+            ├── 02_critique_revision_1.py
+            ├── 02_critique_revision_2.py
+            ├── 03_error_recovery_1.py
+            └── 99_final_document_code.py
 ```
 
-### LLM Interactions
-- Complete function arguments and responses
-- Raw LLM output and parsed results
-- Both JSON and formatted markdown logs
-- Full context fed to each LLM call
+### Key Directories
 
-### Execution Logs
-- Code execution results
-- Chart/diagram generation outputs
-- Error messages and recovery attempts
+**word_document/**  
+The final deliverable - a polished DOCX proposal with all visualizations embedded.
 
-### Final Output
-- `proposal.docx` - The generated Word document with all visualizations
+**image_assets/**  
+Generated charts and graphs (seaborn/matplotlib PNGs) referenced in the document code. Allows separation of generation and embedding workflows.
+
+**diagrams/**  
+Mermaid diagram SVG outputs (architecture, timelines, workflows, etc.).
+
+**llm_interactions/**  
+Complete transparency into every LLM API call:
+- Raw function arguments sent to the LLM
+- Full LLM response text before parsing
+- Parsed/validated results as JSON
+- Formatted markdown version for human review
+
+**execution_logs/**  
+Python code execution details including success/failure status, error messages, execution time, and recovery attempt history.
+
+**metadata/**  
+Structured data for further analysis or auditing:
+- `analysis.json`: Extracted RFP requirements, evaluation criteria, deliverables
+- `plan.json`: AI-generated proposal structure and strategy (if planning enabled)
+- `critiques.json`: All feedback iterations from the critique loop (if critique enabled)
+- `manifest.json`: Run summary with timestamps and feature toggles used
+
+**code_snapshots/**  
+Timestamped snapshots of the python-docx code at each generation stage:
+- `01_initial_*`: First generation pass
+- `02_critique_revision_*`: Post-critique revisions (numbered sequentially)
+- `03_error_recovery_*`: Error recovery regenerations (numbered sequentially)
+- `99_final_*`: Final version used for document generation
+
+### Manifest File
+
+The `metadata/manifest.json` provides a high-level overview of the run:
+
+```json
+{
+  "timestamp": "2026-02-01T15:23:45.123456",
+  "run_dir": "outputs/runs/run_20260201_152345",
+  "has_plan": true,
+  "critique_count": 2,
+  "subdirectories": {
+    "word_document": "Final .docx proposal file",
+    "image_assets": "Generated charts and visualizations",
+    "diagrams": "Generated Mermaid diagrams",
+    "llm_interactions": "LLM request/response logs",
+    "execution_logs": "Code execution logs and errors",
+    "metadata": "Analysis, plan, and critique JSON files",
+    "code_snapshots": "Generated document code snapshots"
+  }
+}
+```
 
 ## Development
 

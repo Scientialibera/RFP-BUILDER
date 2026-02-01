@@ -17,6 +17,12 @@ class WorkflowInput:
     example_rfps_images: Optional[list[list[dict]]] = None
     company_context_text: Optional[str] = None
     company_context_images: Optional[list[dict]] = None
+    generator_formatting_injection: Optional[str] = None
+    generator_intro_pages: Optional[int] = None
+    generation_page_overlap: Optional[int] = None
+    toggle_generation_chunking: Optional[bool] = None
+    max_tokens_generation_chunking: Optional[int] = None
+    max_sections_per_chunk: Optional[int] = None
 
 
 @dataclass

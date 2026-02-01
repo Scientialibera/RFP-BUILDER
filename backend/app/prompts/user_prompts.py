@@ -11,6 +11,8 @@ ANALYZE_RFP_USER_PROMPT = """Please analyze the following RFP document and extra
 ## Additional Context:
 {additional_context}
 
+When citing pages, use the PAGE TO CITE numbers exactly as provided in the document.
+
 Please provide a comprehensive analysis that will help us create a winning proposal response.
 """
 
@@ -92,6 +94,82 @@ Write all charts and diagrams INLINE in the code - do NOT use placeholder string
 Use the generate_rfp_response function to return your document_code.
 """
 
+GENERATE_SECTIONS_CHUNKED_USER_PROMPT = """You are generating a portion of the proposal document based on the proposal plan.
+
+## Chunk Info:
+Part {part_number} of {total_parts}
+Sections to generate in this part:
+{sections_outline}
+
+## RFP Analysis:
+{rfp_analysis}
+
+## Requirements to Address (for these sections):
+{requirements}
+
+## RFP Pages (for this part, with PAGE NUMBER markers):
+{rfp_pages}
+
+## Example RFPs (for style/format reference):
+{example_rfps}
+
+## Company Context:
+{company_context}
+
+Generate COMPLETE Python code that creates ONLY the sections listed for this part.
+- Do NOT generate the title page or executive summary unless explicitly listed in this part.
+- Do NOT include sections outside this part.
+- Keep formatting consistent and enterprise-grade.
+
+Use the generate_rfp_response function to return your document_code.
+"""
+
+GENERATE_SECTIONS_CHUNKED_WITH_CRITIQUE_USER_PROMPT = """The previous chunk code was reviewed and needs revisions. Please address the critique and regenerate ONLY the sections listed for this chunk.
+
+## Critique:
+{critique}
+
+## Previous Code:
+{previous_code}
+
+## Chunk Info:
+Part {part_number} of {total_parts}
+Sections to generate in this part:
+{sections_outline}
+
+## RFP Analysis:
+{rfp_analysis}
+
+## Requirements to Address (for these sections):
+{requirements}
+
+## RFP Pages (for this part, with PAGE NUMBER markers):
+{rfp_pages}
+
+## Example RFPs (for style/format reference):
+{example_rfps}
+
+## Company Context:
+{company_context}
+
+Regenerate ONLY the sections listed for this part. Do not include sections outside this part.
+
+Use the generate_rfp_response function to return your document_code.
+"""
+
+SYNTHESIZE_DOCUMENT_CODE_PROMPT = """You will be given multiple code chunks that each generate specific sections of a proposal document.
+
+Your task: produce ONE cohesive, executable Python code file that:
+- Includes all sections exactly once
+- Preserves consistent formatting and style
+- Avoids duplicates and conflicting styles
+- Works as a single, complete document
+
+## Chunk Code Inputs:
+{chunk_codes}
+
+Use the generate_rfp_response function to return the final document_code.
+"""
 
 GENERATE_WITH_ERROR_USER_PROMPT = """The previous document code failed to execute. Please fix the error and regenerate.
 

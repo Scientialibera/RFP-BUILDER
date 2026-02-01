@@ -22,6 +22,7 @@ dependencies = [
     "aiofiles>=23.2.1",
     "python-jose[cryptography]>=3.3.0",
     "httpx>=0.26.0",
+    "tiktoken>=0.7.0",
     "matplotlib>=3.8.0",
     "seaborn>=0.13.0",
     "pandas>=2.1.0",

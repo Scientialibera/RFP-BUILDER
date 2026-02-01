@@ -48,6 +48,13 @@ image_ratio_rfp = 0.25
 image_ratio_context = 0.25
 # Enable frontend authentication with MSAL
 enable_auth = false
+toggle_requirements_chunking = false
+max_tokens_reqs_chunking = 12000
+toggle_generation_chunking = false
+max_tokens_generation_chunking = 12000
+generator_intro_pages = 3
+generation_page_overlap = 1
+max_sections_per_chunk = 3
 
 [msal]
 # Microsoft Entra ID (Azure AD) settings for frontend authentication
@@ -75,20 +82,6 @@ jwt_secret = ""
 #   { field = "org", value = "acme-corp" }
 # ]
 required_fields = []
-
-[pdf_output]
-# PDF generation settings
-page_size = "letter"
-margin_top = 72
-margin_bottom = 72
-margin_left = 72
-margin_right = 72
-# Font settings
-font_family = "Helvetica"
-font_size_body = 11
-font_size_h1 = 24
-font_size_h2 = 18
-font_size_h3 = 14
 
 [workflow]
 # Agent Framework workflow settings

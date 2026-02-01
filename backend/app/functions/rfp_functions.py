@@ -41,6 +41,13 @@ ANALYZE_RFP_FUNCTION = {
                         "priority": {
                             "type": "string",
                             "enum": ["high", "medium", "low"]
+                        },
+                        "pages": {
+                            "type": "array",
+                            "description": "Page numbers or section references where this requirement is mentioned in the RFP",
+                            "items": {
+                                "type": ["string", "integer"]
+                            }
                         }
                     },
                     "required": ["id", "description", "category", "is_mandatory"]

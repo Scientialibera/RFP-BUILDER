@@ -37,7 +37,7 @@ class PDFService:
         for page_num, page in enumerate(reader.pages, 1):
             page_text = page.extract_text()
             if page_text:
-                text_parts.append(f"--- Page {page_num} ---\n{page_text}")
+                text_parts.append(f"PAGE TO CITE: {page_num}\n{page_text}")
         
         return "\n\n".join(text_parts)
     
@@ -57,7 +57,7 @@ class PDFService:
         for page_num, page in enumerate(reader.pages, 1):
             page_text = page.extract_text()
             if page_text:
-                text_parts.append(f"--- Page {page_num} ---\n{page_text}")
+                text_parts.append(f"PAGE TO CITE: {page_num}\n{page_text}")
         
         return "\n\n".join(text_parts)
     

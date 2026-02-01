@@ -67,6 +67,13 @@ class FeaturesConfig(BaseModel):
     image_ratio_rfp: float = 0.25
     image_ratio_context: float = 0.25
     enable_auth: bool = False
+    toggle_requirements_chunking: bool = False
+    max_tokens_reqs_chunking: int = 12000
+    toggle_generation_chunking: bool = False
+    max_tokens_generation_chunking: int = 12000
+    generator_intro_pages: int = 3
+    generation_page_overlap: int = 1
+    max_sections_per_chunk: int = 3
 
     def normalized_image_ratios(self, include_examples: bool, include_rfp: bool, include_context: bool) -> dict[str, float]:
         ratios = {
@@ -133,20 +140,6 @@ class APIAuthConfig(BaseModel):
         return self.enabled and len(self.required_fields) > 0
 
 
-class PDFOutputConfig(BaseModel):
-    """PDF generation settings."""
-    page_size: str = "letter"
-    margin_top: int = 72
-    margin_bottom: int = 72
-    margin_left: int = 72
-    margin_right: int = 72
-    font_family: str = "Helvetica"
-    font_size_body: int = 11
-    font_size_h1: int = 24
-    font_size_h2: int = 18
-    font_size_h3: int = 14
-
-
 class WorkflowConfig(BaseModel):
     """Agent Framework workflow settings."""
     llm_timeout: int = 120
@@ -173,7 +166,6 @@ class Config(BaseModel):
     features: FeaturesConfig = Field(default_factory=FeaturesConfig)
     msal: MSALConfig = Field(default_factory=MSALConfig)
     api_auth: APIAuthConfig = Field(default_factory=APIAuthConfig)
-    pdf_output: PDFOutputConfig = Field(default_factory=PDFOutputConfig)
     workflow: WorkflowConfig = Field(default_factory=WorkflowConfig)
     
     @property
