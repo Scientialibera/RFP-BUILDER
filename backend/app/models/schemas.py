@@ -124,10 +124,21 @@ class HealthResponse(BaseModel):
     images_enabled: bool
 
 
+class WorkflowStepConfig(BaseModel):
+    """Configuration for a single workflow step."""
+    id: str
+    name: str
+    description: str
+    enabled: bool = True
+
+
 class ConfigResponse(BaseModel):
     """Public configuration response."""
     auth_enabled: bool
     images_enabled: bool
+    enable_planner: bool = False
+    enable_critiquer: bool = False
+    workflow_steps: list[WorkflowStepConfig] = []
     msal_client_id: Optional[str] = None
     msal_tenant_id: Optional[str] = None
     msal_redirect_uri: Optional[str] = None

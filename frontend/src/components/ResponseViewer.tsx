@@ -2,7 +2,6 @@
  * RFP Response Viewer Component
  */
 
-import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Download, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import type { RFPResponse, RFPAnalysis } from '../types';
@@ -11,7 +10,7 @@ import { getDownloadUrl } from '../services/api';
 interface ResponseViewerProps {
   response: RFPResponse;
   analysis?: RFPAnalysis;
-  pdfUrl?: string;
+  pdfUrl?: string;  // Legacy - now actually DOCX URL
   processingTime?: number;
 }
 
@@ -21,6 +20,10 @@ export function ResponseViewer({
   pdfUrl,
   processingTime,
 }: ResponseViewerProps) {
+  // Determine if it's a DOCX or PDF based on URL
+  const isDocx = pdfUrl?.endsWith('.docx');
+  const downloadLabel = isDocx ? 'Download DOCX' : 'Download Document';
+  
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -40,7 +43,7 @@ export function ResponseViewer({
             className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
           >
             <Download className="h-4 w-4 mr-2" />
-            Download PDF
+            {downloadLabel}
           </a>
         )}
       </div>

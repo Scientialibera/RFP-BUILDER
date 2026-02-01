@@ -54,6 +54,7 @@ export interface GenerateRFPResponse {
   rfp_response?: RFPResponse;
   analysis?: RFPAnalysis;
   pdf_download_url?: string;
+  docx_download_url?: string;
   processing_time_seconds?: number;
 }
 
@@ -65,9 +66,19 @@ export interface HealthResponse {
   images_enabled: boolean;
 }
 
+export interface WorkflowStepConfig {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+}
+
 export interface ConfigResponse {
   auth_enabled: boolean;
   images_enabled: boolean;
+  enable_planner: boolean;
+  enable_critiquer: boolean;
+  workflow_steps: WorkflowStepConfig[];
   msal_client_id?: string;
   msal_tenant_id?: string;
   msal_redirect_uri?: string;
@@ -79,4 +90,58 @@ export interface WorkflowEvent {
   step?: string;
   message?: string;
   data?: Record<string, unknown>;
+}
+
+// ============================================================================
+// Runs API Types
+// ============================================================================
+
+export interface DocumentSummary {
+  filename: string;
+  file_type: 'rfp' | 'example' | 'context' | 'unknown';
+}
+
+export interface RevisionInfo {
+  revision_id: string;
+  created_at: string;
+  docx_filename: string;
+}
+
+export interface RunSummary {
+  run_id: string;
+  created_at: string;
+  has_docx: boolean;
+  has_plan: boolean;
+  critique_count: number;
+  revision_count: number;
+}
+
+export interface RunDetails {
+  run_id: string;
+  created_at: string;
+  has_docx: boolean;
+  has_plan: boolean;
+  critique_count: number;
+  documents: DocumentSummary[];
+  revisions: RevisionInfo[];
+  docx_download_url?: string;
+  code_available: boolean;
+}
+
+export interface RunCodeResponse {
+  run_id: string;
+  code: string;
+  stage: string;
+}
+
+export interface RunsListResponse {
+  runs: RunSummary[];
+  total: number;
+}
+
+export interface RegenerateResponse {
+  success: boolean;
+  message: string;
+  revision_id: string;
+  docx_download_url: string;
 }

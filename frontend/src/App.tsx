@@ -2,37 +2,78 @@
  * Main Application Component
  */
 
-import React, { useState } from 'react';
-import { Send, Loader, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Send, Loader, AlertCircle, RefreshCw, Download, History } from 'lucide-react';
 import { Header, FileUpload, ProgressSteps, ResponseViewer } from './components';
-import { generateRFP } from './services/api';
-import type { GenerateRFPResponse } from './types';
+import { RunsHistory } from './components/RunsHistory';
+import { generateRFPStream, getConfig } from './services/api';
+import type { GenerateRFPResponse, ConfigResponse, WorkflowStepConfig } from './types';
 
-const WORKFLOW_STEPS = [
-  { id: 'upload', name: 'Upload Documents', description: 'Preparing your files' },
-  { id: 'analyze', name: 'Analyze RFP', description: 'Extracting requirements' },
-  { id: 'generate', name: 'Generate Sections', description: 'Creating proposal content' },
-  { id: 'execute_code', name: 'Execute Code', description: 'Generating diagrams, charts & tables' },
-  { id: 'review', name: 'Review Quality', description: 'Checking compliance' },
-  { id: 'revise', name: 'Revise (if needed)', description: 'Improving based on feedback' },
+// Default steps shown while config loads
+const DEFAULT_WORKFLOW_STEPS: WorkflowStepConfig[] = [
+  { id: 'upload', name: 'Upload Documents', description: 'Preparing your files', enabled: true },
+  { id: 'analyze', name: 'Analyze RFP', description: 'Extracting requirements', enabled: true },
+  { id: 'generate', name: 'Generate Sections', description: 'Creating proposal content', enabled: true },
+  { id: 'execute_code', name: 'Execute Code', description: 'Generating diagrams, charts & tables', enabled: true },
+  { id: 'complete', name: 'Complete', description: 'Document ready for download', enabled: true },
 ];
 
 function App() {
+  // Config state
+  const [config, setConfig] = useState<ConfigResponse | null>(null);
+  
   // Form state
   const [rfpFile, setRfpFile] = useState<File[]>([]);
   const [exampleFiles, setExampleFiles] = useState<File[]>([]);
   const [contextFiles, setContextFiles] = useState<File[]>([]);
+  
+  // Feature toggles (initialized from config, can be overridden by user)
+  const [enablePlanner, setEnablePlanner] = useState<boolean | null>(null);
+  const [enableCritiquer, setEnableCritiquer] = useState<boolean | null>(null);
 
   // Processing state
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [connectionLost, setConnectionLost] = useState(false);
 
   // Result state
   const [result, setResult] = useState<GenerateRFPResponse | null>(null);
+  
+  // Runs history modal state
+  const [showRunsHistory, setShowRunsHistory] = useState(false);
+  
+  // Effective values (user override or config default)
+  const effectivePlanner = enablePlanner ?? config?.enable_planner ?? false;
+  const effectiveCritiquer = enableCritiquer ?? config?.enable_critiquer ?? false;
 
-  const canSubmit = rfpFile.length > 0 && exampleFiles.length > 0 && !isProcessing;
+  // Get workflow steps from config (filter to enabled only)
+  const workflowSteps = (config?.workflow_steps ?? DEFAULT_WORKFLOW_STEPS)
+    .filter(step => step.enabled);
+
+  // Load config on mount
+  const loadConfig = useCallback(async () => {
+    try {
+      const configData = await getConfig();
+      setConfig(configData);
+      setConnectionLost(false);
+    } catch (err) {
+      console.error('Failed to load config:', err);
+      setConnectionLost(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadConfig();
+  }, [loadConfig]);
+
+  // Auto-reload on connection lost
+  const handleReload = useCallback(() => {
+    window.location.reload();
+  }, []);
+
+  const canSubmit = rfpFile.length > 0 && exampleFiles.length > 0 && !isProcessing && !connectionLost;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,25 +84,71 @@ function App() {
     setResult(null);
     setCurrentStep('upload');
     setCompletedSteps([]);
+    setConnectionLost(false);
 
     try {
-      // Simulate step progress
+      // Mark upload as done
       setCompletedSteps(['upload']);
-      setCurrentStep('analyze');
-
-      const response = await generateRFP(
+      
+      let downloadUrl: string | undefined;
+      
+      await generateRFPStream(
         rfpFile[0],
         exampleFiles,
-        contextFiles.length > 0 ? contextFiles : undefined
+        contextFiles.length > 0 ? contextFiles : undefined,
+        (event) => {
+          // Map backend step events to frontend steps
+          if (event.step) {
+            const stepId = event.step.toLowerCase().replace(/ /g, '_');
+            
+            // Mark previous steps as completed and set current
+            const stepIndex = workflowSteps.findIndex(s => s.id === stepId);
+            if (stepIndex >= 0) {
+              const completed = workflowSteps.slice(0, stepIndex).map(s => s.id);
+              setCompletedSteps(completed);
+              setCurrentStep(stepId);
+            }
+          }
+          
+          // Handle completion
+          if (event.event === 'complete' && event.data?.download_url) {
+            downloadUrl = event.data.download_url as string;
+          }
+          if (event.event === 'complete' && !event.data?.download_url && (event as { download_url?: string }).download_url) {
+            downloadUrl = (event as { download_url?: string }).download_url;
+          }
+          
+          // Handle errors
+          if (event.event === 'error') {
+            throw new Error(event.message || 'An error occurred during generation');
+          }
+        },
+        {
+          enablePlanner: effectivePlanner,
+          enableCritiquer: effectiveCritiquer,
+        }
       );
 
       // Mark all steps complete
-      setCompletedSteps(['upload', 'analyze', 'generate', 'execute_code', 'review', 'revise']);
+      setCompletedSteps(workflowSteps.map(s => s.id));
       setCurrentStep(null);
-      setResult(response);
+      
+      setResult({
+        success: true,
+        message: 'RFP response generated successfully',
+        docx_download_url: downloadUrl,
+      });
     } catch (err) {
       console.error('Generation failed:', err);
-      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      
+      // Check if it's a connection error
+      if (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('Failed to fetch')) {
+        setConnectionLost(true);
+        setError('Connection to server lost. Please reload the page.');
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -75,6 +162,7 @@ function App() {
     setError(null);
     setCurrentStep(null);
     setCompletedSteps([]);
+    setConnectionLost(false);
   };
 
   return (
@@ -88,7 +176,19 @@ function App() {
           <p className="mt-2 text-lg text-gray-600">
             Upload your RFP and examples to generate a professional proposal response
           </p>
+          <button
+            onClick={() => setShowRunsHistory(true)}
+            className="mt-4 inline-flex items-center px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg border border-gray-300 transition-colors"
+          >
+            <History className="h-4 w-4 mr-2" />
+            View Past Runs
+          </button>
         </div>
+
+        {/* Runs History Modal */}
+        {showRunsHistory && (
+          <RunsHistory onClose={() => setShowRunsHistory(false)} />
+        )}
 
         {!result ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -130,10 +230,38 @@ function App() {
                 {error && (
                   <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start">
                     <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium text-red-800">Generation Failed</p>
                       <p className="text-sm text-red-700 mt-1">{error}</p>
+                      {connectionLost && (
+                        <button
+                          type="button"
+                          onClick={handleReload}
+                          className="mt-3 inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition-colors"
+                        >
+                          <RefreshCw className="h-4 w-4 mr-1.5" />
+                          Reload Page
+                        </button>
+                      )}
                     </div>
+                  </div>
+                )}
+
+                {/* Connection Lost Banner */}
+                {connectionLost && !error && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <AlertCircle className="h-5 w-5 text-yellow-500 mr-3" />
+                      <p className="text-sm text-yellow-800">Connection to server lost</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleReload}
+                      className="inline-flex items-center px-3 py-1.5 bg-yellow-600 text-white text-sm font-medium rounded hover:bg-yellow-700 transition-colors"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-1.5" />
+                      Reload
+                    </button>
                   </div>
                 )}
 
@@ -163,10 +291,73 @@ function App() {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Generation Progress</h3>
                 <ProgressSteps
-                  steps={WORKFLOW_STEPS}
+                  steps={workflowSteps}
                   currentStep={currentStep}
                   completedSteps={completedSteps}
                 />
+                
+                {/* Workflow mode indicator */}
+                {config && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-xs text-gray-500 mb-3">Workflow Options:</p>
+                    <div className="space-y-3">
+                      {/* Planner Toggle */}
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium text-gray-700">Planner</span>
+                          <span className="ml-1 text-xs text-gray-400">(sections & strategy)</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEnablePlanner(!effectivePlanner)}
+                          disabled={isProcessing}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                            effectivePlanner ? 'bg-purple-600' : 'bg-gray-200'
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              effectivePlanner ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                      </label>
+
+                      {/* Critiquer Toggle */}
+                      <label className="flex items-center justify-between cursor-pointer">
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium text-gray-700">Quality Review</span>
+                          <span className="ml-1 text-xs text-gray-400">(critique & revise)</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setEnableCritiquer(!effectiveCritiquer)}
+                          disabled={isProcessing}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                            effectiveCritiquer ? 'bg-blue-600' : 'bg-gray-200'
+                          }`}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                              effectiveCritiquer ? 'translate-x-5' : 'translate-x-0'
+                            }`}
+                          />
+                        </button>
+                      </label>
+                    </div>
+                    
+                    {/* Reset to defaults hint */}
+                    {(enablePlanner !== null || enableCritiquer !== null) && (
+                      <button
+                        type="button"
+                        onClick={() => { setEnablePlanner(null); setEnableCritiquer(null); }}
+                        className="mt-2 text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        Reset to server defaults
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Tips */}
@@ -192,14 +383,35 @@ function App() {
             </button>
 
             {/* Response */}
-            {result.rfp_response && (
+            {result.rfp_response ? (
               <ResponseViewer
                 response={result.rfp_response}
                 analysis={result.analysis}
-                pdfUrl={result.pdf_download_url}
+                pdfUrl={result.docx_download_url}
                 processingTime={result.processing_time_seconds}
               />
-            )}
+            ) : result.docx_download_url ? (
+              // Streaming mode - show simple download card
+              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                  <Download className="h-8 w-8 text-green-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                  RFP Response Generated!
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Your proposal document is ready for download.
+                </p>
+                <a
+                  href={`/api${result.docx_download_url}`}
+                  download
+                  className="inline-flex items-center px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  <Download className="h-5 w-5 mr-2" />
+                  Download DOCX
+                </a>
+              </div>
+            ) : null}
           </div>
         )}
       </main>

@@ -1,0 +1,656 @@
+{
+  "overview": "Winning strategy centers on demonstrating a clear, compliant, and technically rigorous Phase 1 SSES approach that is tightly aligned with NYSDEC expectations, delivers an actionable corrective action plan on the Consent Order schedule, and de-risks NFWB\u2019s obligations, while offering data-driven post-construction verification and scalable options for Phases 2 and 3. The structure below ensures every mandatory requirement is clearly addressed, visually supported, and easy for evaluators to score.",
+  "sections": [
+    {
+      "title": "1. Executive Summary",
+      "summary": "Concise overview of NFWB\u2019s objectives, Aurelia\u2019s understanding of the Consent Order context, the proposed Phase 1 SSES solution, benefits to NFWB (regulatory compliance, I&I reduction, schedule certainty), and highlights of our team and differentiators.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-019",
+        "REQ-020",
+        "REQ-022",
+        "REQ-023",
+        "REQ-027",
+        "REQ-042"
+      ],
+      "rfp_pages": [
+        "RFP Intro/Background",
+        "RFP Section: Project Objectives",
+        "Appendix: Order on Consent summary"
+      ],
+      "suggested_diagrams": [
+        "Mermaid timeline diagram showing Phase 1 SSES, construction, and post-construction monitoring milestones through June 2024"
+      ],
+      "suggested_charts": [
+        "Seaborn bar chart summarizing expected I&I reduction impacts across key sewersheds (illustrative, tied to approach)"
+      ],
+      "suggested_tables": [
+        "High-level benefits table mapping NFWB objectives to our proposed outcomes and value adds"
+      ]
+    },
+    {
+      "title": "2. Understanding of Project, System, and Regulatory Context",
+      "summary": "Demonstrate deep understanding of the LaSalle sewersheds, I&I issues, Order on Consent, NYSDEC expectations, and the relationship of Phase 1 to Phases 2 and 3, including outfalls 013, 014, and 017 and R-value prioritization.",
+      "related_requirements": [
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-019",
+        "REQ-020",
+        "REQ-022",
+        "REQ-027",
+        "REQ-049",
+        "REQ-050"
+      ],
+      "rfp_pages": [
+        "Background / Existing Conditions",
+        "Order on Consent R9020080528-32 section",
+        "Sewershed Prioritization / R-value discussion",
+        "Outfall descriptions"
+      ],
+      "suggested_diagrams": [
+        "Mermaid system context diagram showing LaSalle Phase 1 sewersheds, outfalls 013/014/017, and relation to WWTP and Phase 3 areas"
+      ],
+      "suggested_charts": [
+        "Seaborn bar chart showing sewershed R-values and prioritization (if data provided or illustrative)"
+      ],
+      "suggested_tables": [
+        "Table summarizing each Phase 1 sewershed: ID, size, known I&I issues, past repairs/SCADA management, relevance to Consent Order milestones"
+      ]
+    },
+    {
+      "title": "3. Compliance Matrix and RFP Requirements Traceability",
+      "summary": "Explicit matrix mapping each RFP requirement (REQ-001 to REQ-050) to proposal sections and our response, demonstrating full compliance and making evaluator review easy.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012",
+        "REQ-013",
+        "REQ-014",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019",
+        "REQ-020",
+        "REQ-021",
+        "REQ-022",
+        "REQ-023",
+        "REQ-024",
+        "REQ-025",
+        "REQ-026",
+        "REQ-027",
+        "REQ-028",
+        "REQ-029",
+        "REQ-030",
+        "REQ-031",
+        "REQ-032",
+        "REQ-033",
+        "REQ-034",
+        "REQ-035",
+        "REQ-036",
+        "REQ-037",
+        "REQ-038",
+        "REQ-039",
+        "REQ-040",
+        "REQ-041",
+        "REQ-042",
+        "REQ-043",
+        "REQ-044",
+        "REQ-045",
+        "REQ-046",
+        "REQ-047",
+        "REQ-048",
+        "REQ-049",
+        "REQ-050"
+      ],
+      "rfp_pages": [
+        "RFP Instructions to Proposers",
+        "Scope of Services / Tasks 1\u20138",
+        "Appendix E \u2013 Standard Terms and Forms",
+        "MWBE/SDVOB requirements",
+        "Compliance and Legal Requirements section"
+      ],
+      "suggested_diagrams": [
+        "Mermaid flowchart showing how requirements flow into workstreams and deliverables"
+      ],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Comprehensive requirements traceability matrix listing each REQ ID, description, mandatory/priority, and proposal section where addressed"
+      ]
+    },
+    {
+      "title": "4. Project Management and Governance Approach",
+      "summary": "Describe governance, communication, risk management, decision-making, and coordination with NFWB and NYSDEC, including the dedicated Project Manager and meeting cadence.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-005",
+        "REQ-006",
+        "REQ-008",
+        "REQ-013",
+        "REQ-020",
+        "REQ-025",
+        "REQ-027",
+        "REQ-033",
+        "REQ-034",
+        "REQ-039",
+        "REQ-044"
+      ],
+      "rfp_pages": [
+        "Project Management Requirements",
+        "Meetings and Coordination section",
+        "Pre-proposal meeting requirement",
+        "Invoicing and Reporting section"
+      ],
+      "suggested_diagrams": [
+        "Mermaid org chart for project governance (NFWB, Aurelia PM, discipline leads, NYSDEC touchpoints)",
+        "Mermaid communication flow diagram showing information pathways between Aurelia, NFWB staff, NYSDEC, residents, and emergency services"
+      ],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Project roles and responsibilities table (RACI)",
+        "Risk register table with likelihood/impact/mitigation, focused on schedule and regulatory risks"
+      ]
+    },
+    {
+      "title": "5. Technical Approach \u2013 Phase 1 SSES Overview",
+      "summary": "Provide an integrated narrative of the Phase 1 SSES methodology across Tasks 1\u20138, tying together smoke testing, flow isolation, CCTV/manhole review, outfall/SSO assessment, focused SSES, reporting, and post-construction monitoring.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012",
+        "REQ-014",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019",
+        "REQ-020",
+        "REQ-021",
+        "REQ-022",
+        "REQ-049",
+        "REQ-050"
+      ],
+      "rfp_pages": [
+        "Scope of Services \u2013 Task 1\u20138 descriptions",
+        "Technical Requirements for SSES",
+        "Post-Construction Monitoring section"
+      ],
+      "suggested_diagrams": [
+        "Mermaid high-level process flow showing sequence and dependencies of Tasks 1\u20138 from data review through post-construction monitoring"
+      ],
+      "suggested_charts": [
+        "Seaborn Gantt-like bar chart summarizing durations of each Phase 1 task across the project schedule"
+      ],
+      "suggested_tables": [
+        "Task summary table listing each SSES task, objectives, key activities, inputs/outputs, and responsible roles"
+      ]
+    },
+    {
+      "title": "6. Detailed Methodology \u2013 Task 1: Project Initiation, Data Review, and Planning",
+      "summary": "Step-by-step approach for initial mobilization, review of existing data and Consent Order, sewershed familiarization, SCADA data review, and planning workshops with NFWB.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-010",
+        "REQ-015",
+        "REQ-019",
+        "REQ-027",
+        "REQ-049"
+      ],
+      "rfp_pages": [
+        "Task 1 description \u2013 Project Management / Initiation",
+        "Existing Data and Order on Consent references"
+      ],
+      "suggested_diagrams": [
+        "Mermaid sequence diagram showing interactions between Aurelia PM, NFWB staff, and NYSDEC (where applicable) during initiation and planning"
+      ],
+      "suggested_charts": [
+        "Seaborn line chart example of SCADA flow vs rainfall (illustrative of how we will analyze system response)"
+      ],
+      "suggested_tables": [
+        "Checklist table of data sources to be reviewed (records, prior SSES, SCADA, CCTV, maintenance history)"
+      ]
+    },
+    {
+      "title": "7. Detailed Methodology \u2013 Task 2: Smoke Testing Program",
+      "summary": "Describe how we will plan, execute, and document smoke testing in Phase 1 sewersheds, including staffing, equipment, resident and agency notifications, weather constraints, and defect documentation.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-004",
+        "REQ-007",
+        "REQ-008",
+        "REQ-009",
+        "REQ-033",
+        "REQ-034"
+      ],
+      "rfp_pages": [
+        "Task 2 \u2013 Smoke Testing requirements",
+        "Public Notification requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid flowchart of smoke testing workflow from pre-notification through field execution to documentation"
+      ],
+      "suggested_charts": [
+        "Seaborn bar chart showing anticipated number of smoke testing segments per sewershed (planning-level)"
+      ],
+      "suggested_tables": [
+        "Table outlining smoke testing notification plan: audience, method, timing (door hangers, press release, police/fire notification)",
+        "Table of equipment and staffing for smoke testing, including safety roles"
+      ]
+    },
+    {
+      "title": "8. Detailed Methodology \u2013 Task 3: Flow Isolation and Measurement",
+      "summary": "Explain how we will review prior flow data, select weir locations, perform night-time weiring, provide traffic control and confined space safety, coordinate cleaning, and calculate infiltration rates.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-004",
+        "REQ-010",
+        "REQ-011",
+        "REQ-012",
+        "REQ-013",
+        "REQ-014",
+        "REQ-033",
+        "REQ-034"
+      ],
+      "rfp_pages": [
+        "Task 3 \u2013 Flow Isolation and Measurement requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid process diagram for flow isolation and weiring operations, including decision points for additional measurements"
+      ],
+      "suggested_charts": [
+        "Seaborn line or bar charts template for presenting infiltration (gpd/lf) by weir section in final report"
+      ],
+      "suggested_tables": [
+        "Table template for flow isolation results: location, conditions, measured flow, calculated infiltration, notes on anomalies"
+      ]
+    },
+    {
+      "title": "9. Detailed Methodology \u2013 Task 4: CCTV and Manhole Report Review",
+      "summary": "Outline our process to analyze existing CCTV and manhole inspection data, identify data gaps, coordinate with NFWB on repairs and access to footage, and determine need for additional data collection.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-004",
+        "REQ-015",
+        "REQ-018",
+        "REQ-033"
+      ],
+      "rfp_pages": [
+        "Task 4 \u2013 CCTV and Manhole Review requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid data flow diagram showing how CCTV/manhole data is ingested, reviewed, coded, and integrated into GIS and the SSES findings"
+      ],
+      "suggested_charts": [
+        "Seaborn pie chart or bar chart showing distribution of defect types by category (e.g., structural, I&I-related, maintenance)"
+      ],
+      "suggested_tables": [
+        "Defect summary table by segment/manhole with severity, type, and recommended action",
+        "Table listing additional CCTV needs and coordination with NFWB crews"
+      ]
+    },
+    {
+      "title": "10. Detailed Methodology \u2013 Task 5: Outfall/SSO Condition Assessment",
+      "summary": "Describe our approach to reviewing existing information, conducting field assessments at the two Phase 1 outfalls, developing and executing the Outfall/SSO Work Plan, and documenting results in GIS-compatible format with recommendations.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-004",
+        "REQ-016",
+        "REQ-017",
+        "REQ-050"
+      ],
+      "rfp_pages": [
+        "Task 5 \u2013 Outfall/SSO Condition Assessment requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid site-level diagram showing outfall/SSO assessment workflow, including flow meters, rain gauges, dye testing, and CCTV coordination"
+      ],
+      "suggested_charts": [
+        "Seaborn time series chart concept to illustrate outfall flow vs rainfall during monitoring (for final report)"
+      ],
+      "suggested_tables": [
+        "Outfall inventory table including locations 013, 014, and 017 with attributes, condition, and relevance to sewersheds",
+        "Table summarizing Work Plan elements and triggers for additional investigation"
+      ]
+    },
+    {
+      "title": "11. Detailed Methodology \u2013 Task 6: Focused SSES (Contingency)",
+      "summary": "Explain how we will plan and execute focused investigations (dye testing, house inspections, additional CCTV) using the $10,000 contingency, governed by NFWB approvals and clear triggers from earlier tasks.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-004",
+        "REQ-018",
+        "REQ-027",
+        "REQ-028",
+        "REQ-033"
+      ],
+      "rfp_pages": [
+        "Task 6 \u2013 Focused SSES requirements",
+        "Contingency budget requirement"
+      ],
+      "suggested_diagrams": [
+        "Mermaid decision tree showing when focused SSES is initiated based on findings from Tasks 2\u20135"
+      ],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Contingency usage tracking table showing potential focused SSES activities, estimated effort, and approval checkpoints"
+      ]
+    },
+    {
+      "title": "12. Detailed Methodology \u2013 Task 7: SSES Engineering Report and Corrective Action Plan",
+      "summary": "Detail how we will synthesize findings into an NYSDEC-acceptable SSES report and corrective action plan, including prioritization of I&I reduction measures, cost estimates, implementation schedule, and PE stamping per NYS guidance.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-003",
+        "REQ-014",
+        "REQ-015",
+        "REQ-016",
+        "REQ-017",
+        "REQ-018",
+        "REQ-019",
+        "REQ-020",
+        "REQ-021",
+        "REQ-027",
+        "REQ-028",
+        "REQ-049",
+        "REQ-050"
+      ],
+      "rfp_pages": [
+        "Task 7 \u2013 Reporting requirements",
+        "Engineering Report Outline for NYS Wastewater Infrastructure Projects (10/1/2022)"
+      ],
+      "suggested_diagrams": [
+        "Mermaid dependency diagram showing how data from Tasks 1\u20136 rolls into report sections and corrective actions"
+      ],
+      "suggested_charts": [
+        "Seaborn bar chart ranking recommended corrective actions by I&I reduction per dollar invested",
+        "Seaborn stacked bar chart showing projected I&I reduction over time as projects are implemented"
+      ],
+      "suggested_tables": [
+        "Corrective action matrix listing defects, recommended fix, estimated cost, expected I&I reduction, and priority",
+        "Implementation schedule table aligned to Consent Order milestones (2023\u2013early 2024 construction)"
+      ]
+    },
+    {
+      "title": "13. Detailed Methodology \u2013 Task 8: Post-Construction Monitoring and I&I Assessment",
+      "summary": "Explain our plan for post-construction monitoring in 2024, including flow and rainfall data collection, before/after comparisons, and preparation of the Post-Construction I&I Assessment and Cost Analysis Report for NYSDEC.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-004",
+        "REQ-020",
+        "REQ-022",
+        "REQ-027"
+      ],
+      "rfp_pages": [
+        "Task 8 \u2013 Post-Construction Monitoring requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid timeline showing monitoring periods, data analysis windows, and reporting milestones through June 2024"
+      ],
+      "suggested_charts": [
+        "Seaborn before/after line charts or boxplots comparing pre- and post-construction flows normalized for rainfall"
+      ],
+      "suggested_tables": [
+        "Table comparing pre- vs post-construction I&I metrics by sewershed and summarizing cost-effectiveness"
+      ]
+    },
+    {
+      "title": "14. Schedule and Key Milestones",
+      "summary": "Present a detailed project schedule that meets NYSDEC review and construction windows, with bar chart and narrative explaining critical path and contingency for weather and data issues.",
+      "related_requirements": [
+        "REQ-001",
+        "REQ-019",
+        "REQ-020",
+        "REQ-022",
+        "REQ-023",
+        "REQ-027",
+        "REQ-028"
+      ],
+      "rfp_pages": [
+        "Schedule requirements for SSES, construction, and monitoring",
+        "Instructions on schedule format"
+      ],
+      "suggested_diagrams": [
+        "Mermaid Gantt chart of all major tasks, milestones, and dependencies from NTP through June 2024"
+      ],
+      "suggested_charts": [
+        "Seaborn bar chart (or Gantt-style) representing each task\u2019s start/end and float"
+      ],
+      "suggested_tables": [
+        "Milestone table listing key dates (NTP, completion of field work, draft/final report, NYSDEC review, construction window, post-construction monitoring, final report submission)"
+      ]
+    },
+    {
+      "title": "15. Team, Key Personnel, and Organizational Qualifications",
+      "summary": "Describe Aurelia\u2019s and any subconsultants\u2019 qualifications, key personnel roles, resumes, relevant project experience, and commitment to provide adequate and competent staff with required licenses and training; designate the dedicated Project Manager.",
+      "related_requirements": [
+        "REQ-002",
+        "REQ-027",
+        "REQ-033",
+        "REQ-034",
+        "REQ-043",
+        "REQ-048"
+      ],
+      "rfp_pages": [
+        "Proposal Content \u2013 Statement of Qualifications",
+        "Key Personnel and Experience requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid org chart of project team, highlighting Project Manager as primary contact and key technical leads"
+      ],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Team qualifications table summarizing each key person\u2019s role, years of experience, relevant projects, and licenses (including NYS PE)",
+        "Subconsultant summary table with scope share (>10%), MWBE/SDVOB status, and responsibilities"
+      ]
+    },
+    {
+      "title": "16. Relevant Experience and References",
+      "summary": "Provide detailed case studies of similar SSES, utilities, or regulatory compliance projects, emphasizing schedule adherence, I&I reduction outcomes, and collaboration with public agencies, plus client references.",
+      "related_requirements": [
+        "REQ-027",
+        "REQ-043"
+      ],
+      "rfp_pages": [
+        "Experience and References requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid timeline diagram for one or two representative past projects showing phases from assessment through post-construction verification"
+      ],
+      "suggested_charts": [
+        "Seaborn bar chart demonstrating before/after metrics (e.g., I&I reduction, overflow frequency) from prior relevant projects, where available"
+      ],
+      "suggested_tables": [
+        "Reference table with client name, project description, services provided, dates, and contact information"
+      ]
+    },
+    {
+      "title": "17. MWBE/SDVOB Strategy and Compliance",
+      "summary": "Explain our approach to meeting or exceeding MWBE (30%) and SDVOB (6%) participation goals, including utilization plans or waivers, subcontracting strategy, and monthly reporting processes.",
+      "related_requirements": [
+        "REQ-030",
+        "REQ-031",
+        "REQ-038",
+        "REQ-047",
+        "REQ-048"
+      ],
+      "rfp_pages": [
+        "MWBE/SDVOB Participation Requirements",
+        "Mandatory State Financial Assistance Terms and Conditions"
+      ],
+      "suggested_diagrams": [
+        "Mermaid process diagram for MWBE/SDVOB engagement, from procurement through monthly reporting"
+      ],
+      "suggested_charts": [
+        "Seaborn pie chart showing planned distribution of contract value between prime, MWBE, and SDVOB firms"
+      ],
+      "suggested_tables": [
+        "MWBE/SDVOB utilization plan table listing firms, certification type, scope, and percentage of total contract",
+        "EEO staffing plan summary table by labor category and demographic group (aligned to required forms)"
+      ]
+    },
+    {
+      "title": "18. Health, Safety, and Risk Management",
+      "summary": "Describe safety philosophy, site-specific Health & Safety Plan approach, confined space entry protocols, traffic control, resident safety during smoke testing and flow isolation, and overall risk management.",
+      "related_requirements": [
+        "REQ-007",
+        "REQ-008",
+        "REQ-009",
+        "REQ-011",
+        "REQ-012",
+        "REQ-013",
+        "REQ-033",
+        "REQ-034",
+        "REQ-038"
+      ],
+      "rfp_pages": [
+        "Health & Safety expectations",
+        "Prevailing wage and workforce requirements"
+      ],
+      "suggested_diagrams": [
+        "Mermaid safety workflow diagram for confined space entry and field operations approvals"
+      ],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Table summarizing key hazards (smoke testing, night work, confined space, traffic) and mitigation measures",
+        "Training and certification matrix for field staff (confined space, traffic control, OSHA, etc.)"
+      ]
+    },
+    {
+      "title": "19. Pricing, Level of Effort, and Option Phases 2 & 3",
+      "summary": "Provide detailed task/hour estimate matrix, not-to-exceed fee, contingency for Task 6, and separate option pricing, schedules, and fees for Phase 2 and Phase 3 SSES, clearly showing how Phase 1 methods will be applied and Task 5 omitted for Phase 2.",
+      "related_requirements": [
+        "REQ-018",
+        "REQ-023",
+        "REQ-027",
+        "REQ-028",
+        "REQ-039"
+      ],
+      "rfp_pages": [
+        "Pricing and Fee Proposal requirements",
+        "Option Phases description"
+      ],
+      "suggested_diagrams": [
+        "Mermaid mini-Gantt timelines for Phase 2 and Phase 3 options aligned to potential future Consent Order milestones"
+      ],
+      "suggested_charts": [
+        "Seaborn stacked bar chart showing cost distribution by task (Tasks 1\u20138) for Phase 1 and option phases"
+      ],
+      "suggested_tables": [
+        "Detailed task/hour estimate matrix by labor category and task (spreadsheet-style)",
+        "Pricing breakdown table for Phase 1, Phase 2 option, and Phase 3 option, including contingency and not-to-exceed amounts"
+      ]
+    },
+    {
+      "title": "20. Administrative, Legal, and Compliance Commitments",
+      "summary": "Affirm compliance with all Appendix E terms and statutory requirements, including forms, insurance, indemnification, records retention, FOIL, information security, prevailing wage, non-discrimination, sexual harassment policy, Iran Divestment, boycott and MacBride certifications, and communication restrictions.",
+      "related_requirements": [
+        "REQ-021",
+        "REQ-024",
+        "REQ-026",
+        "REQ-029",
+        "REQ-030",
+        "REQ-031",
+        "REQ-032",
+        "REQ-035",
+        "REQ-036",
+        "REQ-037",
+        "REQ-038",
+        "REQ-040",
+        "REQ-041",
+        "REQ-042",
+        "REQ-045",
+        "REQ-046",
+        "REQ-047",
+        "REQ-048"
+      ],
+      "rfp_pages": [
+        "Appendix E \u2013 Standard Terms, Conditions, and Requirements",
+        "Forms 1\u20137, Lobbying Law Disclosure, EEO, Sexual Harassment, Non-Collusion, etc.",
+        "Insurance and Indemnification sections"
+      ],
+      "suggested_diagrams": [],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Compliance checklist table cross-referencing each Appendix E requirement/form and where it is addressed or attached",
+        "Insurance coverage table listing required coverages, limits, carriers, and additional insureds"
+      ]
+    },
+    {
+      "title": "21. Proposal Administration and Submission Plan",
+      "summary": "Describe our internal plan to ensure timely, compliant proposal submission, including attending mandatory pre-proposal meeting, managing Q&A within lobbying law restrictions, producing copies and electronic version, and labeling and delivery logistics.",
+      "related_requirements": [
+        "REQ-025",
+        "REQ-026",
+        "REQ-027",
+        "REQ-029",
+        "REQ-039",
+        "REQ-044",
+        "REQ-045",
+        "REQ-046"
+      ],
+      "rfp_pages": [
+        "Instructions to Proposers \u2013 Submission Requirements",
+        "Restricted Period and Communications section",
+        "Pre-proposal meeting notice"
+      ],
+      "suggested_diagrams": [
+        "Mermaid internal proposal timeline from RFP receipt through submission, including internal reviews and approvals"
+      ],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Submission checklist table including required copies, electronic media, envelope labeling, forms, and signatures"
+      ]
+    },
+    {
+      "title": "22. Exceptions, Assumptions, and Clarifications",
+      "summary": "Clearly list any exceptions to Appendix E (if any), plus assumptions and clarifications regarding scope, data availability, NFWB responsibilities, and coordination to avoid misunderstandings and support contract negotiations.",
+      "related_requirements": [
+        "REQ-024",
+        "REQ-027",
+        "REQ-042"
+      ],
+      "rfp_pages": [
+        "Appendix E \u2013 Terms and Conditions",
+        "Instructions on exceptions and assumptions"
+      ],
+      "suggested_diagrams": [],
+      "suggested_charts": [],
+      "suggested_tables": [
+        "Table of assumptions and clarifications with potential impact on scope, schedule, and fee",
+        "Exception log table referencing specific Appendix E clauses (if required)"
+      ]
+    }
+  ],
+  "key_themes": [
+    "Regulatory reliability and NYSDEC alignment \u2013 explicitly designing methodology, schedule, and reporting to satisfy the Engineering Report Outline and Consent Order timelines.",
+    "Data-driven decision making \u2013 using robust flow, rainfall, CCTV, and SCADA analysis to target the most cost-effective I&I reduction measures.",
+    "Risk and safety management \u2013 strong emphasis on resident safety, confined space, and traffic control, as well as schedule and weather risk mitigation.",
+    "Transparent governance and communication \u2013 dedicated Project Manager, structured meetings with NFWB and NYSDEC, and clear public notification processes.",
+    "Scalability to Phases 2 and 3 \u2013 Phase 1 approach designed as a repeatable playbook for future phases, with clear option pricing and schedules.",
+    "MWBE/SDVOB and workforce compliance \u2013 proactive strategy to meet participation and reporting requirements while maintaining quality and continuity.",
+    "Technical rigor plus practical constructability \u2013 recommendations grounded in realistic construction sequencing and cost-effectiveness, not just analysis."
+  ],
+  "win_strategy": "To win, the proposal must make it effortless for evaluators to see that Aurelia is fully compliant, technically superior, and low-risk. The plan emphasizes: (1) a meticulous requirements traceability matrix so no mandatory item is missed; (2) a clearly staged methodology for all eight Phase 1 tasks that aligns with NYSDEC\u2019s Engineering Report Outline and the Consent Order schedule, de-risking NFWB\u2019s regulatory obligations; (3) a strong, named Project Manager and governance model that ensures responsive coordination with NFWB and NYSDEC; (4) data-driven prioritization of corrective actions, demonstrating maximum I&I reduction per dollar and transparent assumptions; (5) robust safety and public communication planning to minimize disruption during smoke testing and flow isolation; (6) a realistic, bar-chart schedule and detailed task/hour matrix that show we understand the work and can deliver within a not-to-exceed fee; and (7) a proactive MWBE/SDVOB and compliance posture, with all Appendix E forms, insurance, indemnification, and statutory certifications clearly addressed. Visual tools (Mermaid diagrams, charts, and tables) are used throughout to make complex technical and schedule content quickly understandable and scoreable, differentiating our proposal for clarity, completeness, and professionalism."
+}

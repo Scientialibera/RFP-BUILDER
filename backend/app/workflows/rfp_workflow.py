@@ -72,6 +72,12 @@ class RFPBuilderWorkflow:
             run_dir / "execution_logs",      # Code execution logs and errors
             run_dir / "metadata",            # Plan, critique results, analysis
             run_dir / "code_snapshots",      # Generated code at each stage
+            run_dir / "documents",           # Uploaded source documents (RFP, examples, context)
+            run_dir / "revisions",           # User-initiated revisions
+            run_dir / "llm_interactions",    # LLM logs (analysis, generation, etc.)
+            run_dir / "execution_logs",      # Code execution logs and errors
+            run_dir / "metadata",            # Plan, critique results, analysis
+            run_dir / "code_snapshots",      # Generated code at each stage
         ]
         
         for subdir in subdirs:
@@ -88,6 +94,18 @@ class RFPBuilderWorkflow:
         self.code_interpreter = CodeInterpreterExecutor(self.client, run_dir)
         self.planner = PlannerExecutor(self.client, run_dir)
         self.critiquer = CritiquerExecutor(self.client, run_dir)
+
+    def _is_planner_enabled(self, input_data: WorkflowInput) -> bool:
+        """Check if planner is enabled (input override takes precedence over config)."""
+        if input_data.enable_planner is not None:
+            return input_data.enable_planner
+        return self.config.workflow.enable_planner
+    
+    def _is_critiquer_enabled(self, input_data: WorkflowInput) -> bool:
+        """Check if critiquer is enabled (input override takes precedence over config)."""
+        if input_data.enable_critiquer is not None:
+            return input_data.enable_critiquer
+        return self.config.workflow.enable_critiquer
 
     def _should_chunk_generation(self, input_data: WorkflowInput, plan: Optional[ProposalPlan]) -> bool:
         if not plan:
@@ -159,7 +177,9 @@ class RFPBuilderWorkflow:
                     "llm_interactions": "LLM request/response logs",
                     "execution_logs": "Code execution logs and errors",
                     "metadata": "Analysis, plan, and critique JSON files",
-                    "code_snapshots": "Generated document code snapshots"
+                    "code_snapshots": "Generated document code snapshots",
+                    "documents": "Uploaded source documents (RFP, examples, context)",
+                    "revisions": "User-initiated code revisions"
                 }
             }
             with open(manifest_file, "w") as f:
@@ -173,11 +193,42 @@ class RFPBuilderWorkflow:
         snapshots_dir = run_dir / "code_snapshots"
         snapshot_file = snapshots_dir / f"{stage}_document_code.py"
         try:
-            with open(snapshot_file, "w") as f:
+            with open(snapshot_file, "w", encoding="utf-8") as f:
                 f.write(code)
             logger.debug(f"Saved code snapshot to {snapshot_file}")
         except Exception as e:
             logger.error(f"Failed to save code snapshot: {e}")
+    
+    def _save_documents(self, run_dir: Path, input_data: 'WorkflowInput') -> None:
+        """Save uploaded documents to the run's documents folder."""
+        if not input_data.documents:
+            return
+        
+        docs_dir = run_dir / "documents"
+        for doc_info in input_data.documents:
+            if doc_info.file_bytes:
+                doc_path = docs_dir / doc_info.filename
+                try:
+                    with open(doc_path, "wb") as f:
+                        f.write(doc_info.file_bytes)
+                    logger.info(f"Saved document: {doc_info.filename} ({doc_info.file_type})")
+                except Exception as e:
+                    logger.error(f"Failed to save document {doc_info.filename}: {e}")
+        
+        # Also save document manifest
+        doc_manifest = {
+            "documents": [
+                {"filename": d.filename, "type": d.file_type}
+                for d in input_data.documents
+            ]
+        }
+        manifest_path = docs_dir / "documents_manifest.json"
+        try:
+            import json
+            with open(manifest_path, "w", encoding="utf-8") as f:
+                json.dump(doc_manifest, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save documents manifest: {e}")
     
     async def run(self, input_data: WorkflowInput) -> FinalResult:
         """
@@ -193,7 +244,11 @@ class RFPBuilderWorkflow:
         
         # Create a run directory for this execution
         run_dir = self._create_run_directory()
+        run_id = run_dir.name  # e.g., "run_20260201_123456"
         logger.info(f"Run directory: {run_dir}")
+        
+        # Save uploaded documents to run directory
+        self._save_documents(run_dir, input_data)
         
         # Initialize executors for this run
         self._initialize_executors(run_dir)
@@ -207,7 +262,7 @@ class RFPBuilderWorkflow:
         logger.info(f"Analysis complete: {len(analysis_result.analysis.requirements)} requirements")
         
         # Step 2: Optional Planning
-        if self.config.workflow.enable_planner:
+        if self._is_planner_enabled(input_data):
             logger.info("Planner enabled - creating proposal plan")
             planning_result = await self.planner.execute(input_data, analysis_result.analysis)
             plan = planning_result.plan
@@ -231,7 +286,7 @@ class RFPBuilderWorkflow:
                 )
 
                 # Critique per chunk (if enabled)
-                if self.config.workflow.enable_critiquer:
+                if self._is_critiquer_enabled(input_data):
                     critique_count = 0
                     chunk_req_ids = {req_id for section in chunk for req_id in (section.related_requirements or [])}
                     chunk_requirements = [
@@ -287,7 +342,7 @@ class RFPBuilderWorkflow:
         
         # Step 4: Optional Critique Loop (skip if generation chunking was used)
         critique_count = 0
-        while self.config.workflow.enable_critiquer and not use_generation_chunking and critique_count < self.config.workflow.max_critiques:
+        while self._is_critiquer_enabled(input_data) and not use_generation_chunking and critique_count < self.config.workflow.max_critiques:
             logger.info(f"Critique pass {critique_count + 1}/{self.config.workflow.max_critiques}")
             
             critique_result = await self.critiquer.execute(
@@ -315,14 +370,17 @@ class RFPBuilderWorkflow:
         max_error_loops = self.config.workflow.max_error_loops
         current_response = generation_result.response
         
-        # Use word_document subdirectory for .docx output
-        docx_path = run_dir / "word_document" / "proposal.docx"
+        # Use separate directories for images and docx
+        docx_dir = run_dir / "word_document"
+        image_dir = run_dir / "image_assets"
+        docx_path = docx_dir / "proposal.docx"
         code_stats = {}
         
         for error_loop in range(max_error_loops + 1):
             docx_path, code_stats = await self.code_interpreter.execute(
                 current_response,
-                run_dir / "image_assets"  # Pass image_assets directory for charts
+                image_dir=image_dir,
+                docx_dir=docx_dir
             )
             
             if code_stats['document_success']:
@@ -360,7 +418,8 @@ class RFPBuilderWorkflow:
             critique_history=critique_history,
             error_recovery_count=error_recovery_count,
             docx_path=str(docx_path),
-            execution_stats=code_stats
+            execution_stats=code_stats,
+            run_id=run_id
         )
     
     async def run_stream(
@@ -383,7 +442,11 @@ class RFPBuilderWorkflow:
         
         # Create a run directory for this execution (consistent with run())
         run_dir = self._create_run_directory()
+        run_id = run_dir.name  # e.g., "run_20260201_123456"
         logger.info(f"Run directory: {run_dir}")
+        
+        # Save uploaded documents to run directory
+        self._save_documents(run_dir, input_data)
         
         # Initialize executors for this run
         self._initialize_executors(run_dir)
@@ -410,7 +473,7 @@ class RFPBuilderWorkflow:
             )
             
             # Step 2: Optional Planning
-            if self.config.workflow.enable_planner:
+            if self._is_planner_enabled(input_data):
                 yield WorkflowEvent(
                     event_type="step_started",
                     step_name="plan",
@@ -455,7 +518,7 @@ class RFPBuilderWorkflow:
                         total_parts=len(section_chunks),
                     )
 
-                    if self.config.workflow.enable_critiquer:
+                    if self._is_critiquer_enabled(input_data):
                         critique_count = 0
                         chunk_req_ids = {req_id for section in chunk for req_id in (section.related_requirements or [])}
                         chunk_requirements = [
@@ -532,7 +595,7 @@ class RFPBuilderWorkflow:
             
             # Step 4: Optional Critique Loop (skip if generation chunking was used)
             critique_count = 0
-            while self.config.workflow.enable_critiquer and not use_generation_chunking and critique_count < self.config.workflow.max_critiques:
+            while self._is_critiquer_enabled(input_data) and not use_generation_chunking and critique_count < self.config.workflow.max_critiques:
                 yield WorkflowEvent(
                     event_type="step_started",
                     step_name="critique",
@@ -587,8 +650,10 @@ class RFPBuilderWorkflow:
             max_error_loops = self.config.workflow.max_error_loops
             current_response = generation_result.response
             
-            # Use image_assets subdirectory (consistent with run())
-            docx_path = run_dir / "word_document" / "proposal.docx"
+            # Use separate directories for images and docx (consistent with run())
+            docx_dir = run_dir / "word_document"
+            image_dir = run_dir / "image_assets"
+            docx_path = docx_dir / "proposal.docx"
             code_stats = {}
             
             for error_loop in range(max_error_loops + 1):
@@ -600,7 +665,8 @@ class RFPBuilderWorkflow:
                 
                 docx_path, code_stats = await self.code_interpreter.execute(
                     current_response,
-                    run_dir / "image_assets"
+                    image_dir=image_dir,
+                    docx_dir=docx_dir
                 )
                 
                 if code_stats['document_success']:
@@ -662,6 +728,7 @@ class RFPBuilderWorkflow:
                 data={
                     "docx_path": str(docx_path),
                     "run_dir": str(run_dir),
+                    "run_id": run_id,
                     "document_success": code_stats.get('document_success', False),
                     "error_recovery_count": error_recovery_count,
                     "critique_count": len(critique_history),

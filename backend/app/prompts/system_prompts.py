@@ -267,6 +267,96 @@ doc.add_picture(str(chart_path), width=Inches(5.8))
 add_caption('Figure 1: Proposed delivery timeline by phase')
 ```
 
+## Gantt Charts for Schedules (matplotlib barh)
+When dealing with project schedules, timelines, or implementation plans, create a professional colored Gantt chart using matplotlib's barh() (horizontal bar).
+This is the PREFERRED visualization for any schedule or timeline data.
+
+### Gantt Chart Guidelines
+- Use horizontal bars (barh) with task names on y-axis and time on x-axis
+- Color-code bars by team, phase, or workstream for clarity
+- Include a legend to explain color coding
+- Invert y-axis to show tasks chronologically top-to-bottom
+- Add a vertical grid for easier time reading
+- Optionally mark the current date with a dashed vertical line
+
+### Complete Gantt Chart Example
+```python
+import matplotlib.patches as mpatches
+import datetime as dt
+
+# Define schedule data
+schedule = pd.DataFrame({{
+    'Task': ['Requirements Analysis', 'Solution Design', 'Development Phase 1', 
+             'Development Phase 2', 'Integration Testing', 'User Acceptance Testing',
+             'Training & Documentation', 'Deployment & Go-Live', 'Hypercare Support'],
+    'Team': ['Business Analysts', 'Architects', 'Development', 'Development', 
+             'QA Team', 'QA Team', 'Training', 'DevOps', 'Support'],
+    'Start': pd.to_datetime(['2026-03-01', '2026-03-15', '2026-04-01', '2026-05-01',
+                             '2026-06-01', '2026-06-15', '2026-06-20', '2026-07-01', '2026-07-08']),
+    'End': pd.to_datetime(['2026-03-14', '2026-03-31', '2026-04-30', '2026-05-31',
+                           '2026-06-14', '2026-06-30', '2026-07-05', '2026-07-07', '2026-07-31'])
+}})
+
+# Calculate durations for the chart
+project_start = schedule['Start'].min()
+schedule['days_to_start'] = (schedule['Start'] - project_start).dt.days
+schedule['duration'] = (schedule['End'] - schedule['Start']).dt.days + 1
+
+# Define colors by team
+team_colors = {{
+    'Business Analysts': '#3498db',  # Blue
+    'Architects': '#9b59b6',         # Purple
+    'Development': '#2ecc71',        # Green
+    'QA Team': '#e74c3c',            # Red
+    'Training': '#f39c12',           # Orange
+    'DevOps': '#1abc9c',             # Teal
+    'Support': '#34495e'             # Dark gray
+}}
+
+# Create the Gantt chart
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for idx, row in schedule.iterrows():
+    ax.barh(y=row['Task'], width=row['duration'], left=row['days_to_start'],
+            color=team_colors[row['Team']], edgecolor='white', linewidth=0.5)
+
+# Invert y-axis for chronological order (earliest at top)
+ax.invert_yaxis()
+
+# Configure x-axis with date labels
+max_days = schedule['days_to_start'].max() + schedule['duration'].max()
+xticks = np.arange(0, max_days + 7, 14)  # Every 2 weeks
+xticklabels = pd.date_range(start=project_start, periods=len(xticks), freq='14D').strftime('%b %d')
+ax.set_xticks(xticks[:len(xticklabels)])
+ax.set_xticklabels(xticklabels, fontsize=9)
+
+# Styling
+ax.set_xlabel('Timeline', fontsize=10)
+ax.set_title('Project Implementation Schedule', fontsize=14, fontweight='bold')
+ax.xaxis.grid(True, alpha=0.3, linestyle='--')
+ax.set_axisbelow(True)
+
+# Add legend for teams
+unique_teams = schedule['Team'].unique()
+patches = [mpatches.Patch(color=team_colors[team], label=team) for team in unique_teams]
+ax.legend(handles=patches, loc='lower right', fontsize=8, framealpha=0.9)
+
+plt.tight_layout()
+gantt_path = output_dir / 'project_gantt.png'
+plt.savefig(gantt_path, dpi=150, bbox_inches='tight', facecolor='white')
+plt.close()
+
+doc.add_picture(str(gantt_path), width=Inches(6.0))
+add_caption('Figure X: Project Implementation Schedule')
+```
+
+### Gantt Chart Tips
+- For overlapping tasks, the chart naturally shows parallel work streams
+- Use professional color palettes (blues, greens, purples) - avoid neon colors
+- Keep task labels concise but descriptive
+- If tasks have subtasks, consider using broken_barh() for discontinuous work
+- Add milestone markers with ax.axvline() and ax.text() for key dates
+
 ## Mermaid Diagrams (workflows, architecture, governance)
 You may embed Mermaid diagrams to clarify complex concepts. Use the provided render_mermaid helper.
 

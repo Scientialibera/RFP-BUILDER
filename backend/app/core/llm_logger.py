@@ -62,8 +62,8 @@ class LLMLogger:
             }
             
             # Write JSON log
-            with open(step_file, "w") as f:
-                json.dump(log_entry, f, indent=2, default=str)
+            with open(step_file, "w", encoding="utf-8") as f:
+                json.dump(log_entry, f, indent=2, default=str, ensure_ascii=False)
             
             # Create beautified markdown log
             md_file = step_file.with_suffix(".md")
@@ -104,7 +104,7 @@ class LLMLogger:
             md_lines.append("")
         
         # Write to file
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(md_lines))
     
     def _format_dict_as_markdown(
@@ -172,7 +172,7 @@ class LLMLogger:
     def _format_value(value: Any) -> str:
         """Format a value for display."""
         if isinstance(value, bool):
-            return "✓ Yes" if value else "✗ No"
+            return "Yes" if value else "No"
         elif isinstance(value, (int, float)):
             return str(value)
         elif isinstance(value, str):

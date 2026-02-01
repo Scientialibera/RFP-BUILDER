@@ -7,10 +7,12 @@ Enterprise RFP (Request for Proposal) response generator powered by Microsoft Ag
 - **AI-Powered Analysis**: Automatically extracts requirements from RFP documents
 - **Optional Proposal Planning**: AI-driven planning before document generation (toggle `enable_planner`)
 - **Optional Quality Critique**: Automatic code review with revision loops (toggle `enable_critiquer`)
+- **Frontend Feature Toggles**: Override planner and critiquer settings per request from the UI
 - **Error Recovery**: Automatic error detection and code regeneration with max retry limit
 - **Style Learning**: Uses example RFPs to match your organization's proposal style
 - **Inline Visualizations**: Generates seaborn charts and mermaid diagrams directly in the document
 - **Word Document Output**: Creates professional DOCX proposals with embedded images
+- **Runs Management**: View past runs, download documents, edit code, and regenerate with revisions
 - **Optional MSAL Auth**: Toggle Microsoft login in the frontend
 - **Optional API Auth**: Token validation for API requests
 - **Image Mode**: Send PDFs as images for better format understanding
@@ -121,6 +123,8 @@ Parameters:
 - rfp: PDF file (required) - The RFP to respond to
 - example_rfps: PDF files (required) - Example RFP responses for style reference
 - company_context: PDF files (optional) - Company capability documents
+- enable_planner: boolean (optional) - Override planner setting (true/false)
+- enable_critiquer: boolean (optional) - Override critiquer setting (true/false)
 ```
 
 ### Health Check
@@ -136,6 +140,130 @@ GET /api/config
 ```
 
 Returns frontend configuration including auth settings.
+
+### Runs Management API
+
+The runs management API provides access to past generation runs, allowing you to view, download, and regenerate documents.
+
+#### List All Runs
+
+```
+GET /api/runs?limit=50&offset=0
+```
+
+Returns a paginated list of all past runs with summary information.
+
+**Response:**
+```json
+{
+  "runs": [
+    {
+      "run_id": "run_20260201_152345",
+      "created_at": "2026-02-01T15:23:45.123456",
+      "has_docx": true,
+      "has_plan": true,
+      "revision_count": 2
+    }
+  ],
+  "total": 15,
+  "limit": 50,
+  "offset": 0
+}
+```
+
+#### Get Run Details
+
+```
+GET /api/runs/{run_id}
+```
+
+Returns detailed information about a specific run including documents used, revisions, and code availability.
+
+**Response:**
+```json
+{
+  "run_id": "run_20260201_152345",
+  "created_at": "2026-02-01T15:23:45.123456",
+  "has_docx": true,
+  "has_plan": true,
+  "docx_download_url": "/download/run_20260201_152345/proposal.docx",
+  "documents": [
+    {"filename": "rfp_target.pdf", "file_type": "rfp"},
+    {"filename": "example_response_1.pdf", "file_type": "example_rfp"}
+  ],
+  "revisions": [
+    {"revision_id": "rev_001", "created_at": "2026-02-01T16:00:00", "docx_filename": "proposal.docx"}
+  ],
+  "code_available": true
+}
+```
+
+#### Get Run Code
+
+```
+GET /api/runs/{run_id}/code?stage=99_final
+```
+
+Returns the document generation code for a specific run. Default stage is `99_final` (final document code).
+
+**Response:**
+```json
+{
+  "run_id": "run_20260201_152345",
+  "stage": "99_final",
+  "filename": "99_final_document_code.py",
+  "code": "from docx import Document\n..."
+}
+```
+
+#### Regenerate Document
+
+```
+POST /api/runs/{run_id}/regenerate
+Content-Type: application/json
+
+{
+  "code": "from docx import Document\n..."
+}
+```
+
+Executes modified code and creates a new revision. The original run and all previous revisions are preserved.
+
+**Response:**
+```json
+{
+  "success": true,
+  "revision_id": "rev_002",
+  "download_url": "/api/runs/run_20260201_152345/revisions/rev_002/proposal.docx"
+}
+```
+
+#### Download Revision
+
+```
+GET /api/runs/{run_id}/revisions/{revision_id}/{filename}
+```
+
+Downloads a specific revision's document file.
+
+#### Download Source Document
+
+```
+GET /api/runs/{run_id}/documents/{filename}
+```
+
+Downloads a source document (PDF) that was used during the run.
+
+## Frontend Feature Toggles
+
+The frontend provides interactive toggle switches to override the default planner and critiquer settings per request:
+
+- **Planner Toggle**: Enable/disable proposal planning (creates structured sections and win strategy)
+- **Quality Review Toggle**: Enable/disable the critique and revision loop
+
+These toggles appear in the right sidebar next to the progress steps. The initial state reflects the server configuration, but users can override them for individual requests. A "Reset to server defaults" button appears when overrides are active.
+
+The toggles send `enable_planner` and `enable_critiquer` parameters to the API, which take precedence over the `config.toml` settings.
 
 ## Workflow Stages
 
@@ -376,6 +504,20 @@ outputs/
         │   ├── timeline.svg
         │   └── ...
         │
+        ├── documents/                     # Source documents used in generation
+        │   ├── rfp_target.pdf             # The RFP being responded to
+        │   ├── example_response_1.pdf     # Example RFP responses
+        │   ├── example_response_2.pdf
+        │   └── company_context.pdf        # Company capability documents
+        │
+        ├── revisions/                     # User-modified regenerations
+        │   ├── rev_001/
+        │   │   ├── proposal.docx          # Regenerated document
+        │   │   ├── document_code.py       # Modified code used
+        │   │   └── created_at.txt         # Timestamp
+        │   └── rev_002/
+        │       └── ...
+        │
         ├── llm_interactions/              # Complete LLM interaction logs
         │   ├── analyze_analyze_rfp.json   # RFP analysis
         │   ├── analyze_analyze_rfp.md
@@ -415,6 +557,17 @@ Generated charts and graphs (seaborn/matplotlib PNGs) referenced in the document
 **diagrams/**  
 Mermaid diagram SVG outputs (architecture, timelines, workflows, etc.).
 
+**documents/**  
+Copies of all source documents used during the run. This enables full reproducibility and allows the runs API to serve these files for reference. Includes the target RFP, example responses, and any company context PDFs.
+
+**revisions/**  
+User-created regenerations via the Runs Management API. Each revision folder contains:
+- The regenerated DOCX document
+- The modified Python code used for generation
+- A timestamp file
+
+Revisions are numbered sequentially (rev_001, rev_002, etc.) and preserve the original run.
+
 **llm_interactions/**  
 Complete transparency into every LLM API call:
 - Raw function arguments sent to the LLM
@@ -446,6 +599,7 @@ The `metadata/manifest.json` provides a high-level overview of the run:
 ```json
 {
   "timestamp": "2026-02-01T15:23:45.123456",
+  "run_id": "run_20260201_152345",
   "run_dir": "outputs/runs/run_20260201_152345",
   "has_plan": true,
   "critique_count": 2,
@@ -453,6 +607,8 @@ The `metadata/manifest.json` provides a high-level overview of the run:
     "word_document": "Final .docx proposal file",
     "image_assets": "Generated charts and visualizations",
     "diagrams": "Generated Mermaid diagrams",
+    "documents": "Source PDFs used in generation",
+    "revisions": "User-created regenerations",
     "llm_interactions": "LLM request/response logs",
     "execution_logs": "Code execution logs and errors",
     "metadata": "Analysis, plan, and critique JSON files",

@@ -855,10 +855,16 @@ class CodeInterpreterExecutor(BaseExecutor):
     async def execute(
         self,
         response: RFPResponse,
-        output_dir: Optional[Path] = None
+        image_dir: Optional[Path] = None,
+        docx_dir: Optional[Path] = None
     ) -> tuple[Path, dict]:
         """
         Execute the document_code to create the Word document.
+        
+        Args:
+            response: RFPResponse containing the document_code
+            image_dir: Directory for saving generated images/charts
+            docx_dir: Directory for saving the final docx file
         
         The code has full access to:
         - python-docx for document creation
@@ -876,9 +882,13 @@ class CodeInterpreterExecutor(BaseExecutor):
         from docx.enum.text import WD_ALIGN_PARAGRAPH
         from docx.enum.table import WD_TABLE_ALIGNMENT
         
-        out_dir = output_dir or self.output_dir
-        out_dir = Path(out_dir)
-        out_dir.mkdir(parents=True, exist_ok=True)
+        img_dir = image_dir or self.output_dir
+        img_dir = Path(img_dir)
+        img_dir.mkdir(parents=True, exist_ok=True)
+        
+        doc_dir = docx_dir or self.output_dir
+        doc_dir = Path(doc_dir)
+        doc_dir.mkdir(parents=True, exist_ok=True)
         
         logger.info("Starting code interpreter execution")
         
@@ -887,7 +897,7 @@ class CodeInterpreterExecutor(BaseExecutor):
             "errors": []
         }
         
-        docx_path = out_dir / "proposal.docx"
+        docx_path = doc_dir / "proposal.docx"
         
         # Find mmdc path
         mmdc_path = self._find_mmdc()
@@ -902,9 +912,9 @@ class CodeInterpreterExecutor(BaseExecutor):
                 if not mmdc_path:
                     raise RuntimeError("Mermaid CLI (mmdc) not found. Install with: npm install -g @mermaid-js/mermaid-cli")
                 
-                mmd_file = out_dir / f"{output_filename}.mmd"
+                mmd_file = img_dir / f"{output_filename}.mmd"
                 mmd_file.write_text(mermaid_code, encoding='utf-8')
-                png_path = out_dir / f"{output_filename}.png"
+                png_path = img_dir / f"{output_filename}.png"
                 
                 result = subprocess.run(
                     [mmdc_path, '-i', str(mmd_file), '-o', str(png_path), '-b', 'white'],
@@ -921,7 +931,7 @@ class CodeInterpreterExecutor(BaseExecutor):
                 "__builtins__": __builtins__,
                 # Document
                 "doc": doc,
-                "output_dir": out_dir,
+                "output_dir": img_dir,  # For generated images/charts
                 # python-docx
                 "Inches": Inches,
                 "Pt": Pt,

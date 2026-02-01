@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app import __version__
 from app.core.config import get_config
-from app.api import rfp_router, health_router, config_router
+from app.api import rfp_router, health_router, config_router, runs_router
 
 
 # Configure logging
@@ -73,6 +73,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(config_router)
     app.include_router(rfp_router)
+    app.include_router(runs_router)
     
     return app
 

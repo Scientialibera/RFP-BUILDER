@@ -5,7 +5,7 @@ RFP Generation API endpoints.
 import time
 import uuid
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
@@ -17,7 +17,7 @@ from app.core.auth import verify_api_token
 from app.models.schemas import GenerateRFPResponse
 from app.services.pdf_service import PDFService
 from app.workflows.rfp_workflow import create_rfp_workflow
-from app.workflows.state import WorkflowInput
+from app.workflows.state import WorkflowInput, DocumentInfo
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,8 @@ class ProcessedDocuments:
     example_images: list[list[dict]] | None
     context_text: str | None
     context_images: list[dict] | None
+    # Document info for storage
+    documents: list[DocumentInfo] = field(default_factory=list)
 
 
 async def _process_documents(
@@ -41,11 +43,15 @@ async def _process_documents(
     company_context: list[UploadFile] | None,
     features: FeaturesConfig,
     pdf_service: PDFService,
+    store_documents: bool = True,
 ) -> ProcessedDocuments:
     """
     Process uploaded PDF documents and extract text/images.
     
     Shared logic between streaming and non-streaming endpoints.
+    
+    Args:
+        store_documents: If True, include file bytes in DocumentInfo for storage.
     """
     image_budgets = _allocate_image_budgets(
         features,
@@ -54,10 +60,20 @@ async def _process_documents(
         len(company_context or []),
     )
     
+    # Collect document info for storage
+    documents: list[DocumentInfo] = []
+    
     # Read RFP
     logger.info(f"Processing RFP: {rfp.filename}")
     rfp_bytes = await rfp.read()
     rfp_text = pdf_service.extract_text_from_bytes(rfp_bytes)
+    
+    if store_documents:
+        documents.append(DocumentInfo(
+            filename=rfp.filename or "rfp.pdf",
+            file_type="rfp",
+            file_bytes=rfp_bytes
+        ))
     
     rfp_images = None
     if features.enable_images and image_budgets["rfp"] > 0:
@@ -71,10 +87,17 @@ async def _process_documents(
     # Read example RFPs
     example_texts = []
     example_images = []
-    for ex in example_rfps:
+    for idx, ex in enumerate(example_rfps):
         logger.info(f"Processing example: {ex.filename}")
         ex_bytes = await ex.read()
         example_texts.append(pdf_service.extract_text_from_bytes(ex_bytes))
+        
+        if store_documents:
+            documents.append(DocumentInfo(
+                filename=ex.filename or f"example_{idx+1}.pdf",
+                file_type="example",
+                file_bytes=ex_bytes
+            ))
         
         if features.enable_images and image_budgets["examples_per_doc"] > 0:
             example_images.append(
@@ -92,10 +115,17 @@ async def _process_documents(
     if company_context:
         context_parts = []
         context_imgs = []
-        for ctx in company_context:
+        for idx, ctx in enumerate(company_context):
             logger.info(f"Processing context: {ctx.filename}")
             ctx_bytes = await ctx.read()
             context_parts.append(pdf_service.extract_text_from_bytes(ctx_bytes))
+            
+            if store_documents:
+                documents.append(DocumentInfo(
+                    filename=ctx.filename or f"context_{idx+1}.pdf",
+                    file_type="context",
+                    file_bytes=ctx_bytes
+                ))
             
             if features.enable_images and image_budgets["context_per_doc"] > 0:
                 context_imgs.extend(
@@ -117,6 +147,7 @@ async def _process_documents(
         example_images=example_images if example_images else None,
         context_text=context_text,
         context_images=context_images,
+        documents=documents,
     )
 
 
@@ -131,6 +162,12 @@ async def generate_rfp(
     company_context: Optional[list[UploadFile]] = File(
         None, 
         description="Company context documents (PDF)"
+    ),
+    enable_planner: Optional[bool] = Form(
+        None, description="Enable proposal planning before generation (overrides config)"
+    ),
+    enable_critiquer: Optional[bool] = Form(
+        None, description="Enable code critique and revision loop (overrides config)"
     ),
     generator_formatting_injection: Optional[str] = Form(
         None, description="Override formatting injection prompt for generator"
@@ -203,12 +240,15 @@ async def generate_rfp(
             example_rfps_images=docs.example_images,
             company_context_text=docs.context_text,
             company_context_images=docs.context_images,
+            enable_planner=enable_planner,
+            enable_critiquer=enable_critiquer,
             generator_formatting_injection=generator_formatting_injection,
             generator_intro_pages=generator_intro_pages,
             generation_page_overlap=generation_page_overlap,
             toggle_generation_chunking=toggle_generation_chunking,
             max_tokens_generation_chunking=max_tokens_generation_chunking,
             max_sections_per_chunk=max_sections_per_chunk,
+            documents=docs.documents,
         )
         
         # Run workflow - returns FinalResult with docx_path
@@ -306,6 +346,8 @@ async def generate_rfp_stream(
     rfp: UploadFile = File(...),
     example_rfps: list[UploadFile] = File(...),
     company_context: Optional[list[UploadFile]] = File(None),
+    enable_planner: Optional[bool] = Form(None),
+    enable_critiquer: Optional[bool] = Form(None),
     generator_formatting_injection: Optional[str] = Form(None),
     generator_intro_pages: Optional[int] = Form(None),
     generation_page_overlap: Optional[int] = Form(None),
@@ -340,12 +382,15 @@ async def generate_rfp_stream(
                 example_rfps_images=docs.example_images,
                 company_context_text=docs.context_text,
                 company_context_images=docs.context_images,
+                enable_planner=enable_planner,
+                enable_critiquer=enable_critiquer,
                 generator_formatting_injection=generator_formatting_injection,
                 generator_intro_pages=generator_intro_pages,
                 generation_page_overlap=generation_page_overlap,
                 toggle_generation_chunking=toggle_generation_chunking,
                 max_tokens_generation_chunking=max_tokens_generation_chunking,
                 max_sections_per_chunk=max_sections_per_chunk,
+                documents=docs.documents,
             )
             
             # Run workflow with streaming
@@ -355,11 +400,11 @@ async def generate_rfp_stream(
                 yield f"data: {json.dumps({'event': event.event_type, 'step': event.step_name, 'message': event.message, 'data': event.data})}\n\n"
                 # Capture run_id from the finished event
                 if event.event_type == "finished" and event.data:
-                    run_id = event.data.get("run_dir", "").split("/")[-1] or event.data.get("run_dir", "").split("\\")[-1]
+                    run_id = event.data.get("run_id") or event.data.get("run_dir", "").split("/")[-1] or event.data.get("run_dir", "").split("\\")[-1]
             
             # Send final download URL using run_id from workflow
             if run_id:
-                yield f"data: {json.dumps({'event': 'complete', 'download_url': f'/api/rfp/download/{run_id}/proposal.docx'})}\n\n"
+                yield f"data: {json.dumps({'event': 'complete', 'download_url': f'/api/rfp/download/{run_id}/proposal.docx', 'run_id': run_id})}\n\n"
             
         except Exception as e:
             yield f"data: {json.dumps({'event': 'error', 'message': str(e)})}\n\n"

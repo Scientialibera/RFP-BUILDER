@@ -3,7 +3,15 @@
  */
 
 import axios from 'axios';
-import type { GenerateRFPResponse, HealthResponse, ConfigResponse } from '../types';
+import type { 
+  GenerateRFPResponse, 
+  HealthResponse, 
+  ConfigResponse,
+  RunsListResponse,
+  RunDetails,
+  RunCodeResponse,
+  RegenerateResponse
+} from '../types';
 
 const API_BASE = '/api';
 
@@ -60,13 +68,22 @@ export async function generateRFP(
 }
 
 /**
+ * Options for RFP generation
+ */
+export interface GenerateOptions {
+  enablePlanner?: boolean;
+  enableCritiquer?: boolean;
+}
+
+/**
  * Generate RFP with streaming events
  */
 export async function generateRFPStream(
   rfp: File,
   exampleRfps: File[],
   companyContext: File[] | undefined,
-  onEvent: (event: { event: string; step?: string; message?: string; data?: Record<string, unknown> }) => void
+  onEvent: (event: { event: string; step?: string; message?: string; data?: Record<string, unknown> }) => void,
+  options?: GenerateOptions
 ): Promise<void> {
   const formData = new FormData();
   
@@ -80,6 +97,14 @@ export async function generateRFPStream(
     companyContext.forEach((file) => {
       formData.append('company_context', file);
     });
+  }
+  
+  // Add feature toggles
+  if (options?.enablePlanner !== undefined) {
+    formData.append('enable_planner', options.enablePlanner.toString());
+  }
+  if (options?.enableCritiquer !== undefined) {
+    formData.append('enable_critiquer', options.enableCritiquer.toString());
   }
   
   const response = await fetch(`${API_BASE}/rfp/generate/stream`, {
@@ -123,6 +148,60 @@ export async function generateRFPStream(
  */
 export function getDownloadUrl(path: string): string {
   return `${API_BASE}${path}`;
+}
+
+// ============================================================================
+// Runs API
+// ============================================================================
+
+/**
+ * List all past runs
+ */
+export async function listRuns(limit = 50, offset = 0): Promise<RunsListResponse> {
+  const response = await api.get<RunsListResponse>('/runs', {
+    params: { limit, offset }
+  });
+  return response.data;
+}
+
+/**
+ * Get details for a specific run
+ */
+export async function getRunDetails(runId: string): Promise<RunDetails> {
+  const response = await api.get<RunDetails>(`/runs/${runId}`);
+  return response.data;
+}
+
+/**
+ * Get the generation code for a run
+ */
+export async function getRunCode(runId: string, stage = '99_final'): Promise<RunCodeResponse> {
+  const response = await api.get<RunCodeResponse>(`/runs/${runId}/code`, {
+    params: { stage }
+  });
+  return response.data;
+}
+
+/**
+ * Regenerate document with modified code
+ */
+export async function regenerateDocument(runId: string, code: string): Promise<RegenerateResponse> {
+  const response = await api.post<RegenerateResponse>(`/runs/${runId}/regenerate`, { code });
+  return response.data;
+}
+
+/**
+ * Get download URL for a source document
+ */
+export function getSourceDocumentUrl(runId: string, filename: string): string {
+  return `${API_BASE}/runs/${runId}/documents/${encodeURIComponent(filename)}`;
+}
+
+/**
+ * Get download URL for a revision
+ */
+export function getRevisionDownloadUrl(runId: string, revisionId: string, filename: string): string {
+  return `${API_BASE}/runs/${runId}/revisions/${revisionId}/${encodeURIComponent(filename)}`;
 }
 
 export default api;
