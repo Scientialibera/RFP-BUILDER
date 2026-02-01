@@ -7,6 +7,7 @@ import io
 from pathlib import Path
 from typing import Optional
 
+import pdfplumber
 from pypdf import PdfReader
 from PIL import Image
 
@@ -129,7 +130,10 @@ class PDFService:
         self, 
         pdf_bytes: bytes, 
         dpi: Optional[int] = None,
-        max_pages: Optional[int] = None
+        max_pages: Optional[int] = None,
+        min_table_rows: Optional[int] = None,
+        min_table_cols: Optional[int] = None,
+        prefer_tables: bool = True,
     ) -> list[dict]:
         """
         Convert PDF to base64 images suitable for LLM vision APIs.
@@ -143,12 +147,27 @@ class PDFService:
             List of dicts with 'type', 'image_url' structure for OpenAI API.
         """
         images = self.convert_bytes_to_images(pdf_bytes, dpi)
+        page_indexes = list(range(len(images)))
+
+        min_table_rows = min_table_rows or self.config.features.min_table_rows
+        min_table_cols = min_table_cols or self.config.features.min_table_cols
+        if prefer_tables and self.config.features.enable_tables:
+            table_pages = self._table_pages_from_bytes(
+                pdf_bytes,
+                min_table_rows=min_table_rows,
+                min_table_cols=min_table_cols,
+            )
+            if table_pages:
+                table_indexes = [p - 1 for p in table_pages if 0 < p <= len(images)]
+                remaining = [idx for idx in page_indexes if idx not in table_indexes]
+                page_indexes = table_indexes + remaining
         
         if max_pages:
-            images = images[:max_pages]
+            page_indexes = page_indexes[:max_pages]
         
         result = []
-        for img in images:
+        for idx in page_indexes:
+            img = images[idx]
             buffer = io.BytesIO()
             img.save(buffer, format="PNG")
             buffer.seek(0)
@@ -163,6 +182,35 @@ class PDFService:
             })
         
         return result
+
+    def _table_pages_from_bytes(
+        self,
+        pdf_bytes: bytes,
+        min_table_rows: int,
+        min_table_cols: int,
+    ) -> list[int]:
+        pages = []
+        with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+            for page_index, page in enumerate(pdf.pages, start=1):
+                tables = page.extract_tables() or []
+                if self._has_min_table(tables, min_table_rows, min_table_cols):
+                    pages.append(page_index)
+        return pages
+
+    @staticmethod
+    def _has_min_table(
+        tables: list[list[list[Optional[str]]]],
+        min_rows: int,
+        min_cols: int,
+    ) -> bool:
+        for table in tables:
+            if not table:
+                continue
+            row_count = len(table)
+            col_count = max((len(row or []) for row in table), default=0)
+            if row_count >= min_rows and col_count >= min_cols:
+                return True
+        return False
     
     def get_page_count(self, pdf_bytes: bytes) -> int:
         """Get the number of pages in a PDF."""

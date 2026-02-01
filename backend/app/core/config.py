@@ -58,6 +58,7 @@ class AppConfig(BaseModel):
 class FeaturesConfig(BaseModel):
     """Feature toggles."""
     enable_images: bool = True
+    enable_tables: bool = True
     image_dpi: int = 150
     max_images: int = 50
     min_table_rows: int = 2
@@ -131,6 +132,8 @@ class WorkflowConfig(BaseModel):
     llm_timeout: int = 120
     max_retries: int = 3
     verbose: bool = False
+    log_all_steps: bool = True
+    log_dir: str = "./logs"
 
 
 class Config(BaseModel):

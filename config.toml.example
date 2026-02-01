@@ -33,8 +33,19 @@ output_dir = "./output"
 [features]
 # Enable image mode - converts PDFs to images for better LLM format understanding
 enable_images = true
+# Prioritize table-heavy pages when selecting images
+enable_tables = true
 # Image DPI for PDF conversion (higher = better quality but larger)
 image_dpi = 150
+# Max total images across all PDFs
+max_images = 50
+# Minimum table size for table detection
+min_table_rows = 2
+min_table_cols = 2
+# Image budget ratios per PDF type (normalized if they don't sum to 1.0)
+image_ratio_examples = 0.5
+image_ratio_rfp = 0.25
+image_ratio_context = 0.25
 # Enable frontend authentication with MSAL
 enable_auth = false
 

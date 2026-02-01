@@ -11,6 +11,8 @@ Enterprise RFP (Request for Proposal) response generator powered by Microsoft Ag
 - **PDF Generation**: Creates downloadable PDF responses
 - **Optional Authentication**: Toggle MSAL authentication on/off
 - **Image Mode**: Send PDFs as images for better format understanding
+- **Table-Aware Image Selection**: Prioritizes table-heavy pages for vision input
+- **Image Budgeting**: Split a total image budget across example RFPs, the target RFP, and company context PDFs
 
 ## Architecture
 
@@ -66,6 +68,7 @@ model = "gpt-4o"
 
 [features]
 enable_images = true   # Convert PDFs to images for LLM
+enable_tables = true   # Prioritize table pages when selecting images
 enable_auth = false    # Toggle MSAL authentication
 ```
 
@@ -171,6 +174,30 @@ tenant_id = "your-tenant-id"
 redirect_uri = "http://localhost:3000"
 scopes = ["User.Read"]
 ```
+
+### Image & Table Settings
+
+Image handling is driven by a total budget (`max_images`) and normalized ratios for the three PDF types:
+1) example RFP responses  
+2) the target RFP to answer  
+3) internal company capabilities/context PDFs
+
+If ratios do not sum to 1, they are normalized. Budgets are then split across documents of the same type.
+
+```toml
+[features]
+enable_images = true
+enable_tables = true
+image_dpi = 150
+max_images = 50
+min_table_rows = 2
+min_table_cols = 2
+image_ratio_examples = 0.5
+image_ratio_rfp = 0.25
+image_ratio_context = 0.25
+```
+
+Example: `max_images=50` with ratios `0.5/0.25/0.25` yields ~25 images for example PDFs, ~12 for the target RFP, and ~12 for context PDFs (remainder distributed by largest fractional). If you upload multiple example/context PDFs, that bucket is split evenly per document.
 
 ### PDF Output
 

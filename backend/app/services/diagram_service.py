@@ -20,19 +20,43 @@ class DiagramService:
     
     def __init__(self):
         self._mmdc_available: Optional[bool] = None
+        self._mmdc_path: Optional[str] = None
+    
+    def _find_mmdc(self) -> Optional[str]:
+        """Find the mmdc executable, checking common locations on Windows."""
+        import os
+        import shutil
+        
+        # First try to find in PATH
+        mmdc = shutil.which("mmdc")
+        if mmdc:
+            return mmdc
+        
+        # On Windows, check npm global directory
+        npm_prefix = os.path.expandvars(r"%APPDATA%\npm")
+        mmdc_cmd = os.path.join(npm_prefix, "mmdc.cmd")
+        if os.path.exists(mmdc_cmd):
+            return mmdc_cmd
+        
+        return None
     
     def is_available(self) -> bool:
         """Check if Mermaid CLI is available."""
         if self._mmdc_available is None:
-            try:
-                result = subprocess.run(
-                    ["mmdc", "--version"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10
-                )
-                self._mmdc_available = result.returncode == 0
-            except (subprocess.SubprocessError, FileNotFoundError):
+            self._mmdc_path = self._find_mmdc()
+            if self._mmdc_path:
+                try:
+                    result = subprocess.run(
+                        [self._mmdc_path, "--version"],
+                        capture_output=True,
+                        text=True,
+                        timeout=10,
+                        shell=True  # Use shell on Windows to handle .cmd files
+                    )
+                    self._mmdc_available = result.returncode == 0
+                except (subprocess.SubprocessError, FileNotFoundError):
+                    self._mmdc_available = False
+            else:
                 self._mmdc_available = False
         
         return self._mmdc_available
@@ -101,9 +125,9 @@ class DiagramService:
             if output_path is None:
                 output_path = mmd_path.with_suffix('.png')
             
-            # Run mmdc
+            # Run mmdc using the discovered path
             cmd = [
-                "mmdc",
+                self._mmdc_path,
                 "-i", str(mmd_path),
                 "-o", str(output_path),
                 "-t", theme,
@@ -116,7 +140,8 @@ class DiagramService:
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
+                shell=True  # Use shell to handle .cmd files on Windows
             )
             
             if result.returncode != 0:

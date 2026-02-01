@@ -1,101 +1,46 @@
 """
-RFP-specific function definitions for LLM function calling.
-These define the structured output formats the LLM should use.
+Function definitions for LLM function calling.
+
+Defines the schema for:
+1. analyze_rfp - Extract requirements from RFP
+2. generate_rfp_response - Generate python-docx code for the proposal
 """
 
-from typing import Any
-
-# Main function for generating the final RFP response
-GENERATE_RFP_RESPONSE_FUNCTION: dict[str, Any] = {
-    "name": "generate_rfp_response",
-    "description": "Generate a structured RFP response with properly formatted sections. Use this function to output the final proposal content.",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "sections": {
-                "type": "array",
-                "description": "Array of proposal sections in order. Each section has a title, content, and type.",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "section_title": {
-                            "type": "string",
-                            "description": "The title of this section (e.g., 'Executive Summary', 'Technical Approach')"
-                        },
-                        "section_content": {
-                            "type": "string",
-                            "description": "The content of this section. Can include Markdown formatting and Mermaid diagrams wrapped in ```mermaid blocks."
-                        },
-                        "section_type": {
-                            "type": "string",
-                            "enum": ["h1", "h2", "h3", "body"],
-                            "description": "The type of section: h1 for main headers, h2 for sub-headers, h3 for sub-sub-headers, body for content paragraphs"
-                        }
-                    },
-                    "required": ["section_title", "section_content", "section_type"]
-                }
-            },
-            "metadata": {
-                "type": "object",
-                "description": "Optional metadata about the response",
-                "properties": {
-                    "total_sections": {
-                        "type": "integer",
-                        "description": "Total number of sections generated"
-                    },
-                    "has_diagrams": {
-                        "type": "boolean",
-                        "description": "Whether the response contains Mermaid diagrams"
-                    },
-                    "estimated_pages": {
-                        "type": "integer",
-                        "description": "Estimated number of pages when formatted"
-                    }
-                }
-            }
-        },
-        "required": ["sections"]
-    }
-}
-
-# Function for analyzing RFP requirements
-ANALYZE_RFP_FUNCTION: dict[str, Any] = {
+ANALYZE_RFP_FUNCTION = {
     "name": "analyze_rfp",
-    "description": "Analyze an RFP document and extract structured requirements and criteria.",
+    "description": "Analyze an RFP document and extract structured requirements, evaluation criteria, and submission requirements.",
     "parameters": {
         "type": "object",
         "properties": {
             "summary": {
                 "type": "string",
-                "description": "Brief summary of what the RFP is requesting"
+                "description": "Brief 2-3 sentence summary of what the RFP is requesting."
             },
             "requirements": {
                 "type": "array",
-                "description": "List of requirements extracted from the RFP",
+                "description": "List of requirements extracted from the RFP.",
                 "items": {
                     "type": "object",
                     "properties": {
                         "id": {
                             "type": "string",
-                            "description": "Unique identifier for this requirement (e.g., REQ-001)"
+                            "description": "Unique identifier like REQ-001"
                         },
                         "description": {
                             "type": "string",
-                            "description": "Full description of the requirement"
+                            "description": "Clear description of the requirement"
                         },
                         "category": {
                             "type": "string",
-                            "enum": ["technical", "management", "cost", "experience", "compliance", "other"],
-                            "description": "Category of the requirement"
+                            "enum": ["technical", "management", "cost", "experience", "compliance", "other"]
                         },
                         "is_mandatory": {
                             "type": "boolean",
-                            "description": "Whether this requirement is mandatory for compliance"
+                            "description": "Whether this is a mandatory requirement"
                         },
                         "priority": {
                             "type": "string",
-                            "enum": ["high", "medium", "low"],
-                            "description": "Relative priority/weight of this requirement"
+                            "enum": ["high", "medium", "low"]
                         }
                     },
                     "required": ["id", "description", "category", "is_mandatory"]
@@ -103,133 +48,143 @@ ANALYZE_RFP_FUNCTION: dict[str, Any] = {
             },
             "evaluation_criteria": {
                 "type": "array",
-                "description": "Evaluation criteria and scoring methodology",
+                "description": "How proposals will be evaluated.",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "criterion": {
-                            "type": "string",
-                            "description": "Name of the evaluation criterion"
-                        },
-                        "weight": {
-                            "type": "number",
-                            "description": "Weight or points for this criterion (if specified)"
-                        },
-                        "description": {
-                            "type": "string",
-                            "description": "Description of what evaluators are looking for"
-                        }
+                        "criterion": {"type": "string"},
+                        "weight": {"type": "number"},
+                        "description": {"type": "string"}
                     },
                     "required": ["criterion"]
                 }
             },
             "submission_requirements": {
                 "type": "object",
-                "description": "Submission logistics and requirements",
+                "description": "Logistics for submission.",
                 "properties": {
-                    "deadline": {
-                        "type": "string",
-                        "description": "Submission deadline if specified"
-                    },
-                    "format": {
-                        "type": "string",
-                        "description": "Required format (e.g., PDF, Word)"
-                    },
-                    "page_limit": {
-                        "type": "integer",
-                        "description": "Maximum page count if specified"
-                    },
+                    "deadline": {"type": "string"},
+                    "format": {"type": "string"},
+                    "page_limit": {"type": "integer"},
                     "sections_required": {
                         "type": "array",
-                        "items": {"type": "string"},
-                        "description": "List of required sections"
+                        "items": {"type": "string"}
                     }
                 }
             },
             "key_differentiators": {
                 "type": "array",
-                "items": {"type": "string"},
-                "description": "Key areas where we can differentiate our proposal"
+                "description": "What would make a proposal stand out.",
+                "items": {"type": "string"}
             }
         },
         "required": ["summary", "requirements"]
     }
 }
 
-# Review feedback function
-REVIEW_PROPOSAL_FUNCTION: dict[str, Any] = {
-    "name": "review_proposal",
-    "description": "Provide structured review feedback on a proposal draft.",
+GENERATE_RFP_RESPONSE_FUNCTION = {
+    "name": "generate_rfp_response",
+    "description": "Generate complete Python code that creates the RFP proposal Word document.",
     "parameters": {
         "type": "object",
         "properties": {
-            "overall_score": {
-                "type": "integer",
-                "minimum": 1,
-                "maximum": 10,
-                "description": "Overall quality score from 1-10"
-            },
-            "compliance_status": {
+            "document_code": {
                 "type": "string",
-                "enum": ["compliant", "partially_compliant", "non_compliant"],
-                "description": "Whether the proposal meets mandatory requirements"
-            },
-            "strengths": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "List of proposal strengths"
-            },
-            "weaknesses": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "List of proposal weaknesses"
-            },
-            "required_changes": {
-                "type": "array",
-                "description": "Changes that must be made",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "section": {
-                            "type": "string",
-                            "description": "Which section needs changes"
-                        },
-                        "issue": {
-                            "type": "string",
-                            "description": "Description of the issue"
-                        },
-                        "suggestion": {
-                            "type": "string",
-                            "description": "Suggested fix"
-                        },
-                        "priority": {
-                            "type": "string",
-                            "enum": ["critical", "important", "nice_to_have"]
-                        }
-                    },
-                    "required": ["section", "issue", "suggestion"]
-                }
-            },
-            "missing_requirements": {
-                "type": "array",
-                "items": {"type": "string"},
-                "description": "Requirements from the RFP that aren't addressed"
+                "description": """Complete Python code that creates the full proposal Word document.
+
+## Available Variables & Imports
+The code runs in an environment with:
+- `doc`: A python-docx Document instance (already created)
+- `output_dir`: Path to save any generated images
+- `Inches`, `Pt`, `Cm`: From docx.shared for sizing
+- `WD_ALIGN_PARAGRAPH`: From docx.enum.text
+- `WD_TABLE_ALIGNMENT`: From docx.enum.table
+- `plt`, `sns`, `np`, `pd`: matplotlib.pyplot, seaborn, numpy, pandas
+- `subprocess`, `tempfile`, `os`: For running mermaid CLI
+
+## Creating Charts with Seaborn
+```python
+# Create a chart
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+plt.figure(figsize=(8, 5))
+sns.set_style("whitegrid")
+data = {'Phase': ['Discovery', 'Design', 'Implementation', 'Testing'], 'Weeks': [2, 4, 8, 3]}
+sns.barplot(x='Phase', y='Weeks', data=data, palette='Blues_d')
+plt.title('Project Timeline')
+plt.tight_layout()
+chart_path = output_dir / 'timeline_chart.png'
+plt.savefig(chart_path, dpi=150, bbox_inches='tight')
+plt.close()
+
+doc.add_picture(str(chart_path), width=Inches(5.5))
+doc.add_paragraph('Figure 1: Project Timeline')
+```
+
+## Creating Mermaid Diagrams
+```python
+import subprocess
+import tempfile
+
+mermaid_code = '''
+flowchart TD
+    A[Discovery] --> B[Design]
+    B --> C[Implementation]
+    C --> D[Testing]
+    D --> E[Deployment]
+'''
+
+# Save mermaid code to temp file
+with tempfile.NamedTemporaryFile(mode='w', suffix='.mmd', delete=False) as f:
+    f.write(mermaid_code)
+    mmd_path = f.name
+
+diagram_path = output_dir / 'workflow_diagram.png'
+subprocess.run(['mmdc', '-i', mmd_path, '-o', str(diagram_path), '-b', 'transparent'], check=True)
+
+doc.add_picture(str(diagram_path), width=Inches(5))
+doc.add_paragraph('Figure 2: Project Workflow')
+```
+
+## Document Structure
+```python
+# Title
+doc.add_heading('Proposal Title', level=0)
+
+# Section heading
+doc.add_heading('Executive Summary', level=1)
+doc.add_paragraph('Content here...')
+
+# Bullet list
+doc.add_paragraph('First point', style='List Bullet')
+doc.add_paragraph('Second point', style='List Bullet')
+
+# Table
+table = doc.add_table(rows=3, cols=3)
+table.style = 'Table Grid'
+# ... populate cells
+
+# Page break
+doc.add_page_break()
+```
+
+Write complete, professional code. Do NOT call doc.save() - that's handled externally."""
             }
         },
-        "required": ["overall_score", "compliance_status", "required_changes"]
+        "required": ["document_code"]
     }
 }
 
-# Collection of all functions
-ALL_FUNCTIONS: list[dict[str, Any]] = [
-    GENERATE_RFP_RESPONSE_FUNCTION,
+# All available functions
+ALL_FUNCTIONS = [
     ANALYZE_RFP_FUNCTION,
-    REVIEW_PROPOSAL_FUNCTION,
+    GENERATE_RFP_RESPONSE_FUNCTION,
 ]
 
 
-def get_function_by_name(name: str) -> dict[str, Any] | None:
-    """Get a function definition by its name."""
+def get_function_by_name(name: str) -> dict | None:
+    """Get a function definition by name."""
     for func in ALL_FUNCTIONS:
         if func["name"] == name:
             return func

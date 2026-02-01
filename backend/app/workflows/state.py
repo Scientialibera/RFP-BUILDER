@@ -5,7 +5,7 @@ Workflow state models for RFP Builder.
 from dataclasses import dataclass, field
 from typing import Optional
 
-from app.models.schemas import RFPAnalysis, RFPResponse, ReviewFeedback
+from app.models.schemas import RFPAnalysis, RFPResponse
 
 
 @dataclass
@@ -34,15 +34,9 @@ class GenerationResult:
 
 
 @dataclass
-class ReviewResult:
-    """Result from the reviewer executor."""
-    feedback: ReviewFeedback
-    raw_response: str
-
-
-@dataclass
 class FinalResult:
     """Final result from the workflow."""
     response: RFPResponse
     analysis: RFPAnalysis
-    review: Optional[ReviewFeedback] = None
+    docx_path: Optional[str] = None
+    execution_stats: Optional[dict] = None

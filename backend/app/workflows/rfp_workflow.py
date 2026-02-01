@@ -1,21 +1,21 @@
 """
 RFP Builder Workflow using Microsoft Agent Framework.
-Orchestrates the sequential flow of RFP analysis, generation, review, and finalization.
+Orchestrates the sequential flow of RFP analysis, generation, and code execution.
 """
 
 import logging
+from pathlib import Path
 from typing import Optional, AsyncIterator
 from dataclasses import dataclass
 
 from app.core.config import get_config
 from app.core.llm_client import create_llm_client
-from app.models.schemas import RFPResponse, RFPAnalysis, ReviewFeedback
+from app.models.schemas import RFPResponse, RFPAnalysis
 from .state import WorkflowInput, FinalResult
 from .executors import (
     RFPAnalyzerExecutor,
     SectionGeneratorExecutor,
-    ReviewerExecutor,
-    FinalizerExecutor,
+    CodeInterpreterExecutor,
 )
 
 
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class WorkflowEvent:
     """Event emitted during workflow execution."""
-    event_type: str  # 'started', 'step_complete', 'error', 'finished'
+    event_type: str  # 'started', 'step_started', 'step_complete', 'error', 'finished'
     step_name: Optional[str] = None
     message: Optional[str] = None
     data: Optional[dict] = None
@@ -35,75 +35,74 @@ class RFPBuilderWorkflow:
     """
     Main workflow for RFP generation.
     
-    This workflow follows a sequential pattern:
+    This workflow follows a simple sequential pattern:
     1. Analyze RFP -> Extract requirements
-    2. Generate Sections -> Create proposal content
-    3. Review -> Check quality and compliance
-    4. Finalize -> Incorporate feedback and polish
+    2. Generate Document Code -> Create python-docx code with diagram/chart definitions
+    3. Execute Code -> Run Mermaid/Python code, then execute document code
+    4. Return path to generated .docx file
     """
     
-    def __init__(self):
+    def __init__(self, output_dir: Optional[Path] = None):
         self.config = get_config()
         self.client = create_llm_client()
+        self.output_dir = output_dir or Path(self.config.app.output_dir)
         
         # Initialize executors with shared client
         self.analyzer = RFPAnalyzerExecutor(self.client)
         self.generator = SectionGeneratorExecutor(self.client)
-        self.reviewer = ReviewerExecutor(self.client)
-        self.finalizer = FinalizerExecutor(self.client)
+        self.code_interpreter = CodeInterpreterExecutor(self.client, self.output_dir)
     
-    async def run(self, input_data: WorkflowInput) -> FinalResult:
+    async def run(self, input_data: WorkflowInput, job_output_dir: Optional[Path] = None) -> FinalResult:
         """
         Run the complete RFP workflow.
         
         Args:
             input_data: Workflow input with RFP and context.
+            job_output_dir: Optional job-specific output directory for images.
             
         Returns:
-            FinalResult with generated proposal.
+            FinalResult with generated proposal and docx path.
         """
         logger.info("Starting RFP Builder workflow")
+        
+        output_dir = job_output_dir or self.output_dir
         
         # Step 1: Analyze RFP
         analysis_result = await self.analyzer.execute(input_data)
         logger.info(f"Analysis complete: {len(analysis_result.analysis.requirements)} requirements")
         
-        # Step 2: Generate sections
+        # Step 2: Generate document code
         generation_result = await self.generator.execute(
             input_data, 
             analysis_result.analysis
         )
-        logger.info(f"Generation complete: {len(generation_result.response.sections)} sections")
+        logger.info(f"Generation complete: {len(generation_result.response.document_code)} chars of document code")
         
-        # Step 3: Review
-        review_result = await self.reviewer.execute(
-            analysis_result.analysis,
-            generation_result.response
+        # Step 3: Execute code to create the Word document
+        docx_path, code_stats = await self.code_interpreter.execute(
+            generation_result.response,
+            output_dir
         )
-        logger.info(f"Review complete: Score {review_result.feedback.overall_score}/10")
-        
-        # Step 4: Finalize (only if review suggests changes)
-        if review_result.feedback.required_changes:
-            final_result = await self.finalizer.execute(
-                generation_result.response,
-                review_result.feedback
-            )
-            final_response = final_result.response
-        else:
-            final_response = generation_result.response
+        logger.info(f"Code execution: {'success' if code_stats['document_success'] else 'failed'}")
         
         return FinalResult(
-            response=final_response,
+            response=generation_result.response,
             analysis=analysis_result.analysis,
-            review=review_result.feedback
+            docx_path=str(docx_path),
+            execution_stats=code_stats
         )
     
-    async def run_stream(self, input_data: WorkflowInput) -> AsyncIterator[WorkflowEvent]:
+    async def run_stream(
+        self, 
+        input_data: WorkflowInput,
+        job_output_dir: Path | None = None
+    ) -> AsyncIterator[WorkflowEvent]:
         """
         Run the workflow with streaming events.
         
         Args:
             input_data: Workflow input with RFP and context.
+            job_output_dir: Directory for output files (charts, diagrams, docx).
             
         Yields:
             WorkflowEvent objects for each step.
@@ -112,6 +111,9 @@ class RFPBuilderWorkflow:
             event_type="started",
             message="RFP Builder workflow started"
         )
+        
+        # Determine output directory
+        output_dir = job_output_dir or self.output_dir
         
         try:
             # Step 1: Analyze
@@ -130,11 +132,11 @@ class RFPBuilderWorkflow:
                 data={"requirements_count": len(analysis_result.analysis.requirements)}
             )
             
-            # Step 2: Generate
+            # Step 2: Generate document code
             yield WorkflowEvent(
                 event_type="step_started",
                 step_name="generate",
-                message="Generating proposal sections..."
+                message="Generating proposal document code..."
             )
             
             generation_result = await self.generator.execute(
@@ -145,61 +147,36 @@ class RFPBuilderWorkflow:
             yield WorkflowEvent(
                 event_type="step_complete",
                 step_name="generate",
-                message=f"Generated {len(generation_result.response.sections)} sections",
-                data={"sections_count": len(generation_result.response.sections)}
+                message=f"Generated {len(generation_result.response.document_code)} chars of document code",
+                data={"document_code_length": len(generation_result.response.document_code)}
             )
             
-            # Step 3: Review
+            # Step 3: Execute Code to create document
             yield WorkflowEvent(
                 event_type="step_started",
-                step_name="review",
-                message="Reviewing proposal quality..."
+                step_name="execute_code",
+                message="Executing code to create Word document..."
             )
             
-            review_result = await self.reviewer.execute(
-                analysis_result.analysis,
-                generation_result.response
+            docx_path, code_stats = await self.code_interpreter.execute(
+                generation_result.response,
+                output_dir
             )
             
             yield WorkflowEvent(
                 event_type="step_complete",
-                step_name="review",
-                message=f"Review score: {review_result.feedback.overall_score}/10",
-                data={
-                    "score": review_result.feedback.overall_score,
-                    "compliance": review_result.feedback.compliance_status
-                }
+                step_name="execute_code",
+                message=f"Document {'created successfully' if code_stats['document_success'] else 'creation failed'}",
+                data=code_stats
             )
-            
-            # Step 4: Finalize if needed
-            if review_result.feedback.required_changes:
-                yield WorkflowEvent(
-                    event_type="step_started",
-                    step_name="finalize",
-                    message="Finalizing proposal with feedback..."
-                )
-                
-                final_result = await self.finalizer.execute(
-                    generation_result.response,
-                    review_result.feedback
-                )
-                final_response = final_result.response
-                
-                yield WorkflowEvent(
-                    event_type="step_complete",
-                    step_name="finalize",
-                    message="Proposal finalized"
-                )
-            else:
-                final_response = generation_result.response
             
             # Complete
             yield WorkflowEvent(
                 event_type="finished",
                 message="RFP generation complete",
                 data={
-                    "total_sections": len(final_response.sections),
-                    "review_score": review_result.feedback.overall_score
+                    "docx_path": str(docx_path),
+                    "document_success": code_stats['document_success']
                 }
             )
             

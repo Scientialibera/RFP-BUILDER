@@ -3,14 +3,11 @@ Data models module.
 """
 
 from .schemas import (
-    RFPSection,
     RFPResponse,
     RFPAnalysis,
     RFPRequirement,
     EvaluationCriterion,
     SubmissionRequirements,
-    ReviewFeedback,
-    ReviewChange,
     GenerateRFPRequest,
     GenerateRFPResponse,
     HealthResponse,
@@ -18,14 +15,11 @@ from .schemas import (
 )
 
 __all__ = [
-    "RFPSection",
     "RFPResponse",
     "RFPAnalysis",
     "RFPRequirement",
     "EvaluationCriterion",
     "SubmissionRequirements",
-    "ReviewFeedback",
-    "ReviewChange",
     "GenerateRFPRequest",
     "GenerateRFPResponse",
     "HealthResponse",

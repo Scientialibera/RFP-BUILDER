@@ -32,46 +32,9 @@ Generate well-structured proposal sections that:
 1. Address all identified requirements
 2. Match the style and format of the example RFPs
 3. Incorporate our company's capabilities and differentiators
-4. Include relevant diagrams where they add value
+4. MUST include at least 2-3 Mermaid diagrams AND 1-2 Python charts AND 1-2 tables
+
+REMEMBER: Use placeholders ({{MERMAID_DIAGRAM_1}}, {{PYTHON_CHART_1}}, {{TABLE_1}}) in content and provide code in the function parameters.
 
 Use the generate_rfp_response function to structure your output.
-"""
-
-REVIEW_PROPOSAL_USER_PROMPT = """Please review the following proposal draft against the original RFP requirements.
-
-## Original RFP Requirements:
-{rfp_analysis}
-
-## Proposal Draft:
-{proposal_draft}
-
-## Evaluation Criteria:
-{evaluation_criteria}
-
-Provide detailed feedback on:
-1. Completeness - are all requirements addressed?
-2. Quality - is the content clear and professional?
-3. Persuasiveness - does it make a compelling case?
-4. Compliance - does it meet all mandatory requirements?
-5. Diagram Quality - are the Mermaid diagrams valid and useful?
-
-List specific improvements needed.
-"""
-
-FINALIZE_PROPOSAL_USER_PROMPT = """Finalize the proposal by incorporating the review feedback and producing the polished final version.
-
-## Proposal Draft:
-{proposal_draft}
-
-## Review Feedback:
-{review_feedback}
-
-## Style Guidelines (from examples):
-{style_guidelines}
-
-Produce the final proposal using the generate_rfp_response function. Ensure:
-1. All feedback has been incorporated
-2. Formatting is consistent throughout
-3. Content flows logically between sections
-4. All Mermaid diagrams are valid and render properly
 """

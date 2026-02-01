@@ -12,8 +12,9 @@ const WORKFLOW_STEPS = [
   { id: 'upload', name: 'Upload Documents', description: 'Preparing your files' },
   { id: 'analyze', name: 'Analyze RFP', description: 'Extracting requirements' },
   { id: 'generate', name: 'Generate Sections', description: 'Creating proposal content' },
+  { id: 'execute_code', name: 'Execute Code', description: 'Generating diagrams, charts & tables' },
   { id: 'review', name: 'Review Quality', description: 'Checking compliance' },
-  { id: 'finalize', name: 'Finalize', description: 'Polishing the response' },
+  { id: 'revise', name: 'Revise (if needed)', description: 'Improving based on feedback' },
 ];
 
 function App() {
@@ -55,7 +56,7 @@ function App() {
       );
 
       // Mark all steps complete
-      setCompletedSteps(['upload', 'analyze', 'generate', 'review', 'finalize']);
+      setCompletedSteps(['upload', 'analyze', 'generate', 'execute_code', 'review', 'revise']);
       setCurrentStep(null);
       setResult(response);
     } catch (err) {
