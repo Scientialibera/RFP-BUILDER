@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-02-05T16:59:51.716045",
+  "run_dir": "outputs\\runs\\run_20260205_165511",
+  "has_plan": true,
+  "critique_count": 0,
+  "subdirectories": {
+    "word_document": "Final .docx proposal file",
+    "image_assets": "Generated charts and visualizations",
+    "diagrams": "Generated Mermaid diagrams",
+    "llm_interactions": "LLM request/response logs",
+    "execution_logs": "Code execution logs and errors",
+    "metadata": "Analysis, plan, and critique JSON files",
+    "code_snapshots": "Generated document code snapshots",
+    "documents": "Uploaded source documents (RFP, examples, context)",
+    "revisions": "User-initiated code revisions"
+  }
+}
