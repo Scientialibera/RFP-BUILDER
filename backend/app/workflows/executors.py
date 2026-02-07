@@ -23,24 +23,7 @@ from app.core.text_chunker import (
     parse_pages,
     truncate_to_tokens,
 )
-from app.prompts.system_prompts import (
-    RFP_ANALYZER_SYSTEM_PROMPT,
-    build_rfp_section_generator_system_prompt,
-    PROPOSAL_PLANNER_SYSTEM_PROMPT,
-    PROPOSAL_CRITIQUER_SYSTEM_PROMPT,
-)
-from app.prompts.user_prompts import (
-    ANALYZE_RFP_USER_PROMPT,
-    GENERATE_SECTIONS_USER_PROMPT,
-    PLAN_PROPOSAL_USER_PROMPT,
-    GENERATE_WITH_PLAN_USER_PROMPT,
-    GENERATE_WITH_ERROR_USER_PROMPT,
-    GENERATE_WITH_CRITIQUE_USER_PROMPT,
-    GENERATE_SECTIONS_CHUNKED_USER_PROMPT,
-    GENERATE_SECTIONS_CHUNKED_WITH_CRITIQUE_USER_PROMPT,
-    SYNTHESIZE_DOCUMENT_CODE_PROMPT,
-    CRITIQUE_DOCUMENT_USER_PROMPT,
-)
+from app.prompts import system_prompts, user_prompts
 from app.functions.rfp_functions import (
     ANALYZE_RFP_FUNCTION,
     GENERATE_RFP_RESPONSE_FUNCTION,
@@ -68,6 +51,21 @@ from .state import (
 
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_prompt(module, prompt_name: str) -> str:
+    value = getattr(module, prompt_name, None)
+    if not isinstance(value, str):
+        raise ValueError(f"Prompt not found or invalid: {prompt_name}")
+    return value
+
+
+def _system_prompt(prompt_name: str) -> str:
+    return _resolve_prompt(system_prompts, prompt_name)
+
+
+def _user_prompt(prompt_name: str) -> str:
+    return _resolve_prompt(user_prompts, prompt_name)
 
 
 def _as_page_number(text: str) -> str:
@@ -194,13 +192,13 @@ class RFPAnalyzerExecutor(BaseExecutor):
         should_chunk = self.config.features.toggle_requirements_chunking
         pages = parse_pages(input_data.rfp_text)
         if not should_chunk or not pages:
-            user_prompt = ANALYZE_RFP_USER_PROMPT.format(
+            user_prompt = _user_prompt("ANALYZE_RFP_USER_PROMPT").format(
                 rfp_content=input_data.rfp_text,
                 additional_context=base_additional_context
             )
 
             messages = self._build_messages_with_images(
-                RFP_ANALYZER_SYSTEM_PROMPT,
+                _system_prompt("RFP_ANALYZER_SYSTEM_PROMPT"),
                 user_prompt,
                 input_data.rfp_images
             )
@@ -290,13 +288,13 @@ class RFPAnalyzerExecutor(BaseExecutor):
                 part for part in [base_additional_context, chunk_meta, previous_text] if part
             )
 
-            user_prompt = ANALYZE_RFP_USER_PROMPT.format(
+            user_prompt = _user_prompt("ANALYZE_RFP_USER_PROMPT").format(
                 rfp_content=chunk_text,
                 additional_context=additional_context
             )
 
             messages = self._build_messages_with_images(
-                RFP_ANALYZER_SYSTEM_PROMPT,
+                _system_prompt("RFP_ANALYZER_SYSTEM_PROMPT"),
                 user_prompt,
                 input_data.rfp_images
             )
@@ -476,7 +474,9 @@ class SectionGeneratorExecutor(BaseExecutor):
 
     def _system_prompt_for(self, input_data: WorkflowInput) -> str:
         settings = self._get_generation_settings(input_data)
-        return build_rfp_section_generator_system_prompt(settings["formatting_injection"])
+        if settings["formatting_injection"]:
+            return system_prompts.build_rfp_section_generator_system_prompt(settings["formatting_injection"])
+        return _system_prompt("RFP_SECTION_GENERATOR_SYSTEM_PROMPT")
 
     @staticmethod
     def _extract_page_numbers(page_refs: list[int] | None) -> list[int]:
@@ -576,7 +576,7 @@ class SectionGeneratorExecutor(BaseExecutor):
         logger.info("Starting document generation")
         system_prompt = self._system_prompt_for(input_data)
         
-        user_prompt = GENERATE_SECTIONS_USER_PROMPT.format(
+        user_prompt = _user_prompt("GENERATE_SECTIONS_USER_PROMPT").format(
             rfp_analysis=analysis.summary,
             example_rfps="\n\n---\n\n".join(_as_page_number(t) for t in input_data.example_rfps_text),
             company_context=_as_page_number(input_data.company_context_text) if input_data.company_context_text else "No company context provided.",
@@ -603,7 +603,7 @@ class SectionGeneratorExecutor(BaseExecutor):
         logger.info("Starting document generation with plan")
         system_prompt = self._system_prompt_for(input_data)
         
-        user_prompt = GENERATE_WITH_PLAN_USER_PROMPT.format(
+        user_prompt = _user_prompt("GENERATE_WITH_PLAN_USER_PROMPT").format(
             rfp_analysis=analysis.summary,
             proposal_plan=_format_plan(plan),
             example_rfps="\n\n---\n\n".join(_as_page_number(t) for t in input_data.example_rfps_text),
@@ -661,7 +661,7 @@ class SectionGeneratorExecutor(BaseExecutor):
         sections_outline = self._build_sections_outline(sections)
 
         if critique_text:
-            user_prompt = GENERATE_SECTIONS_CHUNKED_WITH_CRITIQUE_USER_PROMPT.format(
+            user_prompt = _user_prompt("GENERATE_SECTIONS_CHUNKED_WITH_CRITIQUE_USER_PROMPT").format(
                 critique=critique_text,
                 previous_code=(previous_code or "")[:5000],
                 part_number=part_number,
@@ -674,7 +674,7 @@ class SectionGeneratorExecutor(BaseExecutor):
                 company_context=company_context,
             )
         else:
-            user_prompt = GENERATE_SECTIONS_CHUNKED_USER_PROMPT.format(
+            user_prompt = _user_prompt("GENERATE_SECTIONS_CHUNKED_USER_PROMPT").format(
                 part_number=part_number,
                 total_parts=total_parts,
                 sections_outline=sections_outline,
@@ -707,7 +707,7 @@ class SectionGeneratorExecutor(BaseExecutor):
     ) -> GenerationResult:
         system_prompt = self._system_prompt_for(input_data)
         combined_codes = "\n\n--- CHUNK ---\n\n".join(chunk_codes)
-        user_prompt = SYNTHESIZE_DOCUMENT_CODE_PROMPT.format(chunk_codes=combined_codes)
+        user_prompt = _user_prompt("SYNTHESIZE_DOCUMENT_CODE_PROMPT").format(chunk_codes=combined_codes)
         return await self._generate(user_prompt, None, "synthesize_document", system_prompt, "Synthesis Failed")
     
     async def execute_with_error(
@@ -721,7 +721,7 @@ class SectionGeneratorExecutor(BaseExecutor):
         logger.info(f"Regenerating document code after error: {error_message[:100]}...")
         system_prompt = self._system_prompt_for(input_data)
         
-        user_prompt = GENERATE_WITH_ERROR_USER_PROMPT.format(
+        user_prompt = _user_prompt("GENERATE_WITH_ERROR_USER_PROMPT").format(
             error_message=error_message,
             previous_code=previous_code[:5000],
             rfp_analysis=analysis.summary,
@@ -741,7 +741,7 @@ class SectionGeneratorExecutor(BaseExecutor):
         logger.info("Regenerating document code based on critique")
         system_prompt = self._system_prompt_for(input_data)
         
-        user_prompt = GENERATE_WITH_CRITIQUE_USER_PROMPT.format(
+        user_prompt = _user_prompt("GENERATE_WITH_CRITIQUE_USER_PROMPT").format(
             critique=_format_critique(critique),
             previous_code=previous_code[:5000],
             rfp_analysis=analysis.summary,
@@ -762,7 +762,7 @@ class PlannerExecutor(BaseExecutor):
         """Create a detailed proposal plan."""
         logger.info("Starting proposal planning")
         
-        user_prompt = PLAN_PROPOSAL_USER_PROMPT.format(
+        user_prompt = _user_prompt("PLAN_PROPOSAL_USER_PROMPT").format(
             rfp_analysis=analysis.summary,
             requirements=_format_requirements(analysis.requirements, include_priority=True),
             company_context=input_data.company_context_text or "No company context provided."
@@ -777,7 +777,7 @@ class PlannerExecutor(BaseExecutor):
         )
 
         messages = self._build_messages_with_images(
-            PROPOSAL_PLANNER_SYSTEM_PROMPT,
+            _system_prompt("PROPOSAL_PLANNER_SYSTEM_PROMPT"),
             user_prompt,
             None  # No images needed for planning
         )
@@ -844,7 +844,7 @@ class CritiquerExecutor(BaseExecutor):
         """Review document code and provide critique."""
         logger.info("Starting document critique")
         
-        user_prompt = CRITIQUE_DOCUMENT_USER_PROMPT.format(
+        user_prompt = _user_prompt("CRITIQUE_DOCUMENT_USER_PROMPT").format(
             requirements=_format_requirements(analysis.requirements, include_category=False),
             document_code=document_code[:10000]  # Limit for context window
         )
@@ -855,7 +855,7 @@ class CritiquerExecutor(BaseExecutor):
         )
         
         messages = [
-            {"role": "system", "content": PROPOSAL_CRITIQUER_SYSTEM_PROMPT},
+            {"role": "system", "content": _system_prompt("PROPOSAL_CRITIQUER_SYSTEM_PROMPT")},
             {"role": "user", "content": user_prompt}
         ]
         
@@ -914,7 +914,10 @@ class CodeInterpreterExecutor(BaseExecutor):
             return mmdc
         
         # Try common npm global install locations
+        repo_root = Path(__file__).resolve().parents[3]
         possible_paths = [
+            repo_root / 'frontend' / 'node_modules' / '.bin' / 'mmdc.cmd',  # Local frontend install (Windows)
+            repo_root / 'frontend' / 'node_modules' / '.bin' / 'mmdc',      # Local frontend install (Unix)
             Path.home() / 'AppData' / 'Roaming' / 'npm' / 'mmdc.cmd',  # Windows
             Path.home() / 'AppData' / 'Roaming' / 'npm' / 'mmdc',
             Path('/usr/local/bin/mmdc'),  # macOS/Linux

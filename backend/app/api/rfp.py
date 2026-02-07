@@ -9,6 +9,7 @@ import base64
 import ast
 import html
 import re
+from datetime import datetime
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, TypeVar
@@ -154,6 +155,68 @@ def _save_code_snapshot(run_dir: Path, stage: str, code: str) -> None:
             f.write(code)
     except Exception as exc:
         logger.warning(f"Failed to save code snapshot {snapshot_file.name}: {exc}")
+
+
+def _save_json_artifact(run_dir: Path, relative_path: str, payload: object) -> None:
+    """Save a JSON payload under the run directory."""
+    target = run_dir / relative_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(target, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, default=str)
+    except Exception as exc:
+        logger.warning("Failed to save JSON artifact %s: %s", target, exc)
+
+
+def _save_analysis_metadata(run_dir: Path, analysis: RFPAnalysis) -> None:
+    _save_json_artifact(run_dir, "metadata/analysis.json", analysis.model_dump())
+
+
+def _save_plan_metadata(run_dir: Path, plan: ProposalPlan) -> None:
+    _save_json_artifact(run_dir, "metadata/plan.json", plan.model_dump())
+
+
+def _load_json_list_artifact(run_dir: Path, relative_path: str) -> list[dict]:
+    """Load a list JSON artifact; return empty list when missing or invalid."""
+    target = run_dir / relative_path
+    if not target.exists():
+        return []
+    try:
+        with open(target, "r", encoding="utf-8") as f:
+            loaded = json.load(f)
+        if isinstance(loaded, list):
+            return [item for item in loaded if isinstance(item, dict)]
+    except Exception as exc:
+        logger.warning("Failed to load JSON artifact %s: %s", target, exc)
+    return []
+
+
+def _append_analysis_version(run_dir: Path, analysis: RFPAnalysis, comment: Optional[str] = None) -> None:
+    """Append a new analysis version entry to metadata history."""
+    versions = _load_json_list_artifact(run_dir, "metadata/analysis_versions.json")
+    version_id = f"analysis_v{len(versions) + 1:03d}"
+    entry = {
+        "version_id": version_id,
+        "created_at": datetime.now().isoformat(),
+        "comment": (comment or "").strip() or None,
+        "analysis": analysis.model_dump(),
+    }
+    versions.append(entry)
+    _save_json_artifact(run_dir, "metadata/analysis_versions.json", versions)
+
+
+def _append_plan_version(run_dir: Path, plan: ProposalPlan, comment: Optional[str] = None) -> None:
+    """Append a new plan version entry to metadata history."""
+    versions = _load_json_list_artifact(run_dir, "metadata/plan_versions.json")
+    version_id = f"plan_v{len(versions) + 1:03d}"
+    entry = {
+        "version_id": version_id,
+        "created_at": datetime.now().isoformat(),
+        "comment": (comment or "").strip() or None,
+        "plan": plan.model_dump(),
+    }
+    versions.append(entry)
+    _save_json_artifact(run_dir, "metadata/plan_versions.json", versions)
 
 
 def _extract_target_names(target: ast.expr) -> set[str]:
@@ -1117,6 +1180,8 @@ async def extract_reqs(
 
     try:
         analysis_result = await analyzer.execute(input_data)
+        _save_analysis_metadata(run_dir, analysis_result.analysis)
+        _append_analysis_version(run_dir, analysis_result.analysis, comment)
         return ExtractReqsResponse(
             success=True,
             message="Requirements extracted successfully",
@@ -1147,6 +1212,9 @@ async def plan_rfp(
 
     try:
         planning_result = await planner.execute(input_data, request.analysis)
+        _save_analysis_metadata(run_dir, request.analysis)
+        _save_plan_metadata(run_dir, planning_result.plan)
+        _append_plan_version(run_dir, planning_result.plan, request.comment)
         return PlanStepResponse(
             success=True,
             message="Plan generated successfully",
@@ -1203,6 +1271,9 @@ async def plan_rfp_with_context(
 
     try:
         planning_result = await planner.execute(input_data, analysis)
+        _save_analysis_metadata(run_dir, analysis)
+        _save_plan_metadata(run_dir, planning_result.plan)
+        _append_plan_version(run_dir, planning_result.plan, comment)
         return PlanStepResponse(
             success=True,
             message="Plan generated successfully",
@@ -1262,6 +1333,9 @@ async def generate_rfp_step(
 
     run_dir = _resolve_step_run_directory(run_id)
     _save_documents(run_dir, docs.documents)
+    _save_analysis_metadata(run_dir, analysis)
+    if plan:
+        _save_plan_metadata(run_dir, plan)
 
     client = create_llm_client()
     generator = SectionGeneratorExecutor(client, run_dir)
@@ -1386,6 +1460,21 @@ async def critique_rfp(
             request.document_code,
             comment=request.comment,
         )
+        _save_analysis_metadata(run_dir, request.analysis)
+        if request.run_id:
+            existing_critiques: list[dict] = []
+            critiques_path = run_dir / "metadata" / "critiques.json"
+            if critiques_path.exists():
+                try:
+                    with open(critiques_path, "r", encoding="utf-8") as f:
+                        loaded = json.load(f)
+                    if isinstance(loaded, list):
+                        existing_critiques = loaded
+                except Exception:
+                    existing_critiques = []
+            if critique_result.critique:
+                existing_critiques.append(critique_result.critique.model_dump())
+                _save_json_artifact(run_dir, "metadata/critiques.json", existing_critiques)
         return CritiqueStepResponse(
             success=True,
             message="Critique completed successfully",

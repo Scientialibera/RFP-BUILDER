@@ -151,6 +151,8 @@ export interface WorkflowStepConfig {
 
 export interface ConfigResponse {
   auth_enabled: boolean;
+  front_end_auth: boolean;
+  front_end_required_role?: string;
   images_enabled: boolean;
   enable_planner: boolean;
   enable_critiquer: boolean;
@@ -169,6 +171,14 @@ export interface PromptDefinition {
 export interface PromptsResponse {
   system_prompts: PromptDefinition[];
   base_prompts: PromptDefinition[];
+}
+
+export interface PromptUpdateRequest {
+  prompt_group: 'system' | 'base';
+  prompt_name: string;
+  content: string;
+  admin_permission?: string;
+  user_roles?: string[];
 }
 
 export interface WorkflowEvent {
@@ -218,6 +228,33 @@ export interface RunCodeResponse {
   run_id: string;
   code: string;
   stage: string;
+}
+
+export interface AnalysisVersionEntry {
+  version_id: string;
+  created_at: string;
+  analysis: RFPAnalysis;
+  comment?: string;
+}
+
+export interface PlanVersionEntry {
+  version_id: string;
+  created_at: string;
+  plan: ProposalPlan;
+  comment?: string;
+}
+
+export interface RunWorkflowStateResponse {
+  run_id: string;
+  analysis?: RFPAnalysis;
+  plan?: ProposalPlan;
+  analysis_versions: AnalysisVersionEntry[];
+  plan_versions: PlanVersionEntry[];
+  document_code: string;
+  code_stage?: string;
+  code_package: GeneratedCodePackage;
+  documents: DocumentSummary[];
+  docx_download_url?: string;
 }
 
 export interface RunsListResponse {

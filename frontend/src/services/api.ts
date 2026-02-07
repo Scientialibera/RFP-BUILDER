@@ -13,11 +13,14 @@ import type {
   HealthResponse,
   PlanStepRequest,
   PlanStepResponse,
+  PromptDefinition,
+  PromptUpdateRequest,
   PromptsResponse,
   ProposalPlan,
   RFPAnalysis,
   RunsListResponse,
   RunCodeResponse,
+  RunWorkflowStateResponse,
   RunDetails,
   RegenerateResponse,
 } from '../types';
@@ -39,8 +42,25 @@ export async function getConfig(): Promise<ConfigResponse> {
   return response.data;
 }
 
-export async function getPrompts(): Promise<PromptsResponse> {
-  const response = await api.get<PromptsResponse>('/config/prompts');
+export async function getPrompts(
+  adminPermission?: string,
+  userRoles?: string[]
+): Promise<PromptsResponse> {
+  const params: Record<string, string> = {};
+  if (adminPermission?.trim()) {
+    params.admin_permission = adminPermission.trim();
+  }
+  if (userRoles && userRoles.length > 0) {
+    params.user_roles = userRoles.join(',');
+  }
+  const response = await api.get<PromptsResponse>('/config/prompts', {
+    params: Object.keys(params).length > 0 ? params : undefined,
+  });
+  return response.data;
+}
+
+export async function updatePrompt(request: PromptUpdateRequest): Promise<PromptDefinition> {
+  const response = await api.put<PromptDefinition>('/config/prompts', request);
   return response.data;
 }
 
@@ -269,6 +289,11 @@ export async function getRunCode(runId: string, stage = '99_final'): Promise<Run
   const response = await api.get<RunCodeResponse>(`/runs/${runId}/code`, {
     params: { stage },
   });
+  return response.data;
+}
+
+export async function getRunWorkflowState(runId: string): Promise<RunWorkflowStateResponse> {
+  const response = await api.get<RunWorkflowStateResponse>(`/runs/${runId}/workflow-state`);
   return response.data;
 }
 

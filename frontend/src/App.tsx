@@ -6,8 +6,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Send, Loader, AlertCircle, RefreshCw, Download, History } from 'lucide-react';
 import { Header, FileUpload, ProgressSteps, ResponseViewer, CustomFlow, PromptsViewer } from './components';
 import { RunsHistory } from './components/RunsHistory';
-import { generateRFPStream, getConfig, getPrompts } from './services/api';
+import { generateRFPStream, getConfig, getPrompts, updatePrompt } from './services/api';
 import type { GenerateRFPResponse, ConfigResponse, WorkflowStepConfig, PromptsResponse } from './types';
+import { useAuth } from './context/AuthContext';
 
 // Default steps shown while config loads
 const DEFAULT_WORKFLOW_STEPS: WorkflowStepConfig[] = [
@@ -19,6 +20,8 @@ const DEFAULT_WORKFLOW_STEPS: WorkflowStepConfig[] = [
 ];
 
 function App() {
+  const { roles, hasRole } = useAuth();
+
   // Config state
   const [config, setConfig] = useState<ConfigResponse | null>(null);
   
@@ -44,9 +47,15 @@ function App() {
   // Runs history modal state
   const [showRunsHistory, setShowRunsHistory] = useState(false);
   const [activeTab, setActiveTab] = useState<'standard' | 'custom' | 'config'>('standard');
+  const [customFlowLoadRequest, setCustomFlowLoadRequest] = useState<{ runId: string; nonce: number } | null>(null);
   const [prompts, setPrompts] = useState<PromptsResponse | null>(null);
   const [promptsLoading, setPromptsLoading] = useState(false);
   const [promptsError, setPromptsError] = useState<string | null>(null);
+
+  const requiredFrontEndRole = config?.front_end_required_role?.trim() || '';
+  const hasRequiredFrontEndRole = hasRole(requiredFrontEndRole || undefined);
+  const canAccessPrompts =
+    !(config?.front_end_auth ?? false) || hasRequiredFrontEndRole;
   
   // Effective values (user override or config default)
   const effectivePlanner = enablePlanner ?? config?.enable_planner ?? false;
@@ -76,7 +85,7 @@ function App() {
     setPromptsLoading(true);
     setPromptsError(null);
     try {
-      const data = await getPrompts();
+      const data = await getPrompts(undefined, roles);
       setPrompts(data);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load prompts';
@@ -84,13 +93,51 @@ function App() {
     } finally {
       setPromptsLoading(false);
     }
-  }, []);
+  }, [roles]);
+
+  const handleSavePrompt = useCallback(
+    async (promptGroup: 'system' | 'base', promptName: string, content: string) => {
+      const updated = await updatePrompt({
+        prompt_group: promptGroup,
+        prompt_name: promptName,
+        content,
+        user_roles: roles.length > 0 ? roles : undefined,
+      });
+
+      setPrompts((prev) => {
+        if (!prev) return prev;
+        if (promptGroup === 'system') {
+          return {
+            ...prev,
+            system_prompts: prev.system_prompts.map((prompt) =>
+              prompt.name === updated.name ? { ...prompt, content: updated.content } : prompt
+            ),
+          };
+        }
+        return {
+          ...prev,
+          base_prompts: prev.base_prompts.map((prompt) =>
+            prompt.name === updated.name ? { ...prompt, content: updated.content } : prompt
+          ),
+        };
+      });
+      setPromptsError(null);
+    },
+    [roles]
+  );
 
   useEffect(() => {
     if (activeTab === 'config' && !prompts && !promptsLoading) {
+      if (!canAccessPrompts) {
+        const message = requiredFrontEndRole
+          ? `Prompt access requires role "${requiredFrontEndRole}" or valid admin_permission.`
+          : 'Prompt access requires valid admin_permission.';
+        setPromptsError(message);
+        return;
+      }
       loadPrompts();
     }
-  }, [activeTab, prompts, promptsLoading, loadPrompts]);
+  }, [activeTab, prompts, promptsLoading, loadPrompts, canAccessPrompts, requiredFrontEndRole]);
 
   // Auto-reload on connection lost
   const handleReload = useCallback(() => {
@@ -211,7 +258,14 @@ function App() {
 
         {/* Runs History Modal */}
         {showRunsHistory && (
-          <RunsHistory onClose={() => setShowRunsHistory(false)} />
+          <RunsHistory
+            onClose={() => setShowRunsHistory(false)}
+            onLoadToCustomFlow={(runId) => {
+              setCustomFlowLoadRequest({ runId, nonce: Date.now() });
+              setActiveTab('custom');
+              setShowRunsHistory(false);
+            }}
+          />
         )}
 
         <div className="mb-6 inline-flex rounded-lg border border-gray-200 bg-white p-1">
@@ -479,6 +533,8 @@ function App() {
           <CustomFlow
             defaultEnablePlanner={config?.enable_planner ?? false}
             defaultEnableCritiquer={config?.enable_critiquer ?? false}
+            loadRunId={customFlowLoadRequest?.runId ?? null}
+            loadRunNonce={customFlowLoadRequest?.nonce ?? 0}
           />
         )}
 
@@ -487,7 +543,11 @@ function App() {
             prompts={prompts}
             loading={promptsLoading}
             error={promptsError}
-            onRefresh={loadPrompts}
+            onSavePrompt={handleSavePrompt}
+            frontEndAuthEnabled={config?.front_end_auth ?? false}
+            frontEndRequiredRole={requiredFrontEndRole}
+            userRoles={roles}
+            canModifyPrompts={canAccessPrompts}
           />
         )}
       </main>

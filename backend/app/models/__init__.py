@@ -22,6 +22,7 @@ from .schemas import (
     ConfigResponse,
     PromptDefinition,
     PromptsResponse,
+    PromptUpdateRequest,
 )
 
 __all__ = [
@@ -44,4 +45,5 @@ __all__ = [
     "ConfigResponse",
     "PromptDefinition",
     "PromptsResponse",
+    "PromptUpdateRequest",
 ]

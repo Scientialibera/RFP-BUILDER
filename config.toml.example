@@ -48,6 +48,15 @@ image_ratio_rfp = 0.25
 image_ratio_context = 0.25
 # Enable frontend authentication with MSAL
 enable_auth = false
+# Protect prompt read/write endpoints with an admin permission token.
+# If false, prompt read/write is open to any frontend user.
+front_end_auth = false
+# Optional role required for prompt read/write when front_end_auth = true.
+# Role value must match a role present in the MSAL token's roles claim.
+front_end_required_role = ""
+# Shared admin token required when front_end_auth = true
+# Leave empty if you use role-based checks only.
+admin_permission = ""
 toggle_requirements_chunking = false
 max_tokens_reqs_chunking = 12000
 toggle_generation_chunking = false
@@ -59,7 +68,9 @@ max_sections_per_chunk = 3
 [msal]
 # Microsoft Entra ID (Azure AD) settings for frontend authentication
 # Only used if features.enable_auth = true
+# App registration client ID (App ID)
 client_id = ""
+# Directory (tenant) ID
 tenant_id = ""
 # Redirect URI for authentication
 redirect_uri = "http://localhost:3000"

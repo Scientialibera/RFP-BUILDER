@@ -15,11 +15,13 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.config import get_config
 from app.workflows.executors import CodeInterpreterExecutor
 from app.core.llm_client import create_llm_client
+from app.models.schemas import RFPAnalysis, ProposalPlan, GeneratedCodePackage
+from app.api.rfp import _build_code_package, _enrich_code_package_with_previews
 
 
 logger = logging.getLogger(__name__)
@@ -90,6 +92,36 @@ class RunsListResponse(BaseModel):
     """Response for listing runs."""
     runs: list[RunSummary]
     total: int
+
+
+class AnalysisVersionEntry(BaseModel):
+    """Persisted requirements extraction version."""
+    version_id: str
+    created_at: str
+    analysis: RFPAnalysis
+    comment: Optional[str] = None
+
+
+class PlanVersionEntry(BaseModel):
+    """Persisted planner version."""
+    version_id: str
+    created_at: str
+    plan: ProposalPlan
+    comment: Optional[str] = None
+
+
+class RunWorkflowStateResponse(BaseModel):
+    """Workflow state payload to resume a run in Custom Flow."""
+    run_id: str
+    analysis: Optional[RFPAnalysis] = None
+    plan: Optional[ProposalPlan] = None
+    analysis_versions: list[AnalysisVersionEntry] = Field(default_factory=list)
+    plan_versions: list[PlanVersionEntry] = Field(default_factory=list)
+    document_code: str = ""
+    code_stage: Optional[str] = None
+    code_package: GeneratedCodePackage = Field(default_factory=GeneratedCodePackage)
+    documents: list[DocumentSummary] = Field(default_factory=list)
+    docx_download_url: Optional[str] = None
 
 
 # ============================================================================
@@ -253,6 +285,125 @@ def _get_next_revision_id(run_dir: Path) -> str:
     return f"rev_{max_num + 1:03d}"
 
 
+def _load_json_model(file_path: Path, model_cls):
+    """Load a JSON file and validate it as a pydantic model."""
+    if not file_path.exists():
+        return None
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return model_cls.model_validate(data)
+    except Exception as exc:
+        logger.warning("Failed to load %s as %s: %s", file_path.name, model_cls.__name__, exc)
+        return None
+
+
+def _load_json_list(file_path: Path) -> list[dict]:
+    if not file_path.exists():
+        return []
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        if isinstance(payload, list):
+            return [item for item in payload if isinstance(item, dict)]
+    except Exception as exc:
+        logger.warning("Failed to load JSON list %s: %s", file_path, exc)
+    return []
+
+
+def _load_analysis_versions(run_dir: Path) -> list[AnalysisVersionEntry]:
+    versions_path = run_dir / "metadata" / "analysis_versions.json"
+    loaded = _load_json_list(versions_path)
+    versions: list[AnalysisVersionEntry] = []
+    for item in loaded:
+        try:
+            versions.append(AnalysisVersionEntry.model_validate(item))
+        except Exception as exc:
+            logger.warning("Invalid analysis version entry in %s: %s", versions_path, exc)
+
+    if versions:
+        return versions
+
+    analysis_path = run_dir / "metadata" / "analysis.json"
+    analysis = _load_json_model(analysis_path, RFPAnalysis)
+    if not analysis:
+        return []
+
+    created_at = ""
+    try:
+        created_at = datetime.fromtimestamp(analysis_path.stat().st_mtime).isoformat()
+    except Exception:
+        pass
+
+    return [
+        AnalysisVersionEntry(
+            version_id="analysis_v001",
+            created_at=created_at,
+            analysis=analysis,
+            comment=None,
+        )
+    ]
+
+
+def _load_plan_versions(run_dir: Path) -> list[PlanVersionEntry]:
+    versions_path = run_dir / "metadata" / "plan_versions.json"
+    loaded = _load_json_list(versions_path)
+    versions: list[PlanVersionEntry] = []
+    for item in loaded:
+        try:
+            versions.append(PlanVersionEntry.model_validate(item))
+        except Exception as exc:
+            logger.warning("Invalid plan version entry in %s: %s", versions_path, exc)
+
+    if versions:
+        return versions
+
+    plan_path = run_dir / "metadata" / "plan.json"
+    plan = _load_json_model(plan_path, ProposalPlan)
+    if not plan:
+        return []
+
+    created_at = ""
+    try:
+        created_at = datetime.fromtimestamp(plan_path.stat().st_mtime).isoformat()
+    except Exception:
+        pass
+
+    return [
+        PlanVersionEntry(
+            version_id="plan_v001",
+            created_at=created_at,
+            plan=plan,
+            comment=None,
+        )
+    ]
+
+
+def _load_run_code_snapshot(run_dir: Path, stage: str = "99_final") -> tuple[str, Optional[str]]:
+    """Load a code snapshot from a run and return code + resolved stage."""
+    safe_stage = _safe_path_part(stage, "stage")
+    code_path = run_dir / "code_snapshots" / f"{safe_stage}_document_code.py"
+
+    if not code_path.exists():
+        code_dir = run_dir / "code_snapshots"
+        if code_dir.exists():
+            code_files = sorted(code_dir.glob("*.py"))
+            if code_files:
+                code_path = code_files[-1]
+                safe_stage = code_path.stem.replace("_document_code", "")
+            else:
+                return "", None
+        else:
+            return "", None
+
+    try:
+        with open(code_path, "r", encoding="utf-8") as f:
+            return f.read(), safe_stage
+    except Exception as exc:
+        logger.warning("Failed to read code snapshot %s: %s", code_path, exc)
+        return "", None
+
+
 # ============================================================================
 # Endpoints
 # ============================================================================
@@ -346,34 +497,55 @@ async def get_run_code(run_id: str, stage: str = "99_final"):
     if not run_dir.exists():
         raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
     
-    safe_stage = _safe_path_part(stage, "stage")
-    code_path = run_dir / "code_snapshots" / f"{safe_stage}_document_code.py"
-    
-    if not code_path.exists():
-        # Try to find any code file
-        code_dir = run_dir / "code_snapshots"
-        if code_dir.exists():
-            code_files = list(code_dir.glob("*.py"))
-            if code_files:
-                # Return the last one (highest numbered)
-                code_files.sort()
-                code_path = code_files[-1]
-                safe_stage = code_path.stem.replace("_document_code", "")
-            else:
-                raise HTTPException(status_code=404, detail="No code files found in this run")
-        else:
-            raise HTTPException(status_code=404, detail="Code snapshots directory not found")
-    
-    try:
-        with open(code_path, "r", encoding="utf-8") as f:
-            code = f.read()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to read code: {str(e)}")
+    code, resolved_stage = _load_run_code_snapshot(run_dir, stage=stage)
+    if not code or not resolved_stage:
+        raise HTTPException(status_code=404, detail="No code files found in this run")
     
     return RunCodeResponse(
         run_id=run_id,
         code=code,
-        stage=safe_stage
+        stage=resolved_stage
+    )
+
+
+@router.get("/{run_id}/workflow-state", response_model=RunWorkflowStateResponse)
+async def get_run_workflow_state(run_id: str):
+    """
+    Get persisted workflow state for loading a run into Custom Flow.
+    """
+    run_dir = _resolve_run_dir(run_id)
+    if not run_dir.exists():
+        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+
+    analysis_versions = _load_analysis_versions(run_dir)
+    plan_versions = _load_plan_versions(run_dir)
+    analysis = analysis_versions[-1].analysis if analysis_versions else _load_json_model(run_dir / "metadata" / "analysis.json", RFPAnalysis)
+    plan = plan_versions[-1].plan if plan_versions else _load_json_model(run_dir / "metadata" / "plan.json", ProposalPlan)
+    documents = _get_documents_list(run_dir)
+
+    code, code_stage = _load_run_code_snapshot(run_dir, stage="99_final")
+    code_package = GeneratedCodePackage()
+    if code:
+        code_package = _enrich_code_package_with_previews(
+            _build_code_package(code),
+            image_dir=run_dir / "image_assets",
+            docx_path=run_dir / "word_document" / "proposal.docx",
+        )
+
+    docx_path = run_dir / "word_document" / "proposal.docx"
+    docx_download_url = f"/api/rfp/download/{run_id}/proposal.docx" if docx_path.exists() else None
+
+    return RunWorkflowStateResponse(
+        run_id=run_id,
+        analysis=analysis,
+        plan=plan,
+        analysis_versions=analysis_versions,
+        plan_versions=plan_versions,
+        document_code=code,
+        code_stage=code_stage,
+        code_package=code_package,
+        documents=documents,
+        docx_download_url=docx_download_url,
     )
 
 
