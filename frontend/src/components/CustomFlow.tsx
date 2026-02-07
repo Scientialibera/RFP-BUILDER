@@ -6,13 +6,17 @@ import {
   extractReqs,
   generateCustomRFP,
   getDownloadUrl,
+  getRunWorkflowState,
+  getSourceDocumentUrl,
   planProposalWithContext,
 } from '../services/api';
 import type {
+  AnalysisVersionEntry,
   CritiqueResult,
   GeneratedCodePackage,
   GeneratedCodeSnippet,
   PlannedSection,
+  PlanVersionEntry,
   ProposalPlan,
   RFPAnalysis,
   RFPRequirement,
@@ -21,6 +25,8 @@ import type {
 interface CustomFlowProps {
   defaultEnablePlanner: boolean;
   defaultEnableCritiquer: boolean;
+  loadRunId?: string | null;
+  loadRunNonce?: number;
 }
 
 const CATEGORY_OPTIONS: RFPRequirement['category'][] = [
@@ -109,6 +115,23 @@ function defaultSection(index: number): PlannedSection {
   };
 }
 
+function cloneAnalysis(source: RFPAnalysis): RFPAnalysis {
+  return JSON.parse(JSON.stringify(source)) as RFPAnalysis;
+}
+
+function clonePlan(source: ProposalPlan): ProposalPlan {
+  return JSON.parse(JSON.stringify(source)) as ProposalPlan;
+}
+
+function formatVersionTimestamp(value: string): string {
+  if (!value) return '';
+  try {
+    return new Date(value).toLocaleString();
+  } catch {
+    return value;
+  }
+}
+
 const EMPTY_CODE_PACKAGE: GeneratedCodePackage = {
   mermaid: [],
   tables: [],
@@ -118,6 +141,8 @@ const EMPTY_CODE_PACKAGE: GeneratedCodePackage = {
 export function CustomFlow({
   defaultEnablePlanner,
   defaultEnableCritiquer,
+  loadRunId = null,
+  loadRunNonce = 0,
 }: CustomFlowProps) {
   const [rfpFile, setRfpFile] = useState<File[]>([]);
   const [exampleFiles, setExampleFiles] = useState<File[]>([]);
@@ -133,6 +158,10 @@ export function CustomFlow({
   const [codePackage, setCodePackage] = useState<GeneratedCodePackage>(EMPTY_CODE_PACKAGE);
   const [critique, setCritique] = useState<CritiqueResult | null>(null);
   const [runId, setRunId] = useState('');
+  const [analysisVersions, setAnalysisVersions] = useState<AnalysisVersionEntry[]>([]);
+  const [analysisVersionIndex, setAnalysisVersionIndex] = useState(-1);
+  const [planVersions, setPlanVersions] = useState<PlanVersionEntry[]>([]);
+  const [planVersionIndex, setPlanVersionIndex] = useState(-1);
 
   const [reqsGenerationContext, setReqsGenerationContext] = useState('');
   const [reqsRegenerationComment, setReqsRegenerationComment] = useState('');
@@ -148,6 +177,7 @@ export function CustomFlow({
   const [newKeyTheme, setNewKeyTheme] = useState('');
 
   const [loadingStep, setLoadingStep] = useState<'extract' | 'plan' | 'generate' | 'critique' | null>(null);
+  const [loadingRun, setLoadingRun] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -166,16 +196,244 @@ export function CustomFlow({
     setEnableCritiquer(defaultEnableCritiquer);
   }, [defaultEnableCritiquer]);
 
-  const canExtract = rfpFile.length === 1 && loadingStep === null;
-  const canPlan = Boolean(analysis) && loadingStep === null;
-  const canGenerate = Boolean(analysis) && rfpFile.length === 1 && exampleFiles.length > 0 && loadingStep === null;
-  const canCritique = Boolean(analysis && documentCode.trim()) && loadingStep === null;
+  useEffect(() => {
+    if (!loadRunId) return;
+
+    let cancelled = false;
+
+    const fetchRunDocumentFile = async (runIdValue: string, filename: string) => {
+      const response = await fetch(getSourceDocumentUrl(runIdValue, filename));
+      if (!response.ok) {
+        throw new Error(`Failed to load source document: ${filename}`);
+      }
+      const blob = await response.blob();
+      return new File([blob], filename, { type: 'application/pdf' });
+    };
+
+    const loadRunIntoFlow = async () => {
+      setLoadingRun(true);
+      setError(null);
+      try {
+        const workflowState = await getRunWorkflowState(loadRunId);
+        const documentFiles = await Promise.all(
+          workflowState.documents.map(async (doc) => ({
+            fileType: doc.file_type,
+            filename: doc.filename,
+            file: await fetchRunDocumentFile(workflowState.run_id, doc.filename),
+          }))
+        );
+
+        if (cancelled) {
+          return;
+        }
+
+        setDocxObjectUrl((previous) => {
+          if (previous) {
+            URL.revokeObjectURL(previous);
+          }
+          return null;
+        });
+
+        setRunId(workflowState.run_id);
+        const typedRfpFiles = documentFiles.filter((item) => item.fileType === 'rfp').map((item) => item.file);
+        const unknownFiles = documentFiles.filter((item) => item.fileType === 'unknown');
+        const inferredRfp = unknownFiles.find((item) => item.filename.toLowerCase().includes('rfp'));
+        const resolvedRfpFiles = typedRfpFiles.length > 0
+          ? typedRfpFiles
+          : inferredRfp
+            ? [inferredRfp.file]
+            : unknownFiles.length > 0
+              ? [unknownFiles[0].file]
+              : [];
+
+        const resolvedExampleFiles = documentFiles
+          .filter((item) => item.fileType === 'example')
+          .map((item) => item.file)
+          .concat(
+            unknownFiles
+              .filter((item) => !resolvedRfpFiles.some((rfp) => rfp.name === item.file.name))
+              .map((item) => item.file)
+          );
+
+        const resolvedContextFiles = documentFiles
+          .filter((item) => item.fileType === 'context')
+          .map((item) => item.file);
+
+        setRfpFile(resolvedRfpFiles);
+        setExampleFiles(resolvedExampleFiles);
+        setContextFiles(resolvedContextFiles);
+
+        const nextAnalysisVersions: AnalysisVersionEntry[] =
+          workflowState.analysis_versions.length > 0
+            ? workflowState.analysis_versions.map((entry) => ({
+                ...entry,
+                analysis: cloneAnalysis(entry.analysis),
+              }))
+            : workflowState.analysis
+              ? [
+                  {
+                    version_id: 'analysis_v001',
+                    created_at: new Date().toISOString(),
+                    analysis: cloneAnalysis(workflowState.analysis),
+                  },
+                ]
+              : [];
+
+        const nextPlanVersions: PlanVersionEntry[] =
+          workflowState.plan_versions.length > 0
+            ? workflowState.plan_versions.map((entry) => ({
+                ...entry,
+                plan: clonePlan(entry.plan),
+              }))
+            : workflowState.plan
+              ? [
+                  {
+                    version_id: 'plan_v001',
+                    created_at: new Date().toISOString(),
+                    plan: clonePlan(workflowState.plan),
+                  },
+                ]
+              : [];
+
+        setAnalysisVersions(nextAnalysisVersions);
+        setAnalysisVersionIndex(nextAnalysisVersions.length > 0 ? nextAnalysisVersions.length - 1 : -1);
+        setAnalysis(
+          nextAnalysisVersions.length > 0
+            ? cloneAnalysis(nextAnalysisVersions[nextAnalysisVersions.length - 1].analysis)
+            : null
+        );
+
+        setPlanVersions(nextPlanVersions);
+        setPlanVersionIndex(nextPlanVersions.length > 0 ? nextPlanVersions.length - 1 : -1);
+        setPlan(
+          nextPlanVersions.length > 0
+            ? clonePlan(nextPlanVersions[nextPlanVersions.length - 1].plan)
+            : null
+        );
+
+        setDocumentCode(workflowState.document_code ?? '');
+        setCodePackage(workflowState.code_package ?? EMPTY_CODE_PACKAGE);
+        setDocxDownloadUrl(workflowState.docx_download_url ?? null);
+        setDocxFilename('proposal.docx');
+        setCritique(null);
+
+        setReqsGenerationContext('');
+        setReqsRegenerationComment('');
+        setPlanGenerationContext('');
+        setPlanRegenerationComment('');
+        setGenerateContextComment('');
+        setGenerateRegenerationComment('');
+        setCritiqueComment('');
+
+        setEnablePlanner(nextPlanVersions.length > 0 || defaultEnablePlanner);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : 'Failed to load run into Custom Flow');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingRun(false);
+        }
+      }
+    };
+
+    loadRunIntoFlow();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadRunId, loadRunNonce, defaultEnablePlanner]);
+
+  const canExtract = rfpFile.length === 1 && loadingStep === null && !loadingRun;
+  const canPlan = Boolean(analysis) && loadingStep === null && !loadingRun;
+  const canGenerate = Boolean(analysis) && rfpFile.length === 1 && exampleFiles.length > 0 && loadingStep === null && !loadingRun;
+  const canCritique = Boolean(analysis && documentCode.trim()) && loadingStep === null && !loadingRun;
 
   const planRequiredLabel = useMemo(
     () => (enablePlanner ? 'Planner enabled' : 'Planner disabled (direct requirements -> generation)'),
     [enablePlanner]
   );
   const activeRunId = runId.trim() || undefined;
+
+  const loadAnalysisVersion = (index: number) => {
+    if (index < 0 || index >= analysisVersions.length) return;
+    setAnalysisVersionIndex(index);
+    setAnalysis(cloneAnalysis(analysisVersions[index].analysis));
+  };
+
+  const loadPlanVersion = (index: number) => {
+    if (index < 0 || index >= planVersions.length) return;
+    setPlanVersionIndex(index);
+    setPlan(clonePlan(planVersions[index].plan));
+  };
+
+  const appendAnalysisVersion = (nextAnalysis: RFPAnalysis, comment?: string) => {
+    setAnalysisVersions((previous) => {
+      const nextEntry: AnalysisVersionEntry = {
+        version_id: `analysis_v${String(previous.length + 1).padStart(3, '0')}`,
+        created_at: new Date().toISOString(),
+        comment: comment?.trim() || undefined,
+        analysis: cloneAnalysis(nextAnalysis),
+      };
+      const next = [...previous, nextEntry];
+      setAnalysisVersionIndex(next.length - 1);
+      return next;
+    });
+  };
+
+  const appendPlanVersion = (nextPlan: ProposalPlan, comment?: string) => {
+    setPlanVersions((previous) => {
+      const nextEntry: PlanVersionEntry = {
+        version_id: `plan_v${String(previous.length + 1).padStart(3, '0')}`,
+        created_at: new Date().toISOString(),
+        comment: comment?.trim() || undefined,
+        plan: clonePlan(nextPlan),
+      };
+      const next = [...previous, nextEntry];
+      setPlanVersionIndex(next.length - 1);
+      return next;
+    });
+  };
+
+  const handleStartNewFlow = () => {
+    if (docxObjectUrl) {
+      URL.revokeObjectURL(docxObjectUrl);
+    }
+
+    setRfpFile([]);
+    setExampleFiles([]);
+    setContextFiles([]);
+    setCompanyContextText('');
+
+    setEnablePlanner(defaultEnablePlanner);
+    setEnableCritiquer(defaultEnableCritiquer);
+
+    setAnalysis(null);
+    setPlan(null);
+    setDocumentCode('');
+    setCodePackage(EMPTY_CODE_PACKAGE);
+    setCritique(null);
+    setAnalysisVersions([]);
+    setAnalysisVersionIndex(-1);
+    setPlanVersions([]);
+    setPlanVersionIndex(-1);
+
+    setReqsGenerationContext('');
+    setReqsRegenerationComment('');
+    setPlanGenerationContext('');
+    setPlanRegenerationComment('');
+    setGenerateContextComment('');
+    setGenerateRegenerationComment('');
+    setCritiqueComment('');
+
+    setDocxObjectUrl(null);
+    setDocxFilename('proposal.docx');
+    setDocxDownloadUrl(null);
+    setNewKeyTheme('');
+    setRunId('');
+    setLoadingStep(null);
+    setLoadingRun(false);
+    setError(null);
+  };
 
   const handleExtractReqs = async () => {
     if (rfpFile.length === 0) return;
@@ -200,9 +458,13 @@ export function CustomFlow({
       if (result.run_id) {
         setRunId(result.run_id);
       }
-      setAnalysis(result.analysis);
+      const nextAnalysis = cloneAnalysis(result.analysis);
+      setAnalysis(nextAnalysis);
+      appendAnalysisVersion(nextAnalysis, comment);
       if (!enablePlanner) {
         setPlan(null);
+        setPlanVersions([]);
+        setPlanVersionIndex(-1);
       }
       setCritique(null);
     } catch (err) {
@@ -236,7 +498,9 @@ export function CustomFlow({
       if (result.run_id) {
         setRunId(result.run_id);
       }
-      setPlan(result.plan);
+      const nextPlan = clonePlan(result.plan);
+      setPlan(nextPlan);
+      appendPlanVersion(nextPlan, comment);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate plan');
     } finally {
@@ -443,7 +707,24 @@ export function CustomFlow({
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
-        <h2 className="text-lg font-semibold text-gray-900">Custom Flow Setup</h2>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Custom Flow Setup</h2>
+          <button
+            type="button"
+            onClick={handleStartNewFlow}
+            disabled={loadingStep !== null || loadingRun}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+          >
+            Start New RFP Flow
+          </button>
+        </div>
+
+        {loadingRun && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800 inline-flex items-center">
+            <Loader className="h-4 w-4 mr-2 animate-spin" />
+            Loading selected run into Custom Flow...
+          </div>
+        )}
 
         <FileUpload
           label="RFP Document"
@@ -587,6 +868,39 @@ export function CustomFlow({
 
         {analysis && (
           <div className="space-y-3 border border-gray-200 rounded-lg p-4">
+            {analysisVersions.length > 0 && analysisVersionIndex >= 0 && (
+              <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-xs font-medium text-gray-700">
+                    Requirements Version {analysisVersionIndex + 1} / {analysisVersions.length}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => loadAnalysisVersion(analysisVersionIndex - 1)}
+                    disabled={analysisVersionIndex <= 0}
+                    className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadAnalysisVersion(analysisVersionIndex + 1)}
+                    disabled={analysisVersionIndex >= analysisVersions.length - 1}
+                    className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
+                  >
+                    Next
+                  </button>
+                  <p className="text-xs text-gray-500">
+                    {analysisVersions[analysisVersionIndex].version_id} · {formatVersionTimestamp(analysisVersions[analysisVersionIndex].created_at)}
+                  </p>
+                </div>
+                {analysisVersions[analysisVersionIndex].comment && (
+                  <p className="text-xs text-gray-600 mt-2 whitespace-pre-wrap">
+                    {analysisVersions[analysisVersionIndex].comment}
+                  </p>
+                )}
+              </div>
+            )}
             <label className="block text-sm font-medium text-gray-700">Summary</label>
             <textarea
               value={analysis.summary}
@@ -750,6 +1064,39 @@ export function CustomFlow({
 
           {plan && (
             <div className="space-y-3 border border-gray-200 rounded-lg p-4">
+              {planVersions.length > 0 && planVersionIndex >= 0 && (
+                <div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-xs font-medium text-gray-700">
+                      Plan Version {planVersionIndex + 1} / {planVersions.length}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => loadPlanVersion(planVersionIndex - 1)}
+                      disabled={planVersionIndex <= 0}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => loadPlanVersion(planVersionIndex + 1)}
+                      disabled={planVersionIndex >= planVersions.length - 1}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
+                    >
+                      Next
+                    </button>
+                    <p className="text-xs text-gray-500">
+                      {planVersions[planVersionIndex].version_id} · {formatVersionTimestamp(planVersions[planVersionIndex].created_at)}
+                    </p>
+                  </div>
+                  {planVersions[planVersionIndex].comment && (
+                    <p className="text-xs text-gray-600 mt-2 whitespace-pre-wrap">
+                      {planVersions[planVersionIndex].comment}
+                    </p>
+                  )}
+                </div>
+              )}
               <label className="block text-sm font-medium text-gray-700">Overview</label>
               <textarea
                 value={plan.overview}
@@ -953,6 +1300,9 @@ export function CustomFlow({
           {loadingStep === 'generate' ? <Loader className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />}
           {documentCode ? 'Regenerate RFP' : 'Generate RFP'}
         </button>
+        <p className="text-xs text-gray-500">
+          Generation always uses the latest Requirements and Plan currently shown above.
+        </p>
 
         <div className="flex flex-wrap gap-3">
           {docxObjectUrl && (

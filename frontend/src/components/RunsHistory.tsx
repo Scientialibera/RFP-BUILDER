@@ -31,9 +31,10 @@ import {
 
 interface RunsHistoryProps {
   onClose: () => void;
+  onLoadToCustomFlow?: (runId: string) => void;
 }
 
-export function RunsHistory({ onClose }: RunsHistoryProps) {
+export function RunsHistory({ onClose, onLoadToCustomFlow }: RunsHistoryProps) {
   const [runs, setRuns] = useState<RunSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -277,6 +278,15 @@ export function RunsHistory({ onClose }: RunsHistoryProps) {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-3">
+                  {onLoadToCustomFlow && (
+                    <button
+                      onClick={() => onLoadToCustomFlow(selectedRun.run_id)}
+                      className="inline-flex items-center px-4 py-2 border border-primary-300 text-primary-700 rounded-lg hover:bg-primary-50 transition-colors"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Continue in Custom Flow
+                    </button>
+                  )}
                   {selectedRun.docx_download_url && (
                     <a
                       href={getDownloadUrl(selectedRun.docx_download_url)}

@@ -13,8 +13,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: AccountInfo | null;
+  roles: string[];
   login: () => Promise<void>;
   logout: () => Promise<void>;
+  hasRole: (role?: string | null) => boolean;
   authEnabled: boolean;
 }
 
@@ -22,8 +24,10 @@ const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
   isLoading: true,
   user: null,
+  roles: [],
   login: async () => {},
   logout: async () => {},
+  hasRole: () => false,
   authEnabled: false,
 });
 
@@ -60,8 +64,18 @@ function MsalAuthProvider({ children, config }: { children: React.ReactNode; con
     isAuthenticated: accounts.length > 0,
     isLoading,
     user: accounts[0] || null,
+    roles: Array.isArray(accounts[0]?.idTokenClaims?.roles)
+      ? (accounts[0]?.idTokenClaims?.roles as string[])
+      : [],
     login,
     logout,
+    hasRole: (role?: string | null) => {
+      if (!role || !role.trim()) return true;
+      const userRoles = Array.isArray(accounts[0]?.idTokenClaims?.roles)
+        ? (accounts[0]?.idTokenClaims?.roles as string[])
+        : [];
+      return userRoles.includes(role.trim());
+    },
     authEnabled: true,
   };
 
@@ -74,8 +88,10 @@ function NoAuthProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: true, // Always "authenticated" when auth is disabled
     isLoading: false,
     user: null,
+    roles: [],
     login: async () => {},
     logout: async () => {},
+    hasRole: () => true,
     authEnabled: false,
   };
 

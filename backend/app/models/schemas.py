@@ -6,7 +6,7 @@ Simplified structure:
 - The LLM writes complete python-docx code with seaborn charts and mermaid diagrams inline
 """
 
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel, Field
 
 
@@ -208,6 +208,8 @@ class WorkflowStepConfig(BaseModel):
 class ConfigResponse(BaseModel):
     """Public configuration response."""
     auth_enabled: bool
+    front_end_auth: bool = False
+    front_end_required_role: Optional[str] = None
     images_enabled: bool
     enable_planner: bool = False
     enable_critiquer: bool = False
@@ -228,3 +230,12 @@ class PromptsResponse(BaseModel):
     """Read-only prompt catalog for frontend display."""
     system_prompts: list[PromptDefinition] = Field(default_factory=list)
     base_prompts: list[PromptDefinition] = Field(default_factory=list)
+
+
+class PromptUpdateRequest(BaseModel):
+    """Request payload for updating one prompt definition."""
+    prompt_group: Literal["system", "base"]
+    prompt_name: str
+    content: str
+    admin_permission: Optional[str] = None
+    user_roles: Optional[list[str]] = None

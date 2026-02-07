@@ -67,6 +67,9 @@ class FeaturesConfig(BaseModel):
     image_ratio_rfp: float = 0.25
     image_ratio_context: float = 0.25
     enable_auth: bool = False
+    front_end_auth: bool = False
+    front_end_required_role: str = ""
+    admin_permission: str = ""
     toggle_requirements_chunking: bool = False
     max_tokens_reqs_chunking: int = 12000
     toggle_generation_chunking: bool = False
