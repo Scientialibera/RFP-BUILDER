@@ -7,6 +7,8 @@ import json
 import time
 import base64
 import ast
+import html
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, TypeVar
@@ -41,7 +43,7 @@ from app.workflows.executors import (
     CritiquerExecutor,
     CodeInterpreterExecutor,
 )
-from app.workflows.run_dirs import create_unique_run_directory
+from app.workflows.run_dirs import RUN_SUBDIRECTORIES, create_unique_run_directory
 from app.workflows.state import WorkflowInput, DocumentInfo
 
 
@@ -91,6 +93,28 @@ def _create_step_run_directory() -> Path:
     config = get_config()
     output_root = Path(config.app.output_dir)
     return create_unique_run_directory(output_root)
+
+
+def _ensure_run_subdirectories(run_dir: Path) -> None:
+    """Ensure all standard run subdirectories exist."""
+    for subdir_name in RUN_SUBDIRECTORIES:
+        (run_dir / subdir_name).mkdir(parents=True, exist_ok=True)
+
+
+def _resolve_step_run_directory(run_id: Optional[str]) -> Path:
+    """Resolve an existing run directory or create a new one."""
+    if not run_id or not run_id.strip():
+        return _create_step_run_directory()
+
+    safe_run_id = _validate_simple_path_part(run_id.strip(), "run_id")
+    config = get_config()
+    output_root = Path(config.app.output_dir).resolve()
+    run_dir = (output_root / safe_run_id).resolve()
+    if not run_dir.is_relative_to(output_root):
+        raise HTTPException(status_code=400, detail="Invalid run_id path")
+
+    _ensure_run_subdirectories(run_dir)
+    return run_dir
 
 
 def _save_documents(run_dir: Path, documents: list[DocumentInfo]) -> None:
@@ -454,6 +478,176 @@ def _build_code_package(document_code: str) -> GeneratedCodePackage:
     package.mermaid = mermaid_items
     package.tables = table_items
     package.diagrams = chart_items
+    return package
+
+
+def _extract_png_names_from_code(code: str) -> list[str]:
+    matches = re.findall(r"['\"]([^'\"]+\.png)['\"]", code, flags=re.IGNORECASE)
+    names: list[str] = []
+    seen: set[str] = set()
+    for match in matches:
+        name = Path(match).name
+        lowered = name.lower()
+        if lowered in seen:
+            continue
+        seen.add(lowered)
+        names.append(name)
+    return names
+
+
+def _extract_mermaid_output_filename(code: str) -> Optional[str]:
+    mermaid_call = re.search(
+        r"render_mermaid\s*\(\s*.+?,\s*['\"]([^'\"]+)['\"]",
+        code,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    if not mermaid_call:
+        return None
+    return f"{Path(mermaid_call.group(1)).name}.png"
+
+
+def _collect_png_assets(image_dir: Path) -> dict[str, tuple[str, str]]:
+    assets: dict[str, tuple[str, str]] = {}
+    if not image_dir.exists():
+        return assets
+
+    for file_path in sorted(image_dir.iterdir()):
+        if not file_path.is_file() or file_path.suffix.lower() != ".png":
+            continue
+        try:
+            encoded = base64.b64encode(file_path.read_bytes()).decode("ascii")
+            assets[file_path.name.lower()] = (file_path.name, encoded)
+        except Exception as exc:
+            logger.warning("Failed to encode PNG asset %s: %s", file_path.name, exc)
+    return assets
+
+
+def _normalize_hint(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", value.lower())
+
+
+def _attach_asset_to_snippet(
+    snippet: GeneratedCodeSnippet,
+    assets: dict[str, tuple[str, str]],
+    used_assets: set[str],
+) -> None:
+    candidate_names: list[str] = []
+    if snippet.snippet_id.startswith("mermaid_"):
+        mermaid_output = _extract_mermaid_output_filename(snippet.code)
+        if mermaid_output:
+            candidate_names.append(mermaid_output)
+    candidate_names.extend(_extract_png_names_from_code(snippet.code))
+
+    for candidate in candidate_names:
+        key = candidate.lower()
+        if key not in assets or key in used_assets:
+            continue
+        filename, encoded = assets[key]
+        snippet.asset_filename = filename
+        snippet.asset_base64 = encoded
+        snippet.asset_content_type = "image/png"
+        used_assets.add(key)
+        return
+
+    title_hint = _normalize_hint(snippet.title)
+    if title_hint:
+        for key, (filename, encoded) in assets.items():
+            if key in used_assets:
+                continue
+            filename_hint = _normalize_hint(filename)
+            if title_hint and title_hint in filename_hint:
+                snippet.asset_filename = filename
+                snippet.asset_base64 = encoded
+                snippet.asset_content_type = "image/png"
+                used_assets.add(key)
+                return
+
+    for key, (filename, encoded) in assets.items():
+        if key in used_assets:
+            continue
+        snippet.asset_filename = filename
+        snippet.asset_base64 = encoded
+        snippet.asset_content_type = "image/png"
+        used_assets.add(key)
+        return
+
+
+def _table_to_html(table) -> str:
+    rows: list[list[str]] = []
+    for row in table.rows:
+        rows.append([cell.text.strip() for cell in row.cells])
+    if not rows:
+        return ""
+
+    header = rows[0]
+    body = rows[1:]
+    parts = [
+        '<table style="border-collapse:collapse;width:100%;font-size:12px;">',
+        "<thead><tr>",
+    ]
+    for cell in header:
+        parts.append(
+            '<th style="border:1px solid #d1d5db;padding:6px;background:#f9fafb;text-align:left;">'
+            f"{html.escape(cell)}"
+            "</th>"
+        )
+    parts.append("</tr></thead><tbody>")
+
+    for row in body:
+        parts.append("<tr>")
+        for cell in row:
+            parts.append(
+                '<td style="border:1px solid #e5e7eb;padding:6px;vertical-align:top;">'
+                f"{html.escape(cell)}"
+                "</td>"
+            )
+        parts.append("</tr>")
+
+    parts.append("</tbody></table>")
+    return "".join(parts)
+
+
+def _extract_table_html_from_docx(docx_path: Path) -> list[str]:
+    if not docx_path.exists():
+        return []
+
+    try:
+        from docx import Document as WordDocument
+    except Exception as exc:
+        logger.warning("python-docx unavailable for table HTML extraction: %s", exc)
+        return []
+
+    try:
+        document = WordDocument(str(docx_path))
+    except Exception as exc:
+        logger.warning("Failed to read DOCX for table HTML extraction: %s", exc)
+        return []
+
+    previews: list[str] = []
+    for table in document.tables:
+        html_table = _table_to_html(table)
+        if html_table:
+            previews.append(html_table)
+    return previews
+
+
+def _enrich_code_package_with_previews(
+    package: GeneratedCodePackage,
+    image_dir: Path,
+    docx_path: Path,
+) -> GeneratedCodePackage:
+    assets = _collect_png_assets(image_dir)
+    used_assets: set[str] = set()
+    for snippet in package.mermaid:
+        _attach_asset_to_snippet(snippet, assets, used_assets)
+    for snippet in package.diagrams:
+        _attach_asset_to_snippet(snippet, assets, used_assets)
+
+    table_html = _extract_table_html_from_docx(docx_path)
+    for idx, snippet in enumerate(package.tables):
+        if idx < len(table_html):
+            snippet.html_code = table_html[idx]
+
     return package
 
 
@@ -889,6 +1083,7 @@ async def extract_reqs(
     source_rfp: UploadFile = File(..., description="RFP PDF to extract requirements from"),
     company_context: Optional[list[UploadFile]] = File(None, description="Optional company context PDFs"),
     comment: Optional[str] = Form(None, description="Optional guidance for regeneration"),
+    run_id: Optional[str] = Form(None, description="Optional run identifier to reuse the same run directory"),
     previous_requirements: Optional[str] = Form(
         None,
         description="Optional JSON array of previously generated requirements",
@@ -909,7 +1104,7 @@ async def extract_reqs(
         pdf_service,
     )
 
-    run_dir = _create_step_run_directory()
+    run_dir = _resolve_step_run_directory(run_id)
     _save_documents(run_dir, docs.documents)
 
     client = create_llm_client()
@@ -926,6 +1121,7 @@ async def extract_reqs(
             success=True,
             message="Requirements extracted successfully",
             analysis=analysis_result.analysis,
+            run_id=run_dir.name,
         )
     except Exception as exc:
         logger.exception("Requirement extraction failed")
@@ -938,7 +1134,7 @@ async def plan_rfp(
     _: Optional[str] = Depends(verify_api_token),
 ):
     """Generate a proposal plan from extracted requirements."""
-    run_dir = _create_step_run_directory()
+    run_dir = _resolve_step_run_directory(request.run_id)
     client = create_llm_client()
     planner = PlannerExecutor(client, run_dir)
 
@@ -955,6 +1151,7 @@ async def plan_rfp(
             success=True,
             message="Plan generated successfully",
             plan=planning_result.plan,
+            run_id=run_dir.name,
         )
     except Exception as exc:
         logger.exception("Plan generation failed")
@@ -967,6 +1164,7 @@ async def plan_rfp_with_context(
     company_context_text: Optional[str] = Form(None, description="Optional free-text planning context"),
     company_context: Optional[list[UploadFile]] = File(None, description="Optional context PDFs"),
     comment: Optional[str] = Form(None, description="Optional guidance for planning/regeneration"),
+    run_id: Optional[str] = Form(None, description="Optional run identifier to reuse the same run directory"),
     previous_plan_json: Optional[str] = Form(None, description="Optional JSON for ProposalPlan"),
     _: Optional[str] = Depends(verify_api_token),
 ):
@@ -990,7 +1188,7 @@ async def plan_rfp_with_context(
         context_parts.append(context_pdf_text.strip())
     combined_context = "\n\n---\n\n".join(context_parts) if context_parts else None
 
-    run_dir = _create_step_run_directory()
+    run_dir = _resolve_step_run_directory(run_id)
     _save_documents(run_dir, context_docs)
 
     client = create_llm_client()
@@ -1009,6 +1207,7 @@ async def plan_rfp_with_context(
             success=True,
             message="Plan generated successfully",
             plan=planning_result.plan,
+            run_id=run_dir.name,
         )
     except Exception as exc:
         logger.exception("Plan generation (with context) failed")
@@ -1023,6 +1222,7 @@ async def generate_rfp_step(
     analysis_json: str = Form(..., description="JSON for RFPAnalysis"),
     plan_json: Optional[str] = Form(None, description="Optional JSON for ProposalPlan"),
     comment: Optional[str] = Form(None, description="Optional guidance for regeneration"),
+    run_id: Optional[str] = Form(None, description="Optional run identifier to reuse the same run directory"),
     previous_document_code: Optional[str] = Form(
         None,
         description="Optional previous generated code for iterative regeneration",
@@ -1060,7 +1260,7 @@ async def generate_rfp_step(
         pdf_service,
     )
 
-    run_dir = _create_step_run_directory()
+    run_dir = _resolve_step_run_directory(run_id)
     _save_documents(run_dir, docs.documents)
 
     client = create_llm_client()
@@ -1147,7 +1347,11 @@ async def generate_rfp_step(
         docx_bytes = docx_path.read_bytes() if docx_path.exists() else b""
         docx_base64 = base64.b64encode(docx_bytes).decode("ascii")
         execution_success = bool(code_stats.get("document_success", False))
-        code_package = _build_code_package(current_response.document_code)
+        code_package = _enrich_code_package_with_previews(
+            _build_code_package(current_response.document_code),
+            image_dir=image_dir,
+            docx_path=docx_path,
+        )
 
         return GenerateRFPStepResponse(
             success=execution_success,
@@ -1173,7 +1377,7 @@ async def critique_rfp(
     _: Optional[str] = Depends(verify_api_token),
 ):
     """Critique generated code with optional user guidance."""
-    run_dir = _create_step_run_directory()
+    run_dir = _resolve_step_run_directory(request.run_id)
     client = create_llm_client()
     critiquer = CritiquerExecutor(client, run_dir)
     try:
@@ -1186,6 +1390,7 @@ async def critique_rfp(
             success=True,
             message="Critique completed successfully",
             critique=critique_result.critique,
+            run_id=run_dir.name,
         )
     except Exception as exc:
         logger.exception("Critique step failed")

@@ -73,6 +73,7 @@ export interface ExtractReqsResponse {
   success: boolean;
   message: string;
   analysis?: RFPAnalysis;
+  run_id?: string;
 }
 
 export interface PlanStepRequest {
@@ -80,12 +81,14 @@ export interface PlanStepRequest {
   company_context_text?: string;
   comment?: string;
   previous_plan?: ProposalPlan;
+  run_id?: string;
 }
 
 export interface PlanStepResponse {
   success: boolean;
   message: string;
   plan?: ProposalPlan;
+  run_id?: string;
 }
 
 export interface GenerateRFPStepResponse {
@@ -105,6 +108,10 @@ export interface GeneratedCodeSnippet {
   snippet_id: string;
   title: string;
   code: string;
+  asset_filename?: string;
+  asset_base64?: string;
+  asset_content_type?: string;
+  html_code?: string;
 }
 
 export interface GeneratedCodePackage {
@@ -117,12 +124,14 @@ export interface CritiqueStepRequest {
   analysis: RFPAnalysis;
   document_code: string;
   comment?: string;
+  run_id?: string;
 }
 
 export interface CritiqueStepResponse {
   success: boolean;
   message: string;
   critique?: CritiqueResult;
+  run_id?: string;
 }
 
 export interface HealthResponse {

@@ -120,7 +120,8 @@ export async function extractReqs(
   sourceRfp: File,
   companyContext: File[] | undefined,
   comment?: string,
-  previousRequirements?: RFPAnalysis['requirements']
+  previousRequirements?: RFPAnalysis['requirements'],
+  runId?: string
 ): Promise<ExtractReqsResponse> {
   const formData = new FormData();
   formData.append('source_rfp', sourceRfp);
@@ -130,6 +131,9 @@ export async function extractReqs(
   }
   if (previousRequirements && previousRequirements.length > 0) {
     formData.append('previous_requirements', JSON.stringify(previousRequirements));
+  }
+  if (runId?.trim()) {
+    formData.append('run_id', runId.trim());
   }
 
   const response = await api.post<ExtractReqsResponse>('/rfp/extract-reqs', formData, {
@@ -149,6 +153,7 @@ export interface PlanWithContextParams {
   companyContextFiles?: File[];
   comment?: string;
   previousPlan?: ProposalPlan;
+  runId?: string;
 }
 
 export async function planProposalWithContext(params: PlanWithContextParams): Promise<PlanStepResponse> {
@@ -163,6 +168,9 @@ export async function planProposalWithContext(params: PlanWithContextParams): Pr
   }
   if (params.previousPlan) {
     formData.append('previous_plan_json', JSON.stringify(params.previousPlan));
+  }
+  if (params.runId?.trim()) {
+    formData.append('run_id', params.runId.trim());
   }
 
   const response = await api.post<PlanStepResponse>('/rfp/plan-with-context', formData, {
@@ -185,6 +193,7 @@ export interface GenerateCustomRFPParams {
   toggleGenerationChunking?: boolean;
   maxTokensGenerationChunking?: number;
   maxSectionsPerChunk?: number;
+  runId?: string;
 }
 
 export async function generateCustomRFP(params: GenerateCustomRFPParams): Promise<GenerateRFPStepResponse> {
@@ -220,6 +229,9 @@ export async function generateCustomRFP(params: GenerateCustomRFPParams): Promis
   }
   if (params.maxSectionsPerChunk !== undefined) {
     formData.append('max_sections_per_chunk', String(params.maxSectionsPerChunk));
+  }
+  if (params.runId?.trim()) {
+    formData.append('run_id', params.runId.trim());
   }
 
   const response = await api.post<GenerateRFPStepResponse>('/rfp/generate-rfp', formData, {
