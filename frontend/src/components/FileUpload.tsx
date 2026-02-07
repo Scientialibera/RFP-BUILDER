@@ -2,7 +2,7 @@
  * File Upload Component with drag-and-drop
  */
 
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useDropzone, Accept } from 'react-dropzone';
 import { Upload, X, FileText } from 'lucide-react';
 

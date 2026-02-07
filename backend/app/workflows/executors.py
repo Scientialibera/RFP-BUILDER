@@ -6,6 +6,7 @@ Each executor handles a specific stage of the RFP generation process.
 import json
 import logging
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -71,6 +72,39 @@ logger = logging.getLogger(__name__)
 
 def _as_page_number(text: str) -> str:
     return text.replace("PAGE TO CITE:", "PAGE NUMBER:")
+
+
+def _normalize_page_numbers(page_refs: list[object] | None) -> list[int]:
+    """Normalize mixed page references to unique, positive page numbers."""
+    if not page_refs:
+        return []
+
+    numbers: list[int] = []
+    seen: set[int] = set()
+    for ref in page_refs:
+        if isinstance(ref, int):
+            candidates = [ref]
+        else:
+            candidates = [int(match) for match in re.findall(r"\d+", str(ref))]
+
+        for page in candidates:
+            if page <= 0 or page in seen:
+                continue
+            seen.add(page)
+            numbers.append(page)
+
+    return numbers
+
+
+def _append_optional_prompt_sections(base_prompt: str, sections: list[tuple[str, Optional[str]]]) -> str:
+    """Append optional markdown sections to a prompt when values are provided."""
+    extras: list[str] = []
+    for title, value in sections:
+        if value and value.strip():
+            extras.append(f"## {title}\n{value.strip()}")
+    if not extras:
+        return base_prompt
+    return f"{base_prompt}\n\n" + "\n\n".join(extras)
 
 
 class BaseExecutor:
@@ -141,10 +175,21 @@ class RFPAnalyzerExecutor(BaseExecutor):
     async def execute(self, input_data: WorkflowInput) -> AnalysisResult:
         """Analyze the RFP document and extract structured requirements."""
         logger.info("Starting RFP analysis")
-        
-        base_additional_context = ""
+
+        context_parts: list[str] = []
         if input_data.company_context_text:
-            base_additional_context = f"Company Context:\n{input_data.company_context_text}"
+            context_parts.append(f"Company Context:\n{input_data.company_context_text}")
+        if input_data.previous_requirements:
+            context_parts.append(
+                "Previously Generated Requirements (preserve IDs where possible):\n"
+                f"{_format_requirements(input_data.previous_requirements, include_priority=True)}"
+            )
+        if input_data.extract_reqs_comment:
+            context_parts.append(
+                "User Guidance For This Regeneration:\n"
+                f"{input_data.extract_reqs_comment}"
+            )
+        base_additional_context = "\n\n".join(context_parts)
 
         should_chunk = self.config.features.toggle_requirements_chunking
         pages = parse_pages(input_data.rfp_text)
@@ -391,6 +436,8 @@ def _format_plan(plan: ProposalPlan) -> str:
         lines.append(f"Summary: {section.summary}")
         if section.related_requirements:
             lines.append(f"Requirements: {', '.join(section.related_requirements)}")
+        if section.rfp_pages:
+            lines.append(f"RFP Pages: {', '.join(str(page) for page in section.rfp_pages)}")
         if section.suggested_diagrams:
             lines.append(f"Diagrams: {', '.join(section.suggested_diagrams)}")
         if section.suggested_charts:
@@ -432,17 +479,8 @@ class SectionGeneratorExecutor(BaseExecutor):
         return build_rfp_section_generator_system_prompt(settings["formatting_injection"])
 
     @staticmethod
-    def _extract_page_numbers(page_refs: list[str] | None) -> list[int]:
-        if not page_refs:
-            return []
-        pages: list[int] = []
-        for ref in page_refs:
-            if ref is None:
-                continue
-            for token in str(ref).replace(",", " ").split():
-                if token.isdigit():
-                    pages.append(int(token))
-        return pages
+    def _extract_page_numbers(page_refs: list[int] | None) -> list[int]:
+        return _normalize_page_numbers(page_refs)
 
     def _build_page_map(self, rfp_text: str) -> dict[int, str]:
         pages = parse_pages(rfp_text)
@@ -544,7 +582,15 @@ class SectionGeneratorExecutor(BaseExecutor):
             company_context=_as_page_number(input_data.company_context_text) if input_data.company_context_text else "No company context provided.",
             requirements=_format_requirements(analysis.requirements)
         )
-        
+
+        user_prompt = _append_optional_prompt_sections(
+            user_prompt,
+            [
+                ("Previous Generated Code", (input_data.previous_document_code or "")[:5000]),
+                ("User Guidance For This Regeneration", input_data.generate_rfp_comment),
+            ],
+        )
+
         return await self._generate(user_prompt, _collect_images(input_data), "generate", system_prompt)
     
     async def execute_with_plan(
@@ -564,7 +610,15 @@ class SectionGeneratorExecutor(BaseExecutor):
             company_context=_as_page_number(input_data.company_context_text) if input_data.company_context_text else "No company context provided.",
             requirements=_format_requirements(analysis.requirements)
         )
-        
+
+        user_prompt = _append_optional_prompt_sections(
+            user_prompt,
+            [
+                ("Previous Generated Code", (input_data.previous_document_code or "")[:5000]),
+                ("User Guidance For This Regeneration", input_data.generate_rfp_comment),
+            ],
+        )
+
         return await self._generate(user_prompt, _collect_images(input_data), "generate_with_plan", system_prompt)
 
     async def execute_chunk_with_plan(
@@ -630,6 +684,13 @@ class SectionGeneratorExecutor(BaseExecutor):
                 example_rfps=example_text,
                 company_context=company_context,
             )
+
+        user_prompt = _append_optional_prompt_sections(
+            user_prompt,
+            [
+                ("User Guidance For This Regeneration", input_data.generate_rfp_comment),
+            ],
+        )
 
         return await self._generate(
             user_prompt,
@@ -706,7 +767,15 @@ class PlannerExecutor(BaseExecutor):
             requirements=_format_requirements(analysis.requirements, include_priority=True),
             company_context=input_data.company_context_text or "No company context provided."
         )
-        
+
+        user_prompt = _append_optional_prompt_sections(
+            user_prompt,
+            [
+                ("Original Plan To Improve", _format_plan(input_data.previous_plan) if input_data.previous_plan else None),
+                ("User Guidance For This Regeneration", input_data.plan_comment),
+            ],
+        )
+
         messages = self._build_messages_with_images(
             PROPOSAL_PLANNER_SYSTEM_PROMPT,
             user_prompt,
@@ -730,7 +799,7 @@ class PlannerExecutor(BaseExecutor):
                     title=s.get("title", "Untitled Section"),
                     summary=s.get("summary", ""),
                     related_requirements=s.get("related_requirements", []),
-                    rfp_pages=s.get("rfp_pages", []),
+                    rfp_pages=_normalize_page_numbers(s.get("rfp_pages", [])),
                     suggested_diagrams=s.get("suggested_diagrams", []),
                     suggested_charts=s.get("suggested_charts", []),
                     suggested_tables=s.get("suggested_tables", [])
@@ -769,7 +838,8 @@ class CritiquerExecutor(BaseExecutor):
     async def execute(
         self, 
         analysis: RFPAnalysis,
-        document_code: str
+        document_code: str,
+        comment: Optional[str] = None,
     ) -> CritiqueResultData:
         """Review document code and provide critique."""
         logger.info("Starting document critique")
@@ -777,6 +847,11 @@ class CritiquerExecutor(BaseExecutor):
         user_prompt = CRITIQUE_DOCUMENT_USER_PROMPT.format(
             requirements=_format_requirements(analysis.requirements, include_category=False),
             document_code=document_code[:10000]  # Limit for context window
+        )
+
+        user_prompt = _append_optional_prompt_sections(
+            user_prompt,
+            [("User Guidance For This Critique", comment)],
         )
         
         messages = [
@@ -907,17 +982,44 @@ class CodeInterpreterExecutor(BaseExecutor):
             doc = Document()
             
             # Helper function for mermaid that uses the correct path
-            def render_mermaid(mermaid_code: str, output_filename: str) -> Path:
-                """Render mermaid diagram and return the image path."""
+            def render_mermaid(
+                mermaid_code: str,
+                output_filename: str,
+                width: int = 1600,
+                height: int = 1000,
+                scale: float = 1.5,
+            ) -> Path:
+                """Render mermaid diagram and return the image path.
+
+                Width/height/scale defaults are tuned to avoid clipped or oversized diagrams.
+                """
                 if not mmdc_path:
                     raise RuntimeError("Mermaid CLI (mmdc) not found. Install with: npm install -g @mermaid-js/mermaid-cli")
                 
                 mmd_file = img_dir / f"{output_filename}.mmd"
                 mmd_file.write_text(mermaid_code, encoding='utf-8')
                 png_path = img_dir / f"{output_filename}.png"
+
+                safe_width = max(800, min(int(width), 2400))
+                safe_height = max(600, min(int(height), 1800))
+                safe_scale = max(1.0, min(float(scale), 3.0))
                 
                 result = subprocess.run(
-                    [mmdc_path, '-i', str(mmd_file), '-o', str(png_path), '-b', 'white'],
+                    [
+                        mmdc_path,
+                        '-i',
+                        str(mmd_file),
+                        '-o',
+                        str(png_path),
+                        '-b',
+                        'white',
+                        '-w',
+                        str(safe_width),
+                        '-H',
+                        str(safe_height),
+                        '-s',
+                        str(safe_scale),
+                    ],
                     capture_output=True,
                     text=True
                 )

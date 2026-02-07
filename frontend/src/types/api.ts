@@ -1,22 +1,9 @@
 /**
- * API types matching the backend schemas
+ * API types matching backend schemas.
  */
 
-export interface RFPSection {
-  section_title: string;
-  section_content: string;
-  section_type: 'h1' | 'h2' | 'h3' | 'body';
-}
-
-export interface RFPResponseMetadata {
-  total_sections?: number;
-  has_diagrams?: boolean;
-  estimated_pages?: number;
-}
-
 export interface RFPResponse {
-  sections: RFPSection[];
-  metadata?: RFPResponseMetadata;
+  document_code: string;
 }
 
 export interface RFPRequirement {
@@ -48,14 +35,81 @@ export interface RFPAnalysis {
   key_differentiators?: string[];
 }
 
+export interface PlannedSection {
+  title: string;
+  summary: string;
+  related_requirements: string[];
+  rfp_pages: number[];
+  suggested_diagrams: string[];
+  suggested_charts: string[];
+  suggested_tables: string[];
+}
+
+export interface ProposalPlan {
+  overview: string;
+  sections: PlannedSection[];
+  key_themes: string[];
+  win_strategy: string;
+}
+
+export interface CritiqueResult {
+  needs_revision: boolean;
+  critique: string;
+  strengths: string[];
+  weaknesses: string[];
+  priority_fixes: string[];
+}
+
 export interface GenerateRFPResponse {
   success: boolean;
   message: string;
   rfp_response?: RFPResponse;
   analysis?: RFPAnalysis;
-  pdf_download_url?: string;
   docx_download_url?: string;
   processing_time_seconds?: number;
+}
+
+export interface ExtractReqsResponse {
+  success: boolean;
+  message: string;
+  analysis?: RFPAnalysis;
+}
+
+export interface PlanStepRequest {
+  analysis: RFPAnalysis;
+  company_context_text?: string;
+  comment?: string;
+  previous_plan?: ProposalPlan;
+}
+
+export interface PlanStepResponse {
+  success: boolean;
+  message: string;
+  plan?: ProposalPlan;
+}
+
+export interface GenerateRFPStepResponse {
+  success: boolean;
+  message: string;
+  document_code: string;
+  docx_base64: string;
+  docx_filename: string;
+  docx_content_type: string;
+  execution_stats: Record<string, unknown>;
+  run_id?: string;
+  docx_download_url?: string;
+}
+
+export interface CritiqueStepRequest {
+  analysis: RFPAnalysis;
+  document_code: string;
+  comment?: string;
+}
+
+export interface CritiqueStepResponse {
+  success: boolean;
+  message: string;
+  critique?: CritiqueResult;
 }
 
 export interface HealthResponse {
@@ -83,6 +137,16 @@ export interface ConfigResponse {
   msal_tenant_id?: string;
   msal_redirect_uri?: string;
   msal_scopes?: string[];
+}
+
+export interface PromptDefinition {
+  name: string;
+  content: string;
+}
+
+export interface PromptsResponse {
+  system_prompts: PromptDefinition[];
+  base_prompts: PromptDefinition[];
 }
 
 export interface WorkflowEvent {

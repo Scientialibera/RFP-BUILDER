@@ -24,6 +24,7 @@ from .executors import (
     PlannerExecutor,
     CritiquerExecutor,
 )
+from .run_dirs import create_unique_run_directory
 
 
 logger = logging.getLogger(__name__)
@@ -59,30 +60,7 @@ class RFPBuilderWorkflow:
     
     def _create_run_directory(self) -> Path:
         """Create a timestamped run directory with enterprise-grade subdirectory structure."""
-        from datetime import datetime
-        run_name = datetime.now().strftime("run_%Y%m%d_%H%M%S")
-        run_dir = self.output_dir / run_name
-        
-        # Create enterprise directory structure
-        subdirs = [
-            run_dir / "word_document",      # Final .docx file
-            run_dir / "image_assets",        # Generated charts (seaborn/matplotlib)
-            run_dir / "diagrams",            # Generated mermaid diagrams
-            run_dir / "llm_interactions",    # LLM logs (analysis, generation, etc.)
-            run_dir / "execution_logs",      # Code execution logs and errors
-            run_dir / "metadata",            # Plan, critique results, analysis
-            run_dir / "code_snapshots",      # Generated code at each stage
-            run_dir / "documents",           # Uploaded source documents (RFP, examples, context)
-            run_dir / "revisions",           # User-initiated revisions
-            run_dir / "llm_interactions",    # LLM logs (analysis, generation, etc.)
-            run_dir / "execution_logs",      # Code execution logs and errors
-            run_dir / "metadata",            # Plan, critique results, analysis
-            run_dir / "code_snapshots",      # Generated code at each stage
-        ]
-        
-        for subdir in subdirs:
-            subdir.mkdir(parents=True, exist_ok=True)
-        
+        run_dir = create_unique_run_directory(self.output_dir)
         logger.info(f"Created run directory structure: {run_dir}")
         return run_dir
     
@@ -300,7 +278,8 @@ class RFPBuilderWorkflow:
                     while critique_count < self.config.workflow.max_critiques:
                         critique_result = await self.critiquer.execute(
                             chunk_analysis,
-                            generation_result.response.document_code
+                            generation_result.response.document_code,
+                            comment=input_data.critique_comment,
                         )
                         critique_history.append(critique_result.critique)
 
@@ -347,7 +326,8 @@ class RFPBuilderWorkflow:
             
             critique_result = await self.critiquer.execute(
                 analysis_result.analysis,
-                generation_result.response.document_code
+                generation_result.response.document_code,
+                comment=input_data.critique_comment,
             )
             critique_history.append(critique_result.critique)
             
@@ -532,7 +512,8 @@ class RFPBuilderWorkflow:
                         while critique_count < self.config.workflow.max_critiques:
                             critique_result = await self.critiquer.execute(
                                 chunk_analysis,
-                                generation_result.response.document_code
+                                generation_result.response.document_code,
+                                comment=input_data.critique_comment,
                             )
                             critique_history.append(critique_result.critique)
 
@@ -604,7 +585,8 @@ class RFPBuilderWorkflow:
                 
                 critique_result = await self.critiquer.execute(
                     analysis_result.analysis,
-                    generation_result.response.document_code
+                    generation_result.response.document_code,
+                    comment=input_data.critique_comment,
                 )
                 critique_history.append(critique_result.critique)
                 

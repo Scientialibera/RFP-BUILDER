@@ -5,7 +5,7 @@ Workflow state models for RFP Builder.
 from dataclasses import dataclass, field
 from typing import Optional
 
-from app.models.schemas import RFPAnalysis, RFPResponse, ProposalPlan, CritiqueResult
+from app.models.schemas import RFPAnalysis, RFPResponse, ProposalPlan, CritiqueResult, RFPRequirement
 
 
 @dataclass
@@ -35,6 +35,14 @@ class WorkflowInput:
     toggle_generation_chunking: Optional[bool] = None
     max_tokens_generation_chunking: Optional[int] = None
     max_sections_per_chunk: Optional[int] = None
+    # Optional regeneration controls for step-by-step flows
+    extract_reqs_comment: Optional[str] = None
+    previous_requirements: Optional[list[RFPRequirement]] = None
+    plan_comment: Optional[str] = None
+    previous_plan: Optional[ProposalPlan] = None
+    generate_rfp_comment: Optional[str] = None
+    previous_document_code: Optional[str] = None
+    critique_comment: Optional[str] = None
     # Document metadata for storing in run
     documents: list[DocumentInfo] = field(default_factory=list)
 

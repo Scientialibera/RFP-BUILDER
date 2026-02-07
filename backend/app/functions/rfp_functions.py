@@ -209,8 +209,8 @@ PLAN_PROPOSAL_FUNCTION = {
                         },
                         "rfp_pages": {
                             "type": "array",
-                            "items": {"type": "string"},
-                            "description": "RFP page references (e.g., 'Page 5', 'Section 3.1')"
+                            "items": {"type": "integer", "minimum": 1},
+                            "description": "RFP page numbers only (integers from PAGE TO CITE markers, e.g., 5, 12, 27)"
                         },
                         "suggested_diagrams": {
                             "type": "array",

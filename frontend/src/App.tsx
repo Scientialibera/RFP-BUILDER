@@ -4,10 +4,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Send, Loader, AlertCircle, RefreshCw, Download, History } from 'lucide-react';
-import { Header, FileUpload, ProgressSteps, ResponseViewer } from './components';
+import { Header, FileUpload, ProgressSteps, ResponseViewer, CustomFlow, PromptsViewer } from './components';
 import { RunsHistory } from './components/RunsHistory';
-import { generateRFPStream, getConfig } from './services/api';
-import type { GenerateRFPResponse, ConfigResponse, WorkflowStepConfig } from './types';
+import { generateRFPStream, getConfig, getPrompts } from './services/api';
+import type { GenerateRFPResponse, ConfigResponse, WorkflowStepConfig, PromptsResponse } from './types';
 
 // Default steps shown while config loads
 const DEFAULT_WORKFLOW_STEPS: WorkflowStepConfig[] = [
@@ -43,6 +43,10 @@ function App() {
   
   // Runs history modal state
   const [showRunsHistory, setShowRunsHistory] = useState(false);
+  const [activeTab, setActiveTab] = useState<'standard' | 'custom' | 'config'>('standard');
+  const [prompts, setPrompts] = useState<PromptsResponse | null>(null);
+  const [promptsLoading, setPromptsLoading] = useState(false);
+  const [promptsError, setPromptsError] = useState<string | null>(null);
   
   // Effective values (user override or config default)
   const effectivePlanner = enablePlanner ?? config?.enable_planner ?? false;
@@ -67,6 +71,26 @@ function App() {
   useEffect(() => {
     loadConfig();
   }, [loadConfig]);
+
+  const loadPrompts = useCallback(async () => {
+    setPromptsLoading(true);
+    setPromptsError(null);
+    try {
+      const data = await getPrompts();
+      setPrompts(data);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load prompts';
+      setPromptsError(message);
+    } finally {
+      setPromptsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'config' && !prompts && !promptsLoading) {
+      loadPrompts();
+    }
+  }, [activeTab, prompts, promptsLoading, loadPrompts]);
 
   // Auto-reload on connection lost
   const handleReload = useCallback(() => {
@@ -190,7 +214,43 @@ function App() {
           <RunsHistory onClose={() => setShowRunsHistory(false)} />
         )}
 
-        {!result ? (
+        <div className="mb-6 inline-flex rounded-lg border border-gray-200 bg-white p-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('standard')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'standard'
+                ? 'bg-primary-600 text-white'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            Standard Flow
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('custom')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'custom'
+                ? 'bg-primary-600 text-white'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            Custom Flow
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('config')}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === 'config'
+                ? 'bg-primary-600 text-white'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+            }`}
+          >
+            Config
+          </button>
+        </div>
+
+        {activeTab === 'standard' && (!result ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Form */}
             <div className="lg:col-span-2">
@@ -413,6 +473,22 @@ function App() {
               </div>
             ) : null}
           </div>
+        ))}
+
+        {activeTab === 'custom' && (
+          <CustomFlow
+            defaultEnablePlanner={config?.enable_planner ?? false}
+            defaultEnableCritiquer={config?.enable_critiquer ?? false}
+          />
+        )}
+
+        {activeTab === 'config' && (
+          <PromptsViewer
+            prompts={prompts}
+            loading={promptsLoading}
+            error={promptsError}
+            onRefresh={loadPrompts}
+          />
         )}
       </main>
 

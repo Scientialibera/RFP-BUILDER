@@ -5,7 +5,8 @@ Configuration endpoints for frontend.
 from fastapi import APIRouter
 
 from app.core.config import get_config
-from app.models.schemas import ConfigResponse, WorkflowStepConfig
+from app.models.schemas import ConfigResponse, WorkflowStepConfig, PromptDefinition, PromptsResponse
+from app.prompts import system_prompts, user_prompts
 
 
 router = APIRouter(prefix="/api/config", tags=["Config"])
@@ -99,3 +100,24 @@ async def get_frontend_config():
         response.msal_scopes = config.msal.scopes
     
     return response
+
+
+def _collect_prompt_definitions(module) -> list[PromptDefinition]:
+    """Collect exported prompt constants from a module."""
+    prompts: list[PromptDefinition] = []
+    for name in sorted(dir(module)):
+        if not name.endswith("_PROMPT"):
+            continue
+        value = getattr(module, name)
+        if isinstance(value, str):
+            prompts.append(PromptDefinition(name=name, content=value))
+    return prompts
+
+
+@router.get("/prompts", response_model=PromptsResponse)
+async def get_prompts():
+    """Return read-only system/base prompt catalog for frontend viewing."""
+    return PromptsResponse(
+        system_prompts=_collect_prompt_definitions(system_prompts),
+        base_prompts=_collect_prompt_definitions(user_prompts),
+    )
