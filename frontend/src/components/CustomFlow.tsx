@@ -132,6 +132,7 @@ export function CustomFlow({
   const [documentCode, setDocumentCode] = useState('');
   const [codePackage, setCodePackage] = useState<GeneratedCodePackage>(EMPTY_CODE_PACKAGE);
   const [critique, setCritique] = useState<CritiqueResult | null>(null);
+  const [runId, setRunId] = useState('');
 
   const [reqsGenerationContext, setReqsGenerationContext] = useState('');
   const [reqsRegenerationComment, setReqsRegenerationComment] = useState('');
@@ -174,6 +175,7 @@ export function CustomFlow({
     () => (enablePlanner ? 'Planner enabled' : 'Planner disabled (direct requirements -> generation)'),
     [enablePlanner]
   );
+  const activeRunId = runId.trim() || undefined;
 
   const handleExtractReqs = async () => {
     if (rfpFile.length === 0) return;
@@ -189,10 +191,14 @@ export function CustomFlow({
         rfpFile[0],
         contextFiles.length > 0 ? contextFiles : undefined,
         comment,
-        analysis?.requirements
+        analysis?.requirements,
+        activeRunId
       );
       if (!result.analysis) {
         throw new Error(result.message || 'No requirements returned.');
+      }
+      if (result.run_id) {
+        setRunId(result.run_id);
       }
       setAnalysis(result.analysis);
       if (!enablePlanner) {
@@ -222,9 +228,13 @@ export function CustomFlow({
         companyContextFiles: contextFiles.length > 0 ? contextFiles : undefined,
         comment,
         previousPlan: plan ?? undefined,
+        runId: activeRunId,
       });
       if (!result.plan) {
         throw new Error(result.message || 'No plan returned.');
+      }
+      if (result.run_id) {
+        setRunId(result.run_id);
       }
       setPlan(result.plan);
     } catch (err) {
@@ -252,7 +262,11 @@ export function CustomFlow({
         plan: enablePlanner ? plan ?? undefined : undefined,
         comment,
         previousDocumentCode: documentCode.trim() || undefined,
+        runId: activeRunId,
       });
+      if (result.run_id) {
+        setRunId(result.run_id);
+      }
       setDocumentCode(result.document_code);
       setCodePackage(result.code_package ?? EMPTY_CODE_PACKAGE);
       setDocxFilename(result.docx_filename || 'proposal.docx');
@@ -278,7 +292,11 @@ export function CustomFlow({
         analysis,
         document_code: documentCode,
         comment: critiqueComment.trim() || undefined,
+        run_id: activeRunId,
       });
+      if (result.run_id) {
+        setRunId(result.run_id);
+      }
       setCritique(result.critique ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to critique RFP');
@@ -382,7 +400,7 @@ export function CustomFlow({
       ) : (
         <div className="space-y-3 max-h-[24rem] overflow-y-auto pr-2">
           {snippets.map((snippet) => (
-            <div key={snippet.snippet_id} className="space-y-1">
+            <div key={snippet.snippet_id} className="space-y-2">
               <p className="text-xs font-medium text-gray-700">{snippet.title}</p>
               <textarea
                 value={snippet.code}
@@ -390,6 +408,31 @@ export function CustomFlow({
                 className="w-full border border-gray-300 rounded px-2 py-2 text-xs font-mono bg-gray-50"
                 rows={10}
               />
+              {snippet.asset_base64 && (
+                <div className="border border-gray-200 rounded p-2 bg-white">
+                  <div className="text-[11px] text-gray-500 mb-2">
+                    {snippet.asset_filename ?? 'preview.png'}
+                  </div>
+                  <img
+                    src={`data:${snippet.asset_content_type ?? 'image/png'};base64,${snippet.asset_base64}`}
+                    alt={snippet.title}
+                    className="max-h-80 w-auto border border-gray-100 rounded"
+                  />
+                </div>
+              )}
+              {snippet.html_code && (
+                <div className="space-y-2">
+                  <textarea
+                    value={snippet.html_code}
+                    readOnly
+                    className="w-full border border-gray-300 rounded px-2 py-2 text-xs font-mono bg-gray-50"
+                    rows={8}
+                  />
+                  <div className="border border-gray-200 rounded p-2 bg-white overflow-x-auto max-h-80">
+                    <div dangerouslySetInnerHTML={{ __html: snippet.html_code }} />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -429,6 +472,19 @@ export function CustomFlow({
           multiple
           maxFiles={5}
         />
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Flow Run ID (optional)</label>
+          <input
+            value={runId}
+            onChange={(e) => setRunId(e.target.value)}
+            placeholder="Leave blank to auto-create, or reuse an existing run_id"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Reusing the same ID keeps all step outputs in one backend run folder.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">

@@ -120,6 +120,10 @@ class GeneratedCodeSnippet(BaseModel):
     snippet_id: str
     title: str
     code: str
+    asset_filename: Optional[str] = None
+    asset_base64: Optional[str] = None
+    asset_content_type: Optional[str] = None
+    html_code: Optional[str] = None
 
 
 class GeneratedCodePackage(BaseModel):
@@ -134,6 +138,7 @@ class ExtractReqsResponse(BaseModel):
     success: bool
     message: str
     analysis: Optional[RFPAnalysis] = None
+    run_id: Optional[str] = None
 
 
 class PlanStepRequest(BaseModel):
@@ -142,6 +147,7 @@ class PlanStepRequest(BaseModel):
     company_context_text: Optional[str] = None
     comment: Optional[str] = None
     previous_plan: Optional[ProposalPlan] = None
+    run_id: Optional[str] = None
 
 
 class PlanStepResponse(BaseModel):
@@ -149,6 +155,7 @@ class PlanStepResponse(BaseModel):
     success: bool
     message: str
     plan: Optional[ProposalPlan] = None
+    run_id: Optional[str] = None
 
 
 class CritiqueStepRequest(BaseModel):
@@ -156,6 +163,7 @@ class CritiqueStepRequest(BaseModel):
     analysis: RFPAnalysis
     document_code: str
     comment: Optional[str] = None
+    run_id: Optional[str] = None
 
 
 class CritiqueStepResponse(BaseModel):
@@ -163,6 +171,7 @@ class CritiqueStepResponse(BaseModel):
     success: bool
     message: str
     critique: Optional[CritiqueResult] = None
+    run_id: Optional[str] = None
 
 
 class GenerateRFPStepResponse(BaseModel):
