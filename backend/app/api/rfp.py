@@ -6,6 +6,7 @@ import logging
 import json
 import time
 import base64
+import ast
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, TypeVar
@@ -18,6 +19,8 @@ from app.core.config import get_config, FeaturesConfig
 from app.core.auth import verify_api_token
 from app.core.llm_client import create_llm_client
 from app.models.schemas import (
+    GeneratedCodePackage,
+    GeneratedCodeSnippet,
     GenerateRFPResponse,
     ExtractReqsResponse,
     PlanStepRequest,
@@ -127,6 +130,331 @@ def _save_code_snapshot(run_dir: Path, stage: str, code: str) -> None:
             f.write(code)
     except Exception as exc:
         logger.warning(f"Failed to save code snapshot {snapshot_file.name}: {exc}")
+
+
+def _extract_target_names(target: ast.expr) -> set[str]:
+    if isinstance(target, ast.Name):
+        return {target.id}
+    if isinstance(target, (ast.Tuple, ast.List)):
+        names: set[str] = set()
+        for elt in target.elts:
+            names.update(_extract_target_names(elt))
+        return names
+    return set()
+
+
+def _extract_assigned_names(stmt: ast.stmt) -> set[str]:
+    names: set[str] = set()
+    if isinstance(stmt, ast.Assign):
+        for target in stmt.targets:
+            names.update(_extract_target_names(target))
+    elif isinstance(stmt, ast.AnnAssign):
+        names.update(_extract_target_names(stmt.target))
+    elif isinstance(stmt, ast.AugAssign):
+        names.update(_extract_target_names(stmt.target))
+    return names
+
+
+def _stmt_uses_names(stmt: ast.stmt, names: set[str]) -> bool:
+    if not names:
+        return False
+    for node in ast.walk(stmt):
+        if isinstance(node, ast.Name) and node.id in names:
+            return True
+    return False
+
+
+def _has_call(stmt: ast.stmt, owner: str | None, attr: str) -> bool:
+    for node in ast.walk(stmt):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if isinstance(func, ast.Attribute):
+            if owner is None:
+                continue
+            if isinstance(func.value, ast.Name) and func.value.id == owner and func.attr == attr:
+                return True
+        elif isinstance(func, ast.Name):
+            if owner is None and func.id == attr:
+                return True
+    return False
+
+
+def _extract_call_string_arg(stmt: ast.stmt, func_name: str, arg_index: int) -> str | None:
+    for node in ast.walk(stmt):
+        if not isinstance(node, ast.Call):
+            continue
+        if not isinstance(node.func, ast.Name) or node.func.id != func_name:
+            continue
+        if len(node.args) > arg_index and isinstance(node.args[arg_index], ast.Constant):
+            value = node.args[arg_index].value
+            return value if isinstance(value, str) else None
+        return None
+    return None
+
+
+def _extract_savefig_target(stmt: ast.stmt) -> str | None:
+    for node in ast.walk(stmt):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        if not (
+            isinstance(func, ast.Attribute)
+            and isinstance(func.value, ast.Name)
+            and func.value.id == "plt"
+            and func.attr == "savefig"
+        ):
+            continue
+        if node.args:
+            first = node.args[0]
+            if isinstance(first, ast.Constant) and isinstance(first.value, str):
+                return first.value
+            if isinstance(first, ast.Name):
+                return first.id
+        for keyword in node.keywords:
+            if keyword.arg == "fname":
+                if isinstance(keyword.value, ast.Constant) and isinstance(keyword.value.value, str):
+                    return keyword.value.value
+                if isinstance(keyword.value, ast.Name):
+                    return keyword.value.id
+        return None
+    return None
+
+
+def _slice_statement_block(lines: list[str], statements: list[ast.stmt], start_idx: int, end_idx: int) -> str:
+    start_line = statements[start_idx].lineno
+    end_line = statements[end_idx].end_lineno or statements[end_idx].lineno
+    return "\n".join(lines[start_line - 1:end_line]).rstrip()
+
+
+def _is_doc_add_table_assign(stmt: ast.stmt) -> str | None:
+    if not isinstance(stmt, ast.Assign) or len(stmt.targets) != 1:
+        return None
+    target = stmt.targets[0]
+    if not isinstance(target, ast.Name):
+        return None
+    value = stmt.value
+    if not isinstance(value, ast.Call):
+        return None
+    func = value.func
+    if (
+        isinstance(func, ast.Attribute)
+        and isinstance(func.value, ast.Name)
+        and func.value.id == "doc"
+        and func.attr == "add_table"
+    ):
+        return target.id
+    return None
+
+
+def _is_mermaid_code_assign(stmt: ast.stmt) -> str | None:
+    if not isinstance(stmt, ast.Assign) or len(stmt.targets) != 1:
+        return None
+    target = stmt.targets[0]
+    if not isinstance(target, ast.Name):
+        return None
+    if not isinstance(stmt.value, ast.Constant) or not isinstance(stmt.value.value, str):
+        return None
+
+    text = stmt.value.value.strip().lower()
+    name = target.id.lower()
+    if name.startswith("mermaid_code"):
+        return target.id
+
+    mermaid_prefixes = (
+        "graph",
+        "flowchart",
+        "sequencediagram",
+        "classdiagram",
+        "statediagram",
+        "erdiagram",
+        "journey",
+        "gantt",
+        "pie",
+        "mindmap",
+        "timeline",
+        "gitgraph",
+        "quadrantchart",
+        "requirementdiagram",
+        "xychart",
+    )
+    if any(text.startswith(prefix) for prefix in mermaid_prefixes):
+        return target.id
+    return None
+
+
+def _is_chart_start(statements: list[ast.stmt], idx: int) -> bool:
+    stmt = statements[idx]
+    if _has_call(stmt, "sns", "set_style") or _has_call(stmt, "plt", "figure") or _has_call(stmt, "plt", "subplots"):
+        return True
+    if _has_call(stmt, "sns", "barplot") or _has_call(stmt, "sns", "lineplot") or _has_call(stmt, "sns", "scatterplot"):
+        return True
+    if _has_call(stmt, "sns", "heatmap") or _has_call(stmt, "sns", "histplot") or _has_call(stmt, "sns", "boxplot"):
+        return True
+    if _has_call(stmt, "sns", "violinplot"):
+        return True
+
+    if not isinstance(stmt, ast.Assign) or not isinstance(stmt.value, ast.Call):
+        return False
+    call = stmt.value
+    if not (
+        isinstance(call.func, ast.Attribute)
+        and isinstance(call.func.value, ast.Name)
+        and call.func.value.id == "pd"
+        and call.func.attr == "DataFrame"
+    ):
+        return False
+
+    lookahead = statements[idx + 1: idx + 5]
+    return any(
+        _has_call(candidate, "plt", "figure")
+        or _has_call(candidate, "plt", "subplots")
+        or _has_call(candidate, "sns", "barplot")
+        or _has_call(candidate, "sns", "lineplot")
+        or _has_call(candidate, "sns", "scatterplot")
+        or _has_call(candidate, "sns", "heatmap")
+        for candidate in lookahead
+    )
+
+
+def _build_code_package(document_code: str) -> GeneratedCodePackage:
+    package = GeneratedCodePackage()
+    try:
+        tree = ast.parse(document_code)
+    except SyntaxError:
+        return package
+
+    statements = tree.body
+    lines = document_code.splitlines()
+
+    mermaid_items: list[GeneratedCodeSnippet] = []
+    for idx, stmt in enumerate(statements):
+        mermaid_var = _is_mermaid_code_assign(stmt)
+        if not mermaid_var:
+            continue
+
+        end_idx = idx
+        block_vars = {mermaid_var}
+        output_name: str | None = None
+        for look_idx in range(idx + 1, len(statements)):
+            candidate = statements[look_idx]
+            if _stmt_uses_names(candidate, block_vars):
+                block_vars.update(_extract_assigned_names(candidate))
+                output_name = output_name or _extract_call_string_arg(candidate, "render_mermaid", 1)
+                end_idx = look_idx
+                continue
+            if _has_call(candidate, None, "add_caption") and end_idx > idx:
+                end_idx = look_idx
+            break
+
+        title = output_name or mermaid_var
+        mermaid_items.append(
+            GeneratedCodeSnippet(
+                snippet_id=f"mermaid_{len(mermaid_items) + 1}",
+                title=title.replace("_", " ").strip().title(),
+                code=_slice_statement_block(lines, statements, idx, end_idx),
+            )
+        )
+
+    table_items: list[GeneratedCodeSnippet] = []
+    for idx, stmt in enumerate(statements):
+        table_var = _is_doc_add_table_assign(stmt)
+        if not table_var:
+            continue
+
+        end_idx = idx
+        block_vars = {table_var}
+        for look_idx in range(idx + 1, len(statements)):
+            candidate = statements[look_idx]
+            if not _stmt_uses_names(candidate, block_vars):
+                break
+            block_vars.update(_extract_assigned_names(candidate))
+            end_idx = look_idx
+
+        table_items.append(
+            GeneratedCodeSnippet(
+                snippet_id=f"table_{len(table_items) + 1}",
+                title=table_var.replace("_", " ").strip().title(),
+                code=_slice_statement_block(lines, statements, idx, end_idx),
+            )
+        )
+
+    chart_items: list[GeneratedCodeSnippet] = []
+    used_chart_indexes: set[int] = set()
+    idx = 0
+    while idx < len(statements):
+        if idx in used_chart_indexes or not _is_chart_start(statements, idx):
+            idx += 1
+            continue
+
+        start_idx = idx
+        for back in range(1, 4):
+            prev_idx = idx - back
+            if prev_idx < 0 or prev_idx in used_chart_indexes:
+                break
+            prev_stmt = statements[prev_idx]
+            if _is_doc_add_table_assign(prev_stmt) or _is_mermaid_code_assign(prev_stmt):
+                break
+            if _has_call(prev_stmt, "doc", "add_heading") or _has_call(prev_stmt, "doc", "add_page_break"):
+                break
+            if isinstance(prev_stmt, ast.Assign):
+                start_idx = prev_idx
+                continue
+            break
+
+        close_idx: int | None = None
+        for look_idx in range(idx, len(statements)):
+            candidate = statements[look_idx]
+            if look_idx > idx and _is_chart_start(statements, look_idx):
+                break
+            if _is_doc_add_table_assign(candidate) or _is_mermaid_code_assign(candidate):
+                break
+            if _has_call(candidate, "plt", "close"):
+                close_idx = look_idx
+                break
+
+        if close_idx is None:
+            idx += 1
+            continue
+
+        end_idx = close_idx
+        chart_title: str | None = None
+        for look_idx in range(start_idx, close_idx + 1):
+            chart_title = chart_title or _extract_savefig_target(statements[look_idx])
+
+        block_vars: set[str] = set()
+        for look_idx in range(start_idx, close_idx + 1):
+            block_vars.update(_extract_assigned_names(statements[look_idx]))
+
+        for look_idx in range(close_idx + 1, min(close_idx + 5, len(statements))):
+            candidate = statements[look_idx]
+            if _has_call(candidate, "doc", "add_picture") or _has_call(candidate, None, "add_caption"):
+                end_idx = look_idx
+                block_vars.update(_extract_assigned_names(candidate))
+                continue
+            if _stmt_uses_names(candidate, block_vars):
+                end_idx = look_idx
+                block_vars.update(_extract_assigned_names(candidate))
+                continue
+            break
+
+        for used_idx in range(start_idx, end_idx + 1):
+            used_chart_indexes.add(used_idx)
+
+        chart_items.append(
+            GeneratedCodeSnippet(
+                snippet_id=f"diagram_{len(chart_items) + 1}",
+                title=(chart_title or f"Chart {len(chart_items) + 1}").replace("_", " ").strip().title(),
+                code=_slice_statement_block(lines, statements, start_idx, end_idx),
+            )
+        )
+
+        idx = end_idx + 1
+
+    package.mermaid = mermaid_items
+    package.tables = table_items
+    package.diagrams = chart_items
+    return package
 
 
 def _chunk_sections(sections: list, max_sections: int) -> list[list]:
@@ -819,6 +1147,7 @@ async def generate_rfp_step(
         docx_bytes = docx_path.read_bytes() if docx_path.exists() else b""
         docx_base64 = base64.b64encode(docx_bytes).decode("ascii")
         execution_success = bool(code_stats.get("document_success", False))
+        code_package = _build_code_package(current_response.document_code)
 
         return GenerateRFPStepResponse(
             success=execution_success,
@@ -827,6 +1156,7 @@ async def generate_rfp_step(
             docx_base64=docx_base64,
             docx_filename="proposal.docx",
             execution_stats=code_stats,
+            code_package=code_package,
             run_id=run_dir.name,
             docx_download_url=f"/api/rfp/download/{run_dir.name}/proposal.docx",
         )
