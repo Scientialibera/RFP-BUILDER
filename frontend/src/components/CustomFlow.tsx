@@ -347,6 +347,12 @@ export function CustomFlow({
   const canPlan = Boolean(analysis) && loadingStep === null && !loadingRun;
   const canGenerate = Boolean(analysis) && rfpFile.length === 1 && exampleFiles.length > 0 && loadingStep === null && !loadingRun;
   const canCritique = Boolean(analysis && documentCode.trim()) && loadingStep === null && !loadingRun;
+  const generateDisabledReasons: string[] = [];
+  if (!analysis) generateDisabledReasons.push('Requirements analysis is missing.');
+  if (rfpFile.length !== 1) generateDisabledReasons.push('Exactly one source RFP PDF is required.');
+  if (exampleFiles.length === 0) generateDisabledReasons.push('At least one Example RFP PDF is required.');
+  if (loadingRun) generateDisabledReasons.push('Run data is still loading.');
+  if (loadingStep && loadingStep !== 'generate') generateDisabledReasons.push('Another step is currently running.');
 
   const planRequiredLabel = useMemo(
     () => (enablePlanner ? 'Planner enabled' : 'Planner disabled (direct requirements -> generation)'),
@@ -1300,6 +1306,11 @@ export function CustomFlow({
           {loadingStep === 'generate' ? <Loader className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />}
           {documentCode ? 'Regenerate RFP' : 'Generate RFP'}
         </button>
+        {!canGenerate && generateDisabledReasons.length > 0 && (
+          <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
+            {generateDisabledReasons.join(' ')}
+          </div>
+        )}
         <p className="text-xs text-gray-500">
           Generation always uses the latest Requirements and Plan currently shown above.
         </p>

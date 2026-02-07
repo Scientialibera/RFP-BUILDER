@@ -1,0 +1,694 @@
+[
+  {
+    "version_id": "plan_v001",
+    "created_at": "2026-02-07T12:52:01.698424",
+    "comment": null,
+    "plan": {
+      "overview": "Technical- and compliance-heavy SSES proposal structured to clearly satisfy every mandatory requirement, demonstrate rigorous project management, and differentiate Aurelia via governance, data/analytics strength, and security/compliance maturity. Narrative will walk NFWB from understanding of LaSalle SSO context through Phase 1 SSES execution, NYSDEC-acceptable reporting, post-construction monitoring, and scalable options for Phases 2 and 3.",
+      "sections": [
+        {
+          "title": "Executive Summary and Win Themes",
+          "summary": "Concise overview of NFWB\u2019s SSO challenges, Phase 1\u20133 SSES objectives, Aurelia\u2019s understanding, and the value proposition: on-time NYSDEC-acceptable deliverables, strong governance, and data-driven I&I reduction with clear risk mitigation.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-002",
+            "REQ-003",
+            "REQ-016",
+            "REQ-017",
+            "REQ-018",
+            "REQ-019",
+            "REQ-020",
+            "REQ-021",
+            "REQ-025",
+            "REQ-026",
+            "REQ-027",
+            "REQ-028",
+            "REQ-032"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "flowchart showing linkage between Phase 1 SSES, corrective actions, construction, and post-construction monitoring through June 2024"
+          ],
+          "suggested_charts": [
+            "bar chart comparing planned timelines for Phase 1, Phase 2, and Phase 3 at a high level"
+          ],
+          "suggested_tables": [
+            "summary table of mandatory requirements cross-walked to proposal sections and page numbers",
+            "high-level benefits table summarizing NFWB value (schedule certainty, NYSDEC compliance, I&I reduction, MWBE/SDVOB participation)"
+          ]
+        },
+        {
+          "title": "Understanding of NFWB Objectives, LaSalle Sewersheds, and Regulatory Context",
+          "summary": "Demonstrate deep understanding of LaSalle SSO abatement context, Phase 1\u20133 sewersheds, history of I&I reduction efforts, Order on Consent, NYSDEC expectations, and Engineering Report Outline requirements.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-003",
+            "REQ-007",
+            "REQ-008",
+            "REQ-014",
+            "REQ-016",
+            "REQ-017",
+            "REQ-018",
+            "REQ-019",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "system context diagram of LaSalle sewersheds showing Phase 1, 2, and 3 areas and outfalls",
+            "timeline diagram of Order on Consent milestones, SSES phases, construction, and monitoring through June 2024"
+          ],
+          "suggested_charts": [
+            "line chart illustrating illustrative I&I trends vs. rainfall (conceptual, to show understanding of analysis approach)"
+          ],
+          "suggested_tables": [
+            "table summarizing each sewershed (Phase 1, 2, 3) with key attributes: area, outfalls, known SSO issues, prior I&I work",
+            "table mapping NYSDEC Engineering Report Outline sections to proposed SSES report structure"
+          ]
+        },
+        {
+          "title": "Regulatory and Standards Compliance Approach (NYSDEC, EPG, Engineering Report Outline)",
+          "summary": "Explain how all work products (SSES report, post-construction report) will conform to NYSDEC, EPG guidance, and Engineering Report Outline (Oct 1, 2022), including PE stamping and structured review checkpoints.",
+          "related_requirements": [
+            "REQ-003",
+            "REQ-016",
+            "REQ-017",
+            "REQ-018",
+            "REQ-019",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "flowchart of internal quality and compliance review process leading to PE-stamped deliverables acceptable to NYSDEC"
+          ],
+          "suggested_charts": [],
+          "suggested_tables": [
+            "compliance matrix table mapping NYSDEC Engineering Report Outline elements to planned report sections and responsible roles"
+          ]
+        },
+        {
+          "title": "Phase 1 SSES Technical Approach and Scope of Services",
+          "summary": "Detailed description of Phase 1 SSES tasks in 91st & Luick and 81st & Frontier 1 sewersheds, including investigation, analysis, reporting, and post-construction monitoring, structured by tasks aligned with the RFP.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-007",
+            "REQ-008",
+            "REQ-009",
+            "REQ-010",
+            "REQ-011",
+            "REQ-012",
+            "REQ-013",
+            "REQ-014",
+            "REQ-015",
+            "REQ-016",
+            "REQ-017",
+            "REQ-019",
+            "REQ-020",
+            "REQ-022",
+            "REQ-023"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "work-breakdown structure diagram for Phase 1 tasks from data review through field work, analysis, reporting, and monitoring",
+            "sequence diagram showing coordination between Aurelia, NFWB staff, and NYSDEC across project phases"
+          ],
+          "suggested_charts": [
+            "gantt-style bar chart (high level) showing sequencing of Phase 1 tasks (data review, field investigations, analysis, reporting, construction support, post-construction monitoring)"
+          ],
+          "suggested_tables": [
+            "task-by-task scope table describing objectives, key activities, inputs, and deliverables for Phase 1",
+            "RACI table for Aurelia vs. NFWB vs. NYSDEC roles for major tasks"
+          ]
+        },
+        {
+          "title": "Data Review, Existing Information Assessment, and System Familiarization",
+          "summary": "Describe methodology for reviewing existing data (Order on Consent, prior reports, CCTV, manhole inspections, SCADA data), meeting with staff, and gaining operational understanding of LaSalle sewersheds and flow management.",
+          "related_requirements": [
+            "REQ-007",
+            "REQ-008",
+            "REQ-009",
+            "REQ-010",
+            "REQ-013",
+            "REQ-014",
+            "REQ-015",
+            "REQ-016",
+            "REQ-019",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "process diagram for data intake, validation, GIS integration, and gap analysis leading to focused SSES planning"
+          ],
+          "suggested_charts": [
+            "bar chart summarizing categories of existing data (CCTV, manhole, flow, rainfall) and their coverage/completeness (conceptual)"
+          ],
+          "suggested_tables": [
+            "inventory table of existing data types and intended use in analysis",
+            "table of planned coordination meetings and objectives with NFWB and NYSDEC"
+          ]
+        },
+        {
+          "title": "Smoke Testing Plan and Methodology",
+          "summary": "Provide detailed Phase 1 smoke testing approach: criteria for test areas, weather constraints, staffing, equipment, safety, resident notification, coordination with police/fire, documentation, and integration of findings into I&I analysis.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-008",
+            "REQ-009",
+            "REQ-011",
+            "REQ-015",
+            "REQ-016",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "flowchart of end-to-end smoke testing workflow from planning and notifications to field execution and defect logging into GIS"
+          ],
+          "suggested_charts": [
+            "pie chart showing expected distribution of defect types discovered via smoke testing (conceptual, to show analytical approach)"
+          ],
+          "suggested_tables": [
+            "table of smoke testing procedures including safety checks, communication steps, and documentation requirements"
+          ]
+        },
+        {
+          "title": "Night-Time Flow Isolation and Measurement (Weiring) Approach",
+          "summary": "Explain the technical plan for nighttime flow isolation and weiring: selection of locations, review of prior flow data, staffing and equipment, traffic control, confined space entry, resident notifications, and analytical methods to calculate infiltration rates in gpd/lf.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-008",
+            "REQ-009",
+            "REQ-010",
+            "REQ-012",
+            "REQ-013",
+            "REQ-016",
+            "REQ-019",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "sequence diagram for a typical weiring operation from setup to demobilization and data upload",
+            "diagram showing measurement points along a sewer segment and calculation of infiltration per linear foot"
+          ],
+          "suggested_charts": [
+            "line chart showing example nighttime flow hydrographs before/after isolation to illustrate analysis approach"
+          ],
+          "suggested_tables": [
+            "table of candidate weir locations with selection criteria and constraints (conceptual plan)"
+          ]
+        },
+        {
+          "title": "CCTV, Manhole, and Focused SSES Activities (Dye Testing, House Inspections)",
+          "summary": "Detail how existing CCTV and manhole inspection data will be reviewed, how additional CCTV by NFWB crews will be coordinated, and how focused SSES activities (dye testing, house inspections) will be planned and executed using the $10,000 contingency.",
+          "related_requirements": [
+            "REQ-007",
+            "REQ-008",
+            "REQ-009",
+            "REQ-010",
+            "REQ-013",
+            "REQ-015",
+            "REQ-016",
+            "REQ-019",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "flowchart showing decision process for triggering focused SSES activities based on initial findings and contingency budget authorization"
+          ],
+          "suggested_charts": [
+            "bar chart comparing number of defects by type from CCTV vs. manhole vs. focused SSES (conceptual)"
+          ],
+          "suggested_tables": [
+            "table summarizing NASSCO PACP condition grades and corresponding recommended actions",
+            "contingency usage tracking table for Task 6 focused SSES work"
+          ]
+        },
+        {
+          "title": "Outfall/SSO Condition Assessment for 91st & Luick and 81st & Frontier 1",
+          "summary": "Describe the work plan for assessing Phase 1 outfalls, including review of existing data, site visits, development of a detailed Work Plan, potential use of meters/gauges/dye testing/CCTV, GIS-compatible documentation, and recommendations to reduce extraneous flows.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-007",
+            "REQ-008",
+            "REQ-010",
+            "REQ-014",
+            "REQ-016",
+            "REQ-019",
+            "REQ-020",
+            "REQ-023"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "site layout diagrams for each outfall showing monitoring points and instrumentation options",
+            "flowchart of Work Plan development, approval by NFWB, and execution steps"
+          ],
+          "suggested_charts": [
+            "before/after bar chart concept for outfall flow rates pre- and post-corrective actions (conceptual)"
+          ],
+          "suggested_tables": [
+            "table summarizing each outfall, existing issues, proposed assessment techniques, and expected outputs"
+          ]
+        },
+        {
+          "title": "Phase 1 Engineering Analysis, Corrective Action Planning, and SSES Report",
+          "summary": "Explain analytical methods to identify I&I sources, prioritize cost-effective corrective actions, develop budgetary cost estimates and implementation timelines, and structure the Phase 1 SSES report to be acceptable to NYSDEC and stamped by a NYS PE.",
+          "related_requirements": [
+            "REQ-003",
+            "REQ-007",
+            "REQ-011",
+            "REQ-012",
+            "REQ-013",
+            "REQ-014",
+            "REQ-015",
+            "REQ-016",
+            "REQ-017",
+            "REQ-018",
+            "REQ-019",
+            "REQ-020",
+            "REQ-021"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "analysis workflow diagram from raw field data through QA/QC, hydraulic assessment, I&I quantification, and alternatives evaluation",
+            "decision tree diagram for selecting corrective action types based on defect characteristics and cost-effectiveness"
+          ],
+          "suggested_charts": [
+            "bar chart comparing cost vs. I&I reduction for candidate corrective actions",
+            "timeline chart showing planned implementation windows for recommended improvements"
+          ],
+          "suggested_tables": [
+            "corrective action alternatives evaluation matrix (criteria such as effectiveness, constructability, cost, schedule impact)",
+            "outline table of the SSES report structure mapped to NYSDEC requirements",
+            "table of budgetary cost estimates and associated I&I reduction assumptions"
+          ]
+        },
+        {
+          "title": "Post-Construction Monitoring and I&I Reduction Assessment",
+          "summary": "Describe the 2024 post-construction monitoring program, including flow and rainfall monitoring methods, comparison to pre-construction conditions, and preparation of the Post-Construction I&I Assessment and Cost Analysis Report for NYSDEC.",
+          "related_requirements": [
+            "REQ-001",
+            "REQ-003",
+            "REQ-012",
+            "REQ-014",
+            "REQ-016",
+            "REQ-017",
+            "REQ-018",
+            "REQ-019",
+            "REQ-020"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3
+          ],
+          "suggested_diagrams": [
+            "process diagram showing monitoring setup, data collection, normalization for rainfall, and reporting steps"
+          ],
+          "suggested_charts": [
+            "before/after line charts of flow vs. rainfall to demonstrate I&I reduction",
+            "bar chart showing I&I reduction by sub-area and associated cost per gallon removed"
+          ],
+          "suggested_tables": [
+            "table comparing pre- and post-construction flow metrics by sewershed segment",
+            "table summarizing most effective techniques and associated unit costs"
+          ]
+        },
+        {
+          "title": "Options for Phase 2 and Phase 3 SSES (Scope, Schedule, and Fees)",
+          "summary": "Present Option 1 (Phase 2) and Option 2 (Phase 3) scopes, schedules, and fees, clearly identifying how tasks differ (e.g., no outfall assessment in Phase 2, one outfall in Phase 3) and how lessons from Phase 1 will be leveraged.",
+          "related_requirements": [
+            "REQ-002",
+            "REQ-020",
+            "REQ-021",
+            "REQ-022",
+            "REQ-023"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "gantt-style diagram comparing Phase 1, Phase 2, and Phase 3 timelines and dependencies"
+          ],
+          "suggested_charts": [
+            "stacked bar chart comparing effort and budget allocation by task across Phases 1, 2, and 3"
+          ],
+          "suggested_tables": [
+            "side-by-side comparison table of scope elements for Phase 1, Phase 2, and Phase 3",
+            "option pricing table for Phase 2 and Phase 3 with not-to-exceed amounts and assumptions"
+          ]
+        },
+        {
+          "title": "Project Management, Governance, and Communication Plan",
+          "summary": "Detail Aurelia\u2019s project management framework, designation of Project Manager, governance structure, coordination with NFWB and NYSDEC, risk management, and approach to pre-proposal session attendance and RFP question handling.",
+          "related_requirements": [
+            "REQ-004",
+            "REQ-005",
+            "REQ-006",
+            "REQ-008",
+            "REQ-009",
+            "REQ-010",
+            "REQ-017",
+            "REQ-020",
+            "REQ-030",
+            "REQ-031",
+            "REQ-032",
+            "REQ-035",
+            "REQ-036",
+            "REQ-049"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "RACI diagram for project roles and responsibilities",
+            "communication flowchart showing interactions between Aurelia, NFWB staff, NYSDEC, and other stakeholders",
+            "project governance lifecycle diagram aligned to Aurelia\u2019s Initiate/Discover/Design/Build/Deploy/Operate phases"
+          ],
+          "suggested_charts": [
+            "risk heat map chart summarizing key project risks (e.g., weather, access, data gaps) and mitigation strategies"
+          ],
+          "suggested_tables": [
+            "project organization table listing key roles, names, and responsibilities",
+            "communication plan table listing meeting types, frequency, participants, and purpose",
+            "risk register table with probability, impact, and mitigation actions"
+          ]
+        },
+        {
+          "title": "Schedule, Level of Effort, and Budget (Including Contingency)",
+          "summary": "Provide detailed schedule in bar chart form and effort/budget breakdown using a task/hour estimate matrix, including not-to-exceed fee and $10,000 contingency for Task 6, plus pricing for Phase 2 and 3 options and acknowledgement of 60-day payment terms and tax-exempt status.",
+          "related_requirements": [
+            "REQ-002",
+            "REQ-017",
+            "REQ-020",
+            "REQ-021",
+            "REQ-022",
+            "REQ-023",
+            "REQ-040",
+            "REQ-041"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "gantt chart showing detailed schedule for Phase 1 tasks and milestone dates for NYSDEC reviews and construction windows"
+          ],
+          "suggested_charts": [
+            "stacked bar chart showing allocation of hours by role and task",
+            "pie chart showing budget distribution across major task categories and phases"
+          ],
+          "suggested_tables": [
+            "task/hour estimate matrix by role for each task and phase",
+            "pricing breakdown table with not-to-exceed fee, contingency, and option pricing",
+            "cash flow projection table aligned to monthly invoicing expectations"
+          ]
+        },
+        {
+          "title": "Team Qualifications, Experience, and Staffing Plan",
+          "summary": "Present Aurelia\u2019s and any subconsultants\u2019 qualifications, key personnel resumes and specific experience, business structure, licensing, years in business, relevant references, and staffing plan ensuring adequate and competent personnel and compliance with credentialing and safety requirements.",
+          "related_requirements": [
+            "REQ-020",
+            "REQ-025",
+            "REQ-026",
+            "REQ-027",
+            "REQ-032",
+            "REQ-035",
+            "REQ-036"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "organizational chart of the project team including Aurelia and any subconsultants"
+          ],
+          "suggested_charts": [
+            "bar chart summarizing years of relevant experience per key role"
+          ],
+          "suggested_tables": [
+            "team qualifications table listing education, licenses, and relevant project experience for key staff",
+            "subconsultant summary table including scope share (>10%), MWBE/SDVOB status, and references",
+            "staffing plan table mapping roles to planned time commitments over the project timeline"
+          ]
+        },
+        {
+          "title": "MWBE and SDVOB Participation Strategy",
+          "summary": "Explain strategy to meet or exceed MWBE (30% combined) and SDVOB (6%) participation goals, including identification of certified partners, utilization plans, and approach to monthly reporting and, if needed, waiver requests.",
+          "related_requirements": [
+            "REQ-025",
+            "REQ-026",
+            "REQ-039"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "process diagram for MWBE/SDVOB partner engagement, onboarding, and ongoing utilization tracking"
+          ],
+          "suggested_charts": [
+            "stacked bar chart showing planned distribution of contract value among prime, MWBE, and SDVOB firms"
+          ],
+          "suggested_tables": [
+            "MWBE/SDVOB utilization plan table listing firms, certification numbers, scopes, and dollar values",
+            "reporting calendar table for monthly MWBE-SDVOB and prevailing wage reports"
+          ]
+        },
+        {
+          "title": "Health, Safety, and Site-Specific Risk Management",
+          "summary": "Describe Aurelia\u2019s Safety Program and approach to Site-Specific Health & Safety Plans, including hazard identification for field work (confined space, traffic control, night operations), PPE, OSHA training, monitoring, and compliance with all safety regulations.",
+          "related_requirements": [
+            "REQ-011",
+            "REQ-012",
+            "REQ-013",
+            "REQ-014",
+            "REQ-015",
+            "REQ-032",
+            "REQ-035"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "site safety workflow diagram from pre-job briefing through field execution and post-job review"
+          ],
+          "suggested_charts": [
+            "risk matrix chart categorizing safety risks by likelihood and severity"
+          ],
+          "suggested_tables": [
+            "health and safety responsibilities table by role",
+            "summary table of required training and certifications for field staff (e.g., confined space, traffic control)"
+          ]
+        },
+        {
+          "title": "Security, Data Management, and Information Governance",
+          "summary": "Leverage Aurelia\u2019s security and data strengths to explain how project data (CCTV, flow, GIS, reports) will be securely stored, shared, and managed; address NYS information security breach notification, FOIL-sensitive information, and data retention requirements.",
+          "related_requirements": [
+            "REQ-003",
+            "REQ-018",
+            "REQ-037",
+            "REQ-038"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "data flow diagram showing movement of data from field collection to secure storage, analysis, and reporting"
+          ],
+          "suggested_charts": [
+            "bar chart summarizing data types vs. retention periods"
+          ],
+          "suggested_tables": [
+            "table mapping data categories to security controls, retention periods, and FOIL considerations"
+          ]
+        },
+        {
+          "title": "Commercial Terms, Insurance, and Legal Compliance",
+          "summary": "Confirm acceptance of key commercial and legal terms including insurance coverage, indemnification, prevailing wage, non-discrimination, lobbying law, non-collusion, conflicts of interest, waiver of immunity, termination, and record-keeping requirements.",
+          "related_requirements": [
+            "REQ-024",
+            "REQ-025",
+            "REQ-028",
+            "REQ-029",
+            "REQ-033",
+            "REQ-034",
+            "REQ-037",
+            "REQ-038",
+            "REQ-039",
+            "REQ-040",
+            "REQ-041",
+            "REQ-042",
+            "REQ-043",
+            "REQ-044",
+            "REQ-045",
+            "REQ-046",
+            "REQ-047",
+            "REQ-048"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [],
+          "suggested_charts": [],
+          "suggested_tables": [
+            "insurance coverage table listing required types, limits, carriers, and additional insureds",
+            "compliance attestations checklist table referencing each required certification and form",
+            "summary table of key contractual terms (e.g., termination, governing law, venue) with confirmation statements"
+          ]
+        },
+        {
+          "title": "Administrative Requirements and Proposal Submission Plan",
+          "summary": "Outline how Aurelia will comply with all administrative instructions: pre-proposal meeting attendance, question submission, addenda acknowledgment, proposal packaging (original, copies, electronic), deadlines, and handling of exceptions in a separate attachment.",
+          "related_requirements": [
+            "REQ-004",
+            "REQ-005",
+            "REQ-028",
+            "REQ-029",
+            "REQ-030",
+            "REQ-031",
+            "REQ-046",
+            "REQ-049"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [
+            "timeline diagram of key procurement dates (pre-proposal session, question deadline, proposal due date, anticipated award)"
+          ],
+          "suggested_charts": [],
+          "suggested_tables": [
+            "proposal submission checklist table covering all required forms, copies, and packaging details",
+            "table listing all exceptions (if any) with rationale and proposed alternative language"
+          ]
+        },
+        {
+          "title": "Required Forms and Certifications (Appendix E & F)",
+          "summary": "Identify all required Appendix E and F forms (Standard Terms, EEO, Non-Collusion, Lobbying, Sexual Harassment, MWBE/SDVOB, etc.), confirm completion and inclusion, and summarize any waivers or special circumstances.",
+          "related_requirements": [
+            "REQ-024",
+            "REQ-025",
+            "REQ-026",
+            "REQ-039",
+            "REQ-042",
+            "REQ-043",
+            "REQ-044",
+            "REQ-045",
+            "REQ-046"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [],
+          "suggested_charts": [],
+          "suggested_tables": [
+            "forms tracking table listing each required form, responsible party, and status (completed/signed/included)"
+          ]
+        },
+        {
+          "title": "Appendices: Detailed Resumes, Reference Projects, and Supporting Materials",
+          "summary": "Provide detailed resumes of key staff, expanded project descriptions for similar SSES or utilities work, letters of commitment from subconsultants, and any additional technical materials supporting the proposal.",
+          "related_requirements": [
+            "REQ-020",
+            "REQ-025",
+            "REQ-026",
+            "REQ-027",
+            "REQ-032",
+            "REQ-036"
+          ],
+          "rfp_pages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "suggested_diagrams": [],
+          "suggested_charts": [],
+          "suggested_tables": [
+            "reference projects table summarizing client, scope, year, and relevance to NFWB SSES",
+            "resume index table mapping key personnel to sections of the proposal"
+          ]
+        }
+      ],
+      "key_themes": [
+        "NYSDEC compliance and audit-ready documentation, explicitly mapped to Engineering Report Outline and EPG requirements",
+        "On-time delivery aligned to NFWB\u2019s need for early 2023 NYSDEC review, 2023\u2013early 2024 construction, and June 2024 post-construction monitoring",
+        "Data-driven I&I identification and reduction, using rigorous analysis of flow, rainfall, CCTV, and smoke testing results",
+        "Strong project governance and communication, leveraging Aurelia\u2019s Initiate\u2013Operate lifecycle and clear stage gates",
+        "Robust safety, security, and information governance practices that reduce NFWB\u2019s operational and reputational risk",
+        "Commitment to MWBE and SDVOB participation with a practical, credible utilization plan",
+        "Transparent pricing and effort estimation with clear not-to-exceed amounts and contingency control",
+        "Experienced multidisciplinary team with proven utilities and public-sector delivery experience",
+        "Collaborative partnership with NFWB and NYSDEC, emphasizing consensus-building on scope, findings, and corrective actions"
+      ],
+      "win_strategy": "Position Aurelia as the lowest-risk, highest-value partner by tightly aligning the proposal to every RFP requirement, especially NYSDEC compliance, schedule, and MWBE/SDVOB goals. Emphasize a structured, lifecycle-based project approach that mirrors the SSES phases and NFWB\u2019s Order on Consent milestones, with explicit mapping to the NYS Engineering Report Outline and PE-stamped deliverables. Differentiate on governance and data/analytics capabilities: show how Aurelia will integrate and analyze flow, rainfall, CCTV, and smoke testing data to prioritize the most cost-effective corrective actions and to clearly demonstrate I&I reduction in the post-construction report. Highlight a robust project management and communication framework with a named Project Manager, clear RACI, and proactive coordination with NFWB and NYSDEC to de-risk schedule and regulatory approvals. Demonstrate readiness to meet or exceed MWBE/SDVOB participation and prevailing wage obligations through a concrete utilization plan and reporting cadence. Reduce perceived commercial and legal risk by explicitly accepting key terms (insurance, indemnity, record-keeping, non-discrimination, lobbying, non-collusion) and by providing a complete, organized set of required forms and certifications. Finally, present option pricing and scalable methods for Phases 2 and 3 that leverage Phase 1 learning, offering NFWB a coherent multi-phase roadmap rather than isolated tasks."
+    }
+  }
+]

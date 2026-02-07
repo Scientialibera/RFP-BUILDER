@@ -1,0 +1,16 @@
+{
+  "documents": [
+    {
+      "filename": "Internal_Capabilities_Overview.pdf",
+      "type": "context"
+    },
+    {
+      "filename": "RFP-2022-01-LaSalle-SSES-Engineering-Services-Phase-1.pdf",
+      "type": "rfp"
+    },
+    {
+      "filename": "RFP_Response.pdf",
+      "type": "example"
+    }
+  ]
+}

@@ -124,6 +124,7 @@ def _save_documents(run_dir: Path, documents: list[DocumentInfo]) -> None:
         return
 
     docs_dir = run_dir / "documents"
+    manifest_path = docs_dir / "documents_manifest.json"
     for doc_info in documents:
         if not doc_info.file_bytes:
             continue
@@ -134,14 +135,46 @@ def _save_documents(run_dir: Path, documents: list[DocumentInfo]) -> None:
         except Exception as exc:
             logger.warning(f"Failed to save source document {safe_name}: {exc}")
 
-    manifest = {
-        "documents": [
-            {"filename": _safe_filename(d.filename), "type": d.file_type}
-            for d in documents
-        ]
-    }
+    existing_documents: list[dict[str, str]] = []
+    if manifest_path.exists():
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                loaded_manifest = json.load(f)
+            if isinstance(loaded_manifest, dict):
+                loaded_docs = loaded_manifest.get("documents", [])
+                if isinstance(loaded_docs, list):
+                    for item in loaded_docs:
+                        if not isinstance(item, dict):
+                            continue
+                        filename = item.get("filename")
+                        file_type = item.get("type")
+                        if isinstance(filename, str) and isinstance(file_type, str):
+                            existing_documents.append(
+                                {"filename": _safe_filename(filename), "type": file_type}
+                            )
+        except Exception as exc:
+            logger.warning(f"Failed to load existing source documents manifest: {exc}")
+
+    merged_docs: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in existing_documents:
+        key = (item["filename"], item["type"])
+        if key in seen:
+            continue
+        seen.add(key)
+        merged_docs.append(item)
+
+    for doc_info in documents:
+        item = {"filename": _safe_filename(doc_info.filename), "type": doc_info.file_type}
+        key = (item["filename"], item["type"])
+        if key in seen:
+            continue
+        seen.add(key)
+        merged_docs.append(item)
+
+    manifest = {"documents": merged_docs}
     try:
-        with open(docs_dir / "documents_manifest.json", "w", encoding="utf-8") as f:
+        with open(manifest_path, "w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
     except Exception as exc:
         logger.warning(f"Failed to save source documents manifest: {exc}")

@@ -213,27 +213,34 @@ def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
 def _get_documents_list(run_dir: Path) -> list[DocumentSummary]:
     """Get list of documents in a run."""
     docs_manifest = run_dir / "documents" / "documents_manifest.json"
+    docs: list[DocumentSummary] = []
+    seen: set[str] = set()
+
     if docs_manifest.exists():
         try:
             with open(docs_manifest, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return [
-                    DocumentSummary(filename=d["filename"], file_type=d["type"])
-                    for d in data.get("documents", [])
-                ]
+            for item in data.get("documents", []):
+                filename = item.get("filename")
+                file_type = item.get("type")
+                if not isinstance(filename, str) or not isinstance(file_type, str):
+                    continue
+                docs.append(DocumentSummary(filename=filename, file_type=file_type))
+                seen.add(filename)
         except Exception:
             pass
-    
-    # Fallback: scan documents directory
+
+    # Include any PDFs missing from manifest as unknown to preserve legacy runs.
     docs_dir = run_dir / "documents"
     if docs_dir.exists():
-        return [
-            DocumentSummary(filename=f.name, file_type="unknown")
-            for f in docs_dir.iterdir()
-            if f.is_file() and f.suffix.lower() == ".pdf"
-        ]
-    
-    return []
+        for file in docs_dir.iterdir():
+            if not file.is_file() or file.suffix.lower() != ".pdf":
+                continue
+            if file.name in seen:
+                continue
+            docs.append(DocumentSummary(filename=file.name, file_type="unknown"))
+
+    return docs
 
 
 def _get_revisions_list(run_dir: Path) -> list[RevisionInfo]:
