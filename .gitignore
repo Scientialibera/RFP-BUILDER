@@ -53,7 +53,6 @@ frontend/yarn-error.log*
 # Uploads and temp files
 uploads/
 temp/
-*.pdf
 output/
 
 # Logs
