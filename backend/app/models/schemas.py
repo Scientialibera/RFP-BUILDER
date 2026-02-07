@@ -32,7 +32,7 @@ class PlannedSection(BaseModel):
     title: str = Field(..., description="Section title")
     summary: str = Field(..., description="High-level summary of what this section should cover")
     related_requirements: list[str] = Field(default_factory=list, description="Requirement IDs this section addresses")
-    rfp_pages: list[str] = Field(default_factory=list, description="RFP page references")
+    rfp_pages: list[int] = Field(default_factory=list, description="RFP page numbers (integers only)")
     suggested_diagrams: list[str] = Field(default_factory=list, description="Suggested mermaid diagram types")
     suggested_charts: list[str] = Field(default_factory=list, description="Suggested seaborn chart types")
     suggested_tables: list[str] = Field(default_factory=list, description="Suggested table types")
@@ -115,6 +115,55 @@ class GenerateRFPResponse(BaseModel):
     processing_time_seconds: Optional[float] = None
 
 
+class ExtractReqsResponse(BaseModel):
+    """Response from requirement extraction endpoint."""
+    success: bool
+    message: str
+    analysis: Optional[RFPAnalysis] = None
+
+
+class PlanStepRequest(BaseModel):
+    """Request body for planning endpoint."""
+    analysis: RFPAnalysis
+    company_context_text: Optional[str] = None
+    comment: Optional[str] = None
+    previous_plan: Optional[ProposalPlan] = None
+
+
+class PlanStepResponse(BaseModel):
+    """Response from planning endpoint."""
+    success: bool
+    message: str
+    plan: Optional[ProposalPlan] = None
+
+
+class CritiqueStepRequest(BaseModel):
+    """Request body for critique endpoint."""
+    analysis: RFPAnalysis
+    document_code: str
+    comment: Optional[str] = None
+
+
+class CritiqueStepResponse(BaseModel):
+    """Response from critique endpoint."""
+    success: bool
+    message: str
+    critique: Optional[CritiqueResult] = None
+
+
+class GenerateRFPStepResponse(BaseModel):
+    """Response from custom generate-rfp endpoint."""
+    success: bool
+    message: str
+    document_code: str
+    docx_base64: str
+    docx_filename: str
+    docx_content_type: str = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    execution_stats: dict = Field(default_factory=dict)
+    run_id: Optional[str] = None
+    docx_download_url: Optional[str] = None
+
+
 class HealthResponse(BaseModel):
     """Health check response."""
     status: str
@@ -143,3 +192,15 @@ class ConfigResponse(BaseModel):
     msal_tenant_id: Optional[str] = None
     msal_redirect_uri: Optional[str] = None
     msal_scopes: Optional[list[str]] = None
+
+
+class PromptDefinition(BaseModel):
+    """Single prompt definition."""
+    name: str
+    content: str
+
+
+class PromptsResponse(BaseModel):
+    """Read-only prompt catalog for frontend display."""
+    system_prompts: list[PromptDefinition] = Field(default_factory=list)
+    base_prompts: list[PromptDefinition] = Field(default_factory=list)

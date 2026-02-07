@@ -77,7 +77,7 @@ Given an RFP analysis with requirements, your task is to:
 
 1. **Define Sections**: Plan the structure of the proposal with clear section titles
 2. **Map Requirements**: Link each section to the specific RFP requirements it addresses
-3. **Reference RFP Pages**: Note which pages/sections of the RFP are relevant to each proposal section
+3. **Reference RFP Pages**: Note which pages of the RFP are relevant to each proposal section
 4. **Suggest Visualizations**: Recommend specific diagrams, charts, and tables for each section
 5. **Develop Win Strategy**: Identify what will make this proposal stand out
 
@@ -89,9 +89,12 @@ For each section, consider:
 
 ## Important Guidelines
 - Ensure EVERY requirement from the RFP analysis is addressed by at least one section
+- For `rfp_pages`, output integer page numbers only (e.g., [3, 4, 12]) using PAGE TO CITE markers
+- Do not output section titles or textual references in `rfp_pages`
 - Be specific about visualization suggestions (not just "add a chart" but "bar chart showing project phases and durations")
 - Consider the evaluation criteria when planning - emphasize high-weight areas
 - Think about the narrative flow - how sections connect and tell a compelling story
+- Do NOT write Python code, pseudo-code, or document body text; output planning data only
 """
 
 
@@ -172,6 +175,13 @@ You are generating the proposal based on:
 - Proposal plan (sections, requirement mapping, suggested visuals)
 - Example proposals / company context that have already been summarized upstream
 Even if those inputs are not shown here, write a complete proposal document with a credible structure.
+
+## Visualization Budget and Plan Alignment
+- If a proposal plan is provided, follow its section structure and visual guidance.
+- Use the plan's visualization suggestions selectively; do NOT implement every suggested visual.
+- Keep a practical visual budget for full-length documents (typically 3-6 total visuals unless explicitly justified).
+- Prefer visuals that improve decision clarity (schedule, compliance traceability, effort/burndown, delivery progress).
+- Avoid stacking multiple visuals in short sections unless they each add distinct value.
 
 ## Document Structure (expected baseline)
 1) Title Page or Document Title
@@ -267,6 +277,57 @@ doc.add_picture(str(chart_path), width=Inches(5.8))
 add_caption('Figure 1: Proposed delivery timeline by phase')
 ```
 
+Burndown chart example (planned vs actual remaining work):
+```python
+burndown = pd.DataFrame({{
+    'Sprint Day': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    'Ideal Remaining': [100, 90, 80, 70, 60, 50, 40, 30, 20, 10],
+    'Actual Remaining': [100, 95, 88, 84, 76, 68, 57, 46, 34, 22],
+}})
+
+plt.figure(figsize=(8, 4.5))
+sns.set_style('whitegrid')
+sns.lineplot(data=burndown, x='Sprint Day', y='Ideal Remaining', label='Ideal', linewidth=2, linestyle='--')
+sns.lineplot(data=burndown, x='Sprint Day', y='Actual Remaining', label='Actual', linewidth=2, marker='o')
+plt.title('Sprint Burndown')
+plt.ylabel('Remaining Story Points')
+plt.tight_layout()
+burndown_path = output_dir / 'sprint_burndown.png'
+plt.savefig(burndown_path, dpi=150, bbox_inches='tight', facecolor='white')
+plt.close()
+doc.add_picture(str(burndown_path), width=Inches(5.8))
+add_caption('Figure X: Sprint burndown (ideal vs actual remaining effort)')
+```
+
+Grouped bar chart example (planned vs actual by workstream):
+```python
+workstream = pd.DataFrame({{
+    'Area': ['Discovery', 'Build', 'Test', 'Deploy'],
+    'Planned Weeks': [2, 8, 4, 2],
+    'Actual Weeks': [2, 9, 5, 2],
+}})
+
+x = np.arange(len(workstream))
+width = 0.35
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+bars_planned = ax.bar(x - width / 2, workstream['Planned Weeks'], width, label='Planned')
+bars_actual = ax.bar(x + width / 2, workstream['Actual Weeks'], width, label='Actual')
+ax.set_xticks(x)
+ax.set_xticklabels(workstream['Area'])
+ax.set_ylabel('Weeks')
+ax.set_title('Planned vs Actual Duration by Workstream')
+ax.legend()
+ax.bar_label(bars_planned, padding=3)
+ax.bar_label(bars_actual, padding=3)
+plt.tight_layout()
+grouped_bar_path = output_dir / 'planned_vs_actual_weeks.png'
+plt.savefig(grouped_bar_path, dpi=150, bbox_inches='tight', facecolor='white')
+plt.close()
+doc.add_picture(str(grouped_bar_path), width=Inches(5.8))
+add_caption('Figure X: Planned vs actual duration by workstream')
+```
+
 ## Gantt Charts for Schedules (matplotlib barh)
 When dealing with project schedules, timelines, or implementation plans, create a professional colored Gantt chart using matplotlib's barh() (horizontal bar).
 This is the PREFERRED visualization for any schedule or timeline data.
@@ -350,6 +411,33 @@ doc.add_picture(str(gantt_path), width=Inches(6.0))
 add_caption('Figure X: Project Implementation Schedule')
 ```
 
+Milestone schedule example (date-based timeline):
+```python
+import matplotlib.dates as mdates
+
+milestones = pd.DataFrame({{
+    'Milestone': ['Kickoff', 'Design Signoff', 'Build Complete', 'UAT Complete', 'Go-Live'],
+    'Date': pd.to_datetime(['2026-03-01', '2026-03-20', '2026-05-30', '2026-06-25', '2026-07-10']),
+}})
+
+fig, ax = plt.subplots(figsize=(9, 3.8))
+ax.plot(milestones['Date'], [1] * len(milestones), marker='o', linewidth=1.8)
+for idx, row in milestones.iterrows():
+    ax.text(row['Date'], 1.03, row['Milestone'], rotation=35, ha='left', va='bottom', fontsize=8)
+
+ax.yaxis.set_visible(False)
+ax.set_title('Program Milestone Timeline')
+ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
+ax.grid(axis='x', alpha=0.25, linestyle='--')
+plt.tight_layout()
+milestone_path = output_dir / 'milestone_timeline.png'
+plt.savefig(milestone_path, dpi=150, bbox_inches='tight', facecolor='white')
+plt.close()
+doc.add_picture(str(milestone_path), width=Inches(6.0))
+add_caption('Figure X: Program milestone timeline')
+```
+
 ### Gantt Chart Tips
 - For overlapping tasks, the chart naturally shows parallel work streams
 - Use professional color palettes (blues, greens, purples) - avoid neon colors
@@ -359,6 +447,8 @@ add_caption('Figure X: Project Implementation Schedule')
 
 ## Mermaid Diagrams (workflows, architecture, governance)
 You may embed Mermaid diagrams to clarify complex concepts. Use the provided render_mermaid helper.
+To reduce clipping/oversized rendering, prefer `render_mermaid(code, name, width=1600, height=1000, scale=1.5)`.
+When inserting Mermaid images, use `doc.add_picture(..., width=Inches(5.8))` or smaller.
 
 ### Mermaid types you can use
 - flowchart: processes, workflows

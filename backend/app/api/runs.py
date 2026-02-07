@@ -102,6 +102,24 @@ def _get_runs_dir() -> Path:
     return Path(config.app.output_dir)
 
 
+def _safe_path_part(value: str, field_name: str) -> str:
+    """Validate a path segment to prevent traversal."""
+    safe = Path(value).name
+    if safe != value:
+        raise HTTPException(status_code=400, detail=f"Invalid {field_name}: {value}")
+    return safe
+
+
+def _resolve_run_dir(run_id: str) -> Path:
+    """Resolve run directory safely under the runs root."""
+    runs_dir = _get_runs_dir().resolve()
+    safe_run_id = _safe_path_part(run_id, "run_id")
+    run_dir = (runs_dir / safe_run_id).resolve()
+    if not run_dir.is_relative_to(runs_dir):
+        raise HTTPException(status_code=400, detail="Invalid run path")
+    return run_dir
+
+
 def _parse_run_timestamp(run_id: str) -> Optional[datetime]:
     """Parse timestamp from run_id (e.g., 'run_20260201_123456')."""
     try:
@@ -277,8 +295,7 @@ async def get_run_details(run_id: str):
     """
     Get detailed information about a specific run.
     """
-    runs_dir = _get_runs_dir()
-    run_dir = runs_dir / run_id
+    run_dir = _resolve_run_dir(run_id)
     
     if not run_dir.exists():
         raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
@@ -324,13 +341,13 @@ async def get_run_code(run_id: str, stage: str = "99_final"):
         run_id: The run ID
         stage: The code stage (default: "99_final" for final code)
     """
-    runs_dir = _get_runs_dir()
-    run_dir = runs_dir / run_id
+    run_dir = _resolve_run_dir(run_id)
     
     if not run_dir.exists():
         raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
     
-    code_path = run_dir / "code_snapshots" / f"{stage}_document_code.py"
+    safe_stage = _safe_path_part(stage, "stage")
+    code_path = run_dir / "code_snapshots" / f"{safe_stage}_document_code.py"
     
     if not code_path.exists():
         # Try to find any code file
@@ -341,7 +358,7 @@ async def get_run_code(run_id: str, stage: str = "99_final"):
                 # Return the last one (highest numbered)
                 code_files.sort()
                 code_path = code_files[-1]
-                stage = code_path.stem.replace("_document_code", "")
+                safe_stage = code_path.stem.replace("_document_code", "")
             else:
                 raise HTTPException(status_code=404, detail="No code files found in this run")
         else:
@@ -356,7 +373,7 @@ async def get_run_code(run_id: str, stage: str = "99_final"):
     return RunCodeResponse(
         run_id=run_id,
         code=code,
-        stage=stage
+        stage=safe_stage
     )
 
 
@@ -370,8 +387,7 @@ async def regenerate_document(
     
     Creates a new revision under the run directory.
     """
-    runs_dir = _get_runs_dir()
-    run_dir = runs_dir / run_id
+    run_dir = _resolve_run_dir(run_id)
     
     if not run_dir.exists():
         raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
@@ -390,11 +406,8 @@ async def regenerate_document(
         raise HTTPException(status_code=500, detail=f"Failed to save code: {str(e)}")
     
     # Create a mock RFPResponse with the code
-    from app.models.schemas import RFPResponse, RFPSection
-    mock_response = RFPResponse(
-        sections=[RFPSection(section_title="Generated", section_content="", section_type="body")],
-        document_code=request.code
-    )
+    from app.models.schemas import RFPResponse
+    mock_response = RFPResponse(document_code=request.code)
     
     # Execute the code
     client = create_llm_client()
@@ -422,7 +435,7 @@ async def regenerate_document(
             success=True,
             message=f"Document regenerated successfully as {revision_id}",
             revision_id=revision_id,
-            docx_download_url=f"/api/runs/{run_id}/revisions/{revision_id}/{docx_filename}"
+            docx_download_url=f"/api/runs/{run_dir.name}/revisions/{revision_id}/{docx_filename}"
         )
         
     except HTTPException:
@@ -435,18 +448,22 @@ async def regenerate_document(
 @router.get("/{run_id}/revisions/{revision_id}/{filename}")
 async def download_revision(run_id: str, revision_id: str, filename: str):
     """Download a document from a specific revision."""
-    runs_dir = _get_runs_dir()
-    file_path = runs_dir / run_id / "revisions" / revision_id / filename
+    run_dir = _resolve_run_dir(run_id)
+    safe_revision_id = _safe_path_part(revision_id, "revision_id")
+    safe_filename = _safe_path_part(filename, "filename")
+    file_path = (run_dir / "revisions" / safe_revision_id / safe_filename).resolve()
+    if not file_path.is_relative_to(run_dir):
+        raise HTTPException(status_code=400, detail="Invalid file path")
     
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     
-    if not filename.endswith('.docx'):
+    if not safe_filename.endswith('.docx'):
         raise HTTPException(status_code=400, detail="Only DOCX downloads allowed")
     
     return FileResponse(
         path=file_path,
-        filename=filename,
+        filename=safe_filename,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
@@ -454,14 +471,17 @@ async def download_revision(run_id: str, revision_id: str, filename: str):
 @router.get("/{run_id}/documents/{filename}")
 async def download_source_document(run_id: str, filename: str):
     """Download a source document (RFP, example, context) from a run."""
-    runs_dir = _get_runs_dir()
-    file_path = runs_dir / run_id / "documents" / filename
+    run_dir = _resolve_run_dir(run_id)
+    safe_filename = _safe_path_part(filename, "filename")
+    file_path = (run_dir / "documents" / safe_filename).resolve()
+    if not file_path.is_relative_to(run_dir):
+        raise HTTPException(status_code=400, detail="Invalid file path")
     
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Document not found")
     
     return FileResponse(
         path=file_path,
-        filename=filename,
+        filename=safe_filename,
         media_type="application/pdf"
     )

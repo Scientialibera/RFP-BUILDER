@@ -2,7 +2,6 @@
  * Progress indicator for workflow steps
  */
 
-import React from 'react';
 import { CheckCircle, Circle, Loader } from 'lucide-react';
 
 interface Step {

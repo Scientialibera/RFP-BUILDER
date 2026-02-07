@@ -2,7 +2,6 @@
  * Header Component
  */
 
-import React from 'react';
 import { FileText, LogOut, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
