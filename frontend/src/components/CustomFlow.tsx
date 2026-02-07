@@ -547,7 +547,7 @@ export function CustomFlow({
       setDocxObjectUrl(base64ToObjectUrl(result.docx_base64, result.docx_content_type));
       setCritique(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate RFP');
+      setError(err instanceof Error ? err.message : 'Failed to generate RFP response');
     } finally {
       setLoadingStep(null);
     }
@@ -838,8 +838,13 @@ export function CustomFlow({
           <textarea
             value={reqsGenerationContext}
             onChange={(e) => setReqsGenerationContext(e.target.value)}
-            placeholder="Guidance for initial requirement extraction"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            placeholder={
+              analysis
+                ? 'Initial generation already completed; use Regeneration Comment below'
+                : 'Guidance for initial requirement extraction'
+            }
+            disabled={Boolean(analysis)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
             rows={3}
           />
         </div>
@@ -1038,8 +1043,13 @@ export function CustomFlow({
             <textarea
               value={planGenerationContext}
               onChange={(e) => setPlanGenerationContext(e.target.value)}
-              placeholder="Guidance for initial planning run"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              placeholder={
+                plan
+                  ? 'Initial generation already completed; use Regeneration Comment below'
+                  : 'Guidance for initial planning run'
+              }
+              disabled={Boolean(plan)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
               rows={3}
             />
           </div>
@@ -1261,7 +1271,7 @@ export function CustomFlow({
       <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-gray-900">
-            Step {enablePlanner ? '3' : '2'}: Generate RFP
+            Step {enablePlanner ? '3' : '2'}: Generate RFP Response
           </h3>
           {(docxObjectUrl || docxDownloadUrl) && <CheckCircle className="h-5 w-5 text-green-600" />}
         </div>
@@ -1273,8 +1283,13 @@ export function CustomFlow({
           <textarea
             value={generateContextComment}
             onChange={(e) => setGenerateContextComment(e.target.value)}
-            placeholder="Guidance for initial code generation"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            placeholder={
+              documentCode.trim()
+                ? 'Initial generation already completed; use Regeneration Comment below'
+                : 'Guidance for initial code generation'
+            }
+            disabled={Boolean(documentCode.trim())}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
             rows={3}
           />
         </div>
@@ -1304,7 +1319,7 @@ export function CustomFlow({
           className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg disabled:bg-gray-300"
         >
           {loadingStep === 'generate' ? <Loader className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />}
-          {documentCode ? 'Regenerate RFP' : 'Generate RFP'}
+          {documentCode ? 'Regenerate RFP Response' : 'Generate RFP Response'}
         </button>
         {!canGenerate && generateDisabledReasons.length > 0 && (
           <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">

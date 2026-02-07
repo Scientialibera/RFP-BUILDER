@@ -51,6 +51,7 @@ class RunSummary(BaseModel):
     created_at: str
     has_docx: bool
     has_plan: bool
+    code_available: bool
     critique_count: int
     revision_count: int
 
@@ -182,6 +183,12 @@ def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
     # Check for plan
     plan_path = run_dir / "metadata" / "plan.json"
     has_plan = plan_path.exists()
+
+    # Check for generated response code
+    code_dir = run_dir / "code_snapshots"
+    code_available = False
+    if code_dir.exists():
+        code_available = any(code_dir.glob("*_document_code.py"))
     
     # Count critiques
     critiques_path = run_dir / "metadata" / "critiques.json"
@@ -205,6 +212,7 @@ def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
         created_at=created_at,
         has_docx=has_docx,
         has_plan=has_plan,
+        code_available=code_available,
         critique_count=critique_count,
         revision_count=revision_count
     )
@@ -468,9 +476,9 @@ async def get_run_details(run_id: str):
     # Get revisions
     revisions = _get_revisions_list(run_dir)
     
-    # Check if code is available
-    code_path = run_dir / "code_snapshots" / "99_final_document_code.py"
-    code_available = code_path.exists()
+    # Check if any code snapshot is available (prefer 99_final, fallback to latest).
+    code_text, resolved_stage = _load_run_code_snapshot(run_dir, stage="99_final")
+    code_available = bool(code_text and resolved_stage)
     
     # Build download URL if docx exists
     docx_download_url = None

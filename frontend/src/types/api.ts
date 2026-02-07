@@ -208,6 +208,7 @@ export interface RunSummary {
   created_at: string;
   has_docx: boolean;
   has_plan: boolean;
+  code_available: boolean;
   critique_count: number;
   revision_count: number;
 }

@@ -175,6 +175,11 @@ export function RunsHistory({ onClose, onLoadToCustomFlow }: RunsHistoryProps) {
                                 Plan
                               </span>
                             )}
+                            {run.code_available && (
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-indigo-100 text-indigo-700">
+                                RFP Response
+                              </span>
+                            )}
                             {run.revision_count > 0 && (
                               <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-blue-100 text-blue-700">
                                 {run.revision_count} rev
@@ -270,7 +275,13 @@ export function RunsHistory({ onClose, onLoadToCustomFlow }: RunsHistoryProps) {
                     <div className="bg-gray-50 rounded-lg p-4">
                       <p className="text-sm text-gray-500">Status</p>
                       <p className="text-sm font-medium text-gray-900">
-                        {selectedRun.has_docx ? 'Complete' : 'No Document'}
+                        {selectedRun.has_docx
+                          ? 'Complete'
+                          : selectedRun.code_available
+                            ? 'RFP Response Generated'
+                            : selectedRun.has_plan
+                              ? 'Plan Generated'
+                              : 'No Document'}
                       </p>
                     </div>
                   </div>
