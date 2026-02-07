@@ -115,6 +115,20 @@ class GenerateRFPResponse(BaseModel):
     processing_time_seconds: Optional[float] = None
 
 
+class GeneratedCodeSnippet(BaseModel):
+    """Single generated code snippet extracted from document_code."""
+    snippet_id: str
+    title: str
+    code: str
+
+
+class GeneratedCodePackage(BaseModel):
+    """Grouped code snippets for easier manual editing."""
+    mermaid: list[GeneratedCodeSnippet] = Field(default_factory=list)
+    tables: list[GeneratedCodeSnippet] = Field(default_factory=list)
+    diagrams: list[GeneratedCodeSnippet] = Field(default_factory=list)
+
+
 class ExtractReqsResponse(BaseModel):
     """Response from requirement extraction endpoint."""
     success: bool
@@ -160,6 +174,7 @@ class GenerateRFPStepResponse(BaseModel):
     docx_filename: str
     docx_content_type: str = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     execution_stats: dict = Field(default_factory=dict)
+    code_package: GeneratedCodePackage = Field(default_factory=GeneratedCodePackage)
     run_id: Optional[str] = None
     docx_download_url: Optional[str] = None
 

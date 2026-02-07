@@ -96,8 +96,21 @@ export interface GenerateRFPStepResponse {
   docx_filename: string;
   docx_content_type: string;
   execution_stats: Record<string, unknown>;
+  code_package: GeneratedCodePackage;
   run_id?: string;
   docx_download_url?: string;
+}
+
+export interface GeneratedCodeSnippet {
+  snippet_id: string;
+  title: string;
+  code: string;
+}
+
+export interface GeneratedCodePackage {
+  mermaid: GeneratedCodeSnippet[];
+  tables: GeneratedCodeSnippet[];
+  diagrams: GeneratedCodeSnippet[];
 }
 
 export interface CritiqueStepRequest {

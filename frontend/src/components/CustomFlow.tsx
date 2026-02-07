@@ -10,6 +10,8 @@ import {
 } from '../services/api';
 import type {
   CritiqueResult,
+  GeneratedCodePackage,
+  GeneratedCodeSnippet,
   PlannedSection,
   ProposalPlan,
   RFPAnalysis,
@@ -107,6 +109,12 @@ function defaultSection(index: number): PlannedSection {
   };
 }
 
+const EMPTY_CODE_PACKAGE: GeneratedCodePackage = {
+  mermaid: [],
+  tables: [],
+  diagrams: [],
+};
+
 export function CustomFlow({
   defaultEnablePlanner,
   defaultEnableCritiquer,
@@ -122,6 +130,7 @@ export function CustomFlow({
   const [analysis, setAnalysis] = useState<RFPAnalysis | null>(null);
   const [plan, setPlan] = useState<ProposalPlan | null>(null);
   const [documentCode, setDocumentCode] = useState('');
+  const [codePackage, setCodePackage] = useState<GeneratedCodePackage>(EMPTY_CODE_PACKAGE);
   const [critique, setCritique] = useState<CritiqueResult | null>(null);
 
   const [reqsGenerationContext, setReqsGenerationContext] = useState('');
@@ -245,6 +254,7 @@ export function CustomFlow({
         previousDocumentCode: documentCode.trim() || undefined,
       });
       setDocumentCode(result.document_code);
+      setCodePackage(result.code_package ?? EMPTY_CODE_PACKAGE);
       setDocxFilename(result.docx_filename || 'proposal.docx');
       setDocxDownloadUrl(result.docx_download_url ?? null);
       if (docxObjectUrl) {
@@ -356,6 +366,36 @@ export function CustomFlow({
       return { ...prev, key_themes: prev.key_themes.filter((_, idx) => idx !== index) };
     });
   };
+
+  const renderCodePackageGroup = (
+    title: string,
+    snippets: GeneratedCodeSnippet[],
+    emptyMessage: string
+  ) => (
+    <div className="border border-gray-200 rounded-lg p-3 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-gray-800">{title}</p>
+        <p className="text-xs text-gray-500">{snippets.length} snippets</p>
+      </div>
+      {snippets.length === 0 ? (
+        <p className="text-xs text-gray-500">{emptyMessage}</p>
+      ) : (
+        <div className="space-y-3 max-h-[24rem] overflow-y-auto pr-2">
+          {snippets.map((snippet) => (
+            <div key={snippet.snippet_id} className="space-y-1">
+              <p className="text-xs font-medium text-gray-700">{snippet.title}</p>
+              <textarea
+                value={snippet.code}
+                readOnly
+                className="w-full border border-gray-300 rounded px-2 py-2 text-xs font-mono bg-gray-50"
+                rows={10}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -891,6 +931,32 @@ export function CustomFlow({
             placeholder="Generated code appears here. You can edit it before critique or regeneration."
           />
         </div>
+
+        <details className="border border-gray-200 rounded-lg p-4">
+          <summary className="cursor-pointer text-sm font-medium text-gray-800">
+            Generated Asset Code Package (Mermaid, Tables, Diagrams)
+          </summary>
+          <p className="text-xs text-gray-500 mt-3 mb-3">
+            This package reflects the latest generated code and is split for easier review/copy/editing.
+          </p>
+          <div className="space-y-3">
+            {renderCodePackageGroup(
+              'Mermaid Code',
+              codePackage.mermaid,
+              'No Mermaid snippets were detected in this generation.'
+            )}
+            {renderCodePackageGroup(
+              'Table Code',
+              codePackage.tables,
+              'No table snippets were detected in this generation.'
+            )}
+            {renderCodePackageGroup(
+              'Diagram/Chart Code',
+              codePackage.diagrams,
+              'No diagram/chart snippets were detected in this generation.'
+            )}
+          </div>
+        </details>
       </div>
 
       {enableCritiquer && (
