@@ -36,6 +36,7 @@ from app.models.schemas import (
     RFPRequirement,
 )
 from app.services.pdf_service import PDFService
+from app.services.blob_storage import get_blob_storage
 from app.workflows.rfp_workflow import create_rfp_workflow
 from app.workflows.executors import (
     RFPAnalyzerExecutor,
@@ -199,6 +200,17 @@ def _save_json_artifact(run_dir: Path, relative_path: str, payload: object) -> N
             json.dump(payload, f, indent=2, default=str)
     except Exception as exc:
         logger.warning("Failed to save JSON artifact %s: %s", target, exc)
+
+
+def _sync_run_to_blob(run_dir: Path) -> None:
+    """Best-effort sync of run artifacts to Azure Blob storage."""
+    storage = get_blob_storage()
+    if not storage.enabled:
+        return
+    try:
+        storage.sync_run_directory(run_dir)
+    except Exception as exc:
+        logger.warning("Blob sync failed for run %s: %s", run_dir.name, exc)
 
 
 def _save_analysis_metadata(run_dir: Path, analysis: RFPAnalysis) -> None:
@@ -1038,6 +1050,7 @@ async def _run_orchestrated_generation(
     if docx_path:
         run_id = docx_path.parent.parent.name
         docx_filename = docx_path.name
+        _sync_run_to_blob(docx_path.parent.parent)
     else:
         run_id = "unknown"
         docx_filename = "proposal.docx"
@@ -1215,6 +1228,7 @@ async def extract_reqs(
         analysis_result = await analyzer.execute(input_data)
         _save_analysis_metadata(run_dir, analysis_result.analysis)
         _append_analysis_version(run_dir, analysis_result.analysis, comment)
+        _sync_run_to_blob(run_dir)
         return ExtractReqsResponse(
             success=True,
             message="Requirements extracted successfully",
@@ -1248,6 +1262,7 @@ async def plan_rfp(
         _save_analysis_metadata(run_dir, request.analysis)
         _save_plan_metadata(run_dir, planning_result.plan)
         _append_plan_version(run_dir, planning_result.plan, request.comment)
+        _sync_run_to_blob(run_dir)
         return PlanStepResponse(
             success=True,
             message="Plan generated successfully",
@@ -1307,6 +1322,7 @@ async def plan_rfp_with_context(
         _save_analysis_metadata(run_dir, analysis)
         _save_plan_metadata(run_dir, planning_result.plan)
         _append_plan_version(run_dir, planning_result.plan, comment)
+        _sync_run_to_blob(run_dir)
         return PlanStepResponse(
             success=True,
             message="Plan generated successfully",
@@ -1459,6 +1475,7 @@ async def generate_rfp_step(
             image_dir=image_dir,
             docx_path=docx_path,
         )
+        _sync_run_to_blob(run_dir)
 
         return GenerateRFPStepResponse(
             success=execution_success,
@@ -1508,6 +1525,7 @@ async def critique_rfp(
             if critique_result.critique:
                 existing_critiques.append(critique_result.critique.model_dump())
                 _save_json_artifact(run_dir, "metadata/critiques.json", existing_critiques)
+        _sync_run_to_blob(run_dir)
         return CritiqueStepResponse(
             success=True,
             message="Critique completed successfully",
@@ -1590,6 +1608,8 @@ async def generate_rfp_stream(
             
             # Send final download URL using run_id from workflow
             if run_id:
+                run_dir = Path(config.app.output_dir) / run_id
+                _sync_run_to_blob(run_dir)
                 yield f"data: {json.dumps({'event': 'complete', 'download_url': f'/api/rfp/download/{run_id}/proposal.docx', 'run_id': run_id})}\n\n"
             
         except Exception as e:

@@ -118,3 +118,15 @@ max_critiques = 1
 # Error Recovery: Automatic regeneration on execution errors
 # Maximum number of error recovery attempts before giving up
 max_error_loops = 2
+
+[storage]
+# Upload run artifacts to Azure Blob storage
+use_blob_storage = true
+# Keep local run artifacts as well (recommended for local testing/debugging)
+use_local_storage = true
+# Azure Storage account name (without .blob.core.windows.net)
+blob_account_name = "azureaurablob"
+# Container to hold RFP run artifacts
+blob_container_name = "rfps"
+# Prefix under container where run folders are uploaded
+blob_runs_prefix = "runs"

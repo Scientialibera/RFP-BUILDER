@@ -161,6 +161,15 @@ class WorkflowConfig(BaseModel):
     max_error_loops: int = 2
 
 
+class StorageConfig(BaseModel):
+    """Artifact storage configuration."""
+    use_blob_storage: bool = True
+    use_local_storage: bool = True
+    blob_account_name: str = "azureaurablob"
+    blob_container_name: str = "rfps"
+    blob_runs_prefix: str = "runs"
+
+
 class Config(BaseModel):
     """Root configuration object."""
     azure: AzureConfig = Field(default_factory=AzureConfig)
@@ -170,6 +179,7 @@ class Config(BaseModel):
     msal: MSALConfig = Field(default_factory=MSALConfig)
     api_auth: APIAuthConfig = Field(default_factory=APIAuthConfig)
     workflow: WorkflowConfig = Field(default_factory=WorkflowConfig)
+    storage: StorageConfig = Field(default_factory=StorageConfig)
     
     @property
     def use_azure(self) -> bool:

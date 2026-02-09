@@ -885,22 +885,17 @@ export function CustomFlow({
                   <p className="text-xs font-medium text-gray-700">
                     Requirements Version {analysisVersionIndex + 1} / {analysisVersions.length}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => loadAnalysisVersion(analysisVersionIndex - 1)}
-                    disabled={analysisVersionIndex <= 0}
-                    className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
+                  <select
+                    value={analysisVersionIndex}
+                    onChange={(e) => loadAnalysisVersion(Number(e.target.value))}
+                    className="px-2 py-1 text-xs border border-gray-300 rounded bg-white"
                   >
-                    Previous
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => loadAnalysisVersion(analysisVersionIndex + 1)}
-                    disabled={analysisVersionIndex >= analysisVersions.length - 1}
-                    className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
-                  >
-                    Next
-                  </button>
+                    {analysisVersions.map((version, idx) => (
+                      <option key={version.version_id} value={idx}>
+                        {version.version_id} · {formatVersionTimestamp(version.created_at)}
+                      </option>
+                    ))}
+                  </select>
                   <p className="text-xs text-gray-500">
                     {analysisVersions[analysisVersionIndex].version_id} · {formatVersionTimestamp(analysisVersions[analysisVersionIndex].created_at)}
                   </p>
@@ -1086,22 +1081,17 @@ export function CustomFlow({
                     <p className="text-xs font-medium text-gray-700">
                       Plan Version {planVersionIndex + 1} / {planVersions.length}
                     </p>
-                    <button
-                      type="button"
-                      onClick={() => loadPlanVersion(planVersionIndex - 1)}
-                      disabled={planVersionIndex <= 0}
-                      className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
+                    <select
+                      value={planVersionIndex}
+                      onChange={(e) => loadPlanVersion(Number(e.target.value))}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded bg-white"
                     >
-                      Previous
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => loadPlanVersion(planVersionIndex + 1)}
-                      disabled={planVersionIndex >= planVersions.length - 1}
-                      className="px-2 py-1 text-xs border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-400"
-                    >
-                      Next
-                    </button>
+                      {planVersions.map((version, idx) => (
+                        <option key={version.version_id} value={idx}>
+                          {version.version_id} · {formatVersionTimestamp(version.created_at)}
+                        </option>
+                      ))}
+                    </select>
                     <p className="text-xs text-gray-500">
                       {planVersions[planVersionIndex].version_id} · {formatVersionTimestamp(planVersions[planVersionIndex].created_at)}
                     </p>

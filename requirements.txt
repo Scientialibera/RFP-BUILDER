@@ -12,6 +12,7 @@ tomli>=2.0.1
 agent-framework-core>=0.1.0
 openai>=1.12.0
 azure-identity>=1.15.0
+azure-storage-blob>=12.24.0
 pypdf>=4.0.0
 pdf2image>=1.17.0
 pdfplumber>=0.11.4
