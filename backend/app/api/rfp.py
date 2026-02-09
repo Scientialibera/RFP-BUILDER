@@ -9,6 +9,7 @@ import base64
 import ast
 import html
 import re
+import shutil
 from datetime import datetime
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -115,6 +116,14 @@ def _resolve_step_run_directory(run_id: Optional[str]) -> Path:
     if not run_dir.is_relative_to(output_root):
         raise HTTPException(status_code=400, detail="Invalid run_id path")
 
+    if not run_dir.exists():
+        storage = get_blob_storage()
+        if storage.enabled:
+            try:
+                storage.hydrate_run_directory(safe_run_id, run_dir)
+            except Exception as exc:
+                logger.warning("Failed to hydrate run %s from blob: %s", safe_run_id, exc)
+
     _ensure_run_subdirectories(run_dir)
     return run_dir
 
@@ -209,6 +218,12 @@ def _sync_run_to_blob(run_dir: Path) -> None:
         return
     try:
         storage.sync_run_directory(run_dir)
+        if not get_config().storage.use_local_storage:
+            try:
+                shutil.rmtree(run_dir)
+                logger.info("Removed local run directory after blob sync: %s", run_dir)
+            except Exception as cleanup_exc:
+                logger.warning("Failed to remove local run directory %s: %s", run_dir, cleanup_exc)
     except Exception as exc:
         logger.warning("Blob sync failed for run %s: %s", run_dir.name, exc)
 
@@ -1541,7 +1556,17 @@ async def critique_rfp(
 async def download_file(run_id: str, filename: str):
     """Download a generated DOCX file from a run directory."""
     file_path = _resolve_docx_download_path(run_id, filename)
-    
+
+    if not file_path.exists():
+        storage = get_blob_storage()
+        if storage.enabled:
+            relative = f"word_document/{file_path.name}"
+            data = storage.download_blob_bytes(run_id, relative)
+            if data:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(file_path, "wb") as f:
+                    f.write(data)
+
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     

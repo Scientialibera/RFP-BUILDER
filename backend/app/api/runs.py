@@ -9,6 +9,7 @@ Provides endpoints to:
 
 import json
 import logging
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -18,6 +19,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from app.core.config import get_config
+from app.services.blob_storage import get_blob_storage
 from app.workflows.executors import CodeInterpreterExecutor
 from app.core.llm_client import create_llm_client
 from app.models.schemas import RFPAnalysis, ProposalPlan, GeneratedCodePackage
@@ -153,6 +155,21 @@ def _resolve_run_dir(run_id: str) -> Path:
     return run_dir
 
 
+def _ensure_run_dir_available(run_id: str) -> Path:
+    """Ensure run artifacts are available locally, hydrating from blob when needed."""
+    run_dir = _resolve_run_dir(run_id)
+    if run_dir.exists():
+        return run_dir
+
+    storage = get_blob_storage()
+    if storage.enabled:
+        hydrated = storage.hydrate_run_directory(run_id, run_dir)
+        if hydrated and run_dir.exists():
+            return run_dir
+
+    raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+
+
 def _parse_run_timestamp(run_id: str) -> Optional[datetime]:
     """Parse timestamp from run_id (e.g., 'run_20260201_123456')."""
     try:
@@ -162,6 +179,53 @@ def _parse_run_timestamp(run_id: str) -> Optional[datetime]:
     except ValueError:
         pass
     return None
+
+
+def _get_blob_run_info(run_id: str) -> Optional[RunSummary]:
+    """Build run summary directly from blob artifacts."""
+    if not run_id.startswith("run_"):
+        return None
+
+    storage = get_blob_storage()
+    if not storage.enabled:
+        return None
+
+    blob_names = storage.list_run_blob_names(run_id)
+    if not blob_names:
+        return None
+
+    ts = _parse_run_timestamp(run_id)
+    created_at = ts.isoformat() if ts else ""
+
+    has_docx = any(name.endswith("/word_document/proposal.docx") for name in blob_names)
+    has_plan = any(name.endswith("/metadata/plan.json") for name in blob_names)
+    code_available = any("/code_snapshots/" in name and name.endswith("_document_code.py") for name in blob_names)
+
+    critique_count = 0
+    critiques_payload = storage.download_blob_bytes(run_id, "metadata/critiques.json")
+    if critiques_payload:
+        try:
+            critiques = json.loads(critiques_payload.decode("utf-8"))
+            if isinstance(critiques, list):
+                critique_count = len(critiques)
+        except Exception:
+            critique_count = 0
+
+    revision_ids = {
+        name.split("/revisions/", 1)[1].split("/", 1)[0]
+        for name in blob_names
+        if "/revisions/" in name
+    }
+
+    return RunSummary(
+        run_id=run_id,
+        created_at=created_at,
+        has_docx=has_docx,
+        has_plan=has_plan,
+        code_available=code_available,
+        critique_count=critique_count,
+        revision_count=len(revision_ids),
+    )
 
 
 def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
@@ -419,6 +483,22 @@ def _load_run_code_snapshot(run_dir: Path, stage: str = "99_final") -> tuple[str
         return "", None
 
 
+def _sync_run_to_blob(run_dir: Path) -> None:
+    storage = get_blob_storage()
+    if not storage.enabled:
+        return
+    try:
+        storage.sync_run_directory(run_dir)
+        if not get_config().storage.use_local_storage:
+            try:
+                shutil.rmtree(run_dir)
+                logger.info("Removed local run directory after blob sync: %s", run_dir)
+            except Exception as cleanup_exc:
+                logger.warning("Failed to remove local run directory %s: %s", run_dir, cleanup_exc)
+    except Exception as exc:
+        logger.warning("Blob sync failed for run %s: %s", run_dir.name, exc)
+
+
 # ============================================================================
 # Endpoints
 # ============================================================================
@@ -434,18 +514,29 @@ async def list_runs(
     Returns runs sorted by creation time (newest first).
     """
     runs_dir = _get_runs_dir()
-    
-    if not runs_dir.exists():
-        return RunsListResponse(runs=[], total=0)
-    
-    # Get all run directories
-    all_runs = []
-    for item in runs_dir.iterdir():
-        if item.is_dir():
+    all_runs: list[RunSummary] = []
+    seen_run_ids: set[str] = set()
+
+    if runs_dir.exists():
+        for item in runs_dir.iterdir():
+            if not item.is_dir():
+                continue
             run_info = _get_run_info(item)
+            if not run_info:
+                continue
+            all_runs.append(run_info)
+            seen_run_ids.add(run_info.run_id)
+
+    storage = get_blob_storage()
+    if storage.enabled:
+        for run_id in storage.list_run_ids():
+            if run_id in seen_run_ids:
+                continue
+            run_info = _get_blob_run_info(run_id)
             if run_info:
                 all_runs.append(run_info)
-    
+                seen_run_ids.add(run_id)
+
     # Sort by created_at (newest first)
     all_runs.sort(key=lambda r: r.created_at, reverse=True)
     
@@ -461,10 +552,7 @@ async def get_run_details(run_id: str):
     """
     Get detailed information about a specific run.
     """
-    run_dir = _resolve_run_dir(run_id)
-    
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    run_dir = _ensure_run_dir_available(run_id)
     
     summary = _get_run_info(run_dir)
     if not summary:
@@ -507,10 +595,7 @@ async def get_run_code(run_id: str, stage: str = "99_final"):
         run_id: The run ID
         stage: The code stage (default: "99_final" for final code)
     """
-    run_dir = _resolve_run_dir(run_id)
-    
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    run_dir = _ensure_run_dir_available(run_id)
     
     code, resolved_stage = _load_run_code_snapshot(run_dir, stage=stage)
     if not code or not resolved_stage:
@@ -528,9 +613,7 @@ async def get_run_workflow_state(run_id: str):
     """
     Get persisted workflow state for loading a run into Custom Flow.
     """
-    run_dir = _resolve_run_dir(run_id)
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    run_dir = _ensure_run_dir_available(run_id)
 
     analysis_versions = _load_analysis_versions(run_dir)
     plan_versions = _load_plan_versions(run_dir)
@@ -574,10 +657,7 @@ async def regenerate_document(
     
     Creates a new revision under the run directory.
     """
-    run_dir = _resolve_run_dir(run_id)
-    
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    run_dir = _ensure_run_dir_available(run_id)
     
     # Create revision directory
     revision_id = _get_next_revision_id(run_dir)
@@ -617,6 +697,8 @@ async def regenerate_document(
         # Get the actual docx filename
         docx_files = list(revision_dir.glob("*.docx"))
         docx_filename = docx_files[0].name if docx_files else "proposal.docx"
+
+        _sync_run_to_blob(run_dir)
         
         return RegenerateResponse(
             success=True,
@@ -635,13 +717,23 @@ async def regenerate_document(
 @router.get("/{run_id}/revisions/{revision_id}/{filename}")
 async def download_revision(run_id: str, revision_id: str, filename: str):
     """Download a document from a specific revision."""
-    run_dir = _resolve_run_dir(run_id)
+    run_dir = _ensure_run_dir_available(run_id)
     safe_revision_id = _safe_path_part(revision_id, "revision_id")
     safe_filename = _safe_path_part(filename, "filename")
     file_path = (run_dir / "revisions" / safe_revision_id / safe_filename).resolve()
     if not file_path.is_relative_to(run_dir):
         raise HTTPException(status_code=400, detail="Invalid file path")
     
+    if not file_path.exists():
+        storage = get_blob_storage()
+        if storage.enabled:
+            relative = f"revisions/{safe_revision_id}/{safe_filename}"
+            data = storage.download_blob_bytes(run_id, relative)
+            if data:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(file_path, "wb") as f:
+                    f.write(data)
+
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     
@@ -658,12 +750,22 @@ async def download_revision(run_id: str, revision_id: str, filename: str):
 @router.get("/{run_id}/documents/{filename}")
 async def download_source_document(run_id: str, filename: str):
     """Download a source document (RFP, example, context) from a run."""
-    run_dir = _resolve_run_dir(run_id)
+    run_dir = _ensure_run_dir_available(run_id)
     safe_filename = _safe_path_part(filename, "filename")
     file_path = (run_dir / "documents" / safe_filename).resolve()
     if not file_path.is_relative_to(run_dir):
         raise HTTPException(status_code=400, detail="Invalid file path")
     
+    if not file_path.exists():
+        storage = get_blob_storage()
+        if storage.enabled:
+            relative = f"documents/{safe_filename}"
+            data = storage.download_blob_bytes(run_id, relative)
+            if data:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(file_path, "wb") as f:
+                    f.write(data)
+
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Document not found")
     

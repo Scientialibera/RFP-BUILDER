@@ -1,0 +1,456 @@
+{
+  "summary": "Niagara Falls Water Board seeks a qualified engineering consultant to perform Phase 1 sanitary sewer evaluation survey (SSES) services in specified LaSalle area sewersheds, deliver an engineering report and post\u2011construction monitoring/assessment that comply with NYSDEC and EPG requirements, and to price optional Phase 2 and 3 SSES work. The engagement is funded in part by a Wastewater Infrastructure Engineering Planning Grant and must meet strict technical, reporting, MWBE/SDVOB, and state assistance conditions.",
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "description": "Provide professional engineering services to perform a Phase 1 sanitary sewer evaluation survey (SSES) in the specified LaSalle area sewersheds, including identification of inflow and infiltration (I&I) sources and development of a corrective action plan.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-002",
+      "description": "Include option prices and schedules for performing SSES work for Phase 2 and Phase 3 sewersheds, following the same applicable tasks as Phase 1 (with noted exceptions).",
+      "category": "cost",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-003",
+      "description": "Comply with terms and conditions of the Wastewater Infrastructure Engineering Planning Grant (EPG) and all applicable NYSDEC requirements, including the Engineering Report Outline for NYS Wastewater Infrastructure Projects (October 1, 2022).",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-004",
+      "description": "Identify and assign a Project Manager as the primary contact for the project.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-005",
+      "description": "Review existing data, records, reports, the Order on Consent, and NYSDEC correspondence related to LaSalle SSO abatement; gain familiarity with the Phase 1 sewersheds and history of I&I reduction, repairs, maintenance, and flow management (including SCADA).",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-006",
+      "description": "Meet with Water Board staff to discuss scope, system response, and locations for flow isolation and measurement; provide ongoing professional advice and meet with NFWB staff and NYSDEC as necessary.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-007",
+      "description": "Provide all staff, equipment, and materials necessary to conduct smoke testing, including resident notification (door hangers 2\u20134 days in advance), press release assistance, and coordination with police and fire; test under appropriate weather conditions and document/photograph defects.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-008",
+      "description": "For flow isolation and night-time weiring, review existing flow measurement/analysis, select adequate weir locations after consultation with NFWB, provide all staff/equipment/traffic control, ensure confined space entry training/equipment, notify residents 2\u20134 days ahead, and analyze data including infiltration in gpd per linear foot for each section.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-009",
+      "description": "Analyze and summarize CCTV inspection reports and manhole inspection reports provided by NFWB (PACP-certified staff), perform additional data collection as required, meet with NFWB on repairs already made, and use provided CCTV footage/additional imaging as needed.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-010",
+      "description": "Conduct Outfall/SSO condition assessment for the two Phase 1 outfalls, including review of existing information, site visits, development of a Work Plan (possible meters, gauges, confined space, dye testing, CCTV coordination), execution of authorized Work Plan tasks, and documentation of findings in GIS-compatible format with recommendations to reduce extraneous flows.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-011",
+      "description": "Plan and, if authorized/needed, conduct focused SSES activities (dye testing, house inspections, additional CCTV directed to NFWB crews) to locate/confirm I&I sources, including a $10,000 contingency allowance in the proposal for this or other unforeseen but necessary work, expendable only with NFWB approval.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-012",
+      "description": "Perform SSES in a manner satisfactory to NYSDEC and prepare an SSES report for NYSDEC that identifies I&I sources in Phase 1 and proposes a corrective action plan with most cost-effective flow reduction measures, budgetary costs, and implementation timelines; ensure report is prepared, stamped, and dated by a NYS licensed Professional Engineer and conforms to the October 1, 2022 Engineering Report Outline.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-013",
+      "description": "Complete the SSES report within a timeframe that allows NYSDEC review early in 2023 to support potential construction in 2023\u2013early 2024 and post-construction monitoring by June 2024.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-014",
+      "description": "Conduct post-construction monitoring in Phase 1 sewersheds (assuming construction in 2023 and monitoring in 2024), including I&I assessment of pre- and post-construction flows and rainfall, and prepare a Post-Construction I&I Assessment and Cost Analysis Report for NYSDEC documenting I&I reduction and most effective techniques.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-015",
+      "description": "Proposal must include, at minimum: situation understanding; understanding of applicable regulations and standards; project approach, scope, and project organization; demonstrated experience on similar projects; experience & qualifications of subconsultants/contractors; specific experience of key project professionals; and schedule, effort, and budget breakdown (with bar chart schedule, task/hour estimate matrix, not-to-exceed fee, and $10,000 contingency for Task 6).",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-016",
+      "description": "Provide Option 1 pricing and schedule to perform all applicable Phase 1 tasks for Phase 2 sewersheds, omitting Task 5 (no outfalls/SSOs).",
+      "category": "cost",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-017",
+      "description": "Provide Option 2 pricing and schedule to perform all applicable Phase 1 tasks for Phase 3 sewershed, including Outfall/SSO assessment for the one outfall.",
+      "category": "cost",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-018",
+      "description": "Complete and return all forms in Appendix E (Standard Terms, Conditions, and Requirements) with the proposal, including but not limited to: Acknowledgement of Addenda, Certificate of Non-Collusion, Lobbying Law Disclosure Statement, EEO Policy Statement, Statement on Sexual Harassment, and RFP Acknowledgement and Certification.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-019",
+      "description": "Attend the mandatory pre-proposal information session at the Wastewater Treatment Plant on November 29, 2022 at noon.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-020",
+      "description": "Submit any written questions to the authorized Water Board contact by November 30, 2022 at 3:00 p.m., via email, with appropriate subject line indicating RFP name and number.",
+      "category": "management",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "REQ-021",
+      "description": "Email the authorized Water Board contact (with copy to specified address) to be placed on the distribution list for RFP updates and Q&A.",
+      "category": "management",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-022",
+      "description": "Submit sealed proposal package by Monday, December 5, 2022 at 2:00 p.m. to the address on the cover page, clearly marked with proposer name/address and RFP number and title.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-023",
+      "description": "Deliver one clearly marked original and six copies of the proposal package, plus one electronic copy on CD or USB (preferably PDF converted from source files, single document or clearly ordered parts).",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-024",
+      "description": "Include only one original signed copy of each Appendix requiring signature in the paper original; these need not be in the electronic copy.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-025",
+      "description": "Ensure all proposal communications during the Restricted Period are only through the designated Water Board contact per State Finance Law 139-j and 139-k; complete and submit the Lobbying Law Disclosure Statement (Appendix E, Form 3).",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-026",
+      "description": "Provide a Statement of Qualifications including business structure, licensing, years in business, similar project experience with references, locations, key personnel descriptions, aliases used in past 10 years, subsidiary/parent companies, debarment/default/bankruptcy/legal action disclosures, conflicts of interest, and details on subcontractors performing >10% of work.",
+      "category": "experience",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-027",
+      "description": "Agree to and demonstrate ability to comply with NFWB\u2019s general conditions, including rights to reject/cancel, 90-day proposal firm period, potential oral presentations/interviews, and contract negotiation provisions.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-028",
+      "description": "Carry and provide proof of required insurance coverages (Workers Compensation, Disability, Employer\u2019s Liability, Commercial General Liability, Auto Liability, Umbrella/Excess Liability, Professional Liability) with specified limits, naming NFWB, Niagara Falls Public Water Authority, and City of Niagara Falls as additional insureds on a primary and non-contributory basis.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-029",
+      "description": "Agree to indemnification and waiver of subrogation obligations in favor of NFWB, its Directors, Officers, and Employees for damages arising from consultant\u2019s actions/inactions.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-030",
+      "description": "Provide adequate, competent, properly licensed and trained personnel, including subcontractors, and comply with any NFWB credentialing, security, safety, and orientation requirements.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-031",
+      "description": "Develop and, if requested, submit a Safety Program and Site-Specific Health & Safety Plan covering hazard analysis, procedures, PPE, OSHA training compliance, and monitoring/instrumentation, ensuring full compliance with OSHA and applicable health and safety regulations.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-032",
+      "description": "Operate as an independent contractor, identify all subcontractors in the proposal, and accept that NFWB may reject proposed subcontractors and that no privity is created between them and NFWB.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-033",
+      "description": "Comply with FOIL-related requirements, including marking any claimed confidential/proprietary pages appropriately and recognizing potential public disclosure at Board meetings.",
+      "category": "compliance",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-034",
+      "description": "Maintain complete and accurate books and records for at least six years beyond the calendar year of creation, and provide access to NFWB, State Comptroller, Attorney General, and others for inspection, auditing, and copying.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-035",
+      "description": "Comply with NYS information security breach and notification laws (GBL \u00a7\u00a7 899-aa, 899-bb; State Technology Law \u00a7 208) if handling applicable data.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-036",
+      "description": "Pay prevailing wage where required and, if applicable, submit quarterly Workforce Employment Utilization Reports per Executive Law and Executive Order 162.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-037",
+      "description": "Provide complete and accurate monthly invoices with required supporting documentation, comply with MWBE/SDVOB and prevailing wage reporting, and accept 60-day payment terms subject to dispute rights.",
+      "category": "management",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-038",
+      "description": "Exclude state and local taxes/fees from pricing, as NFWB is tax-exempt.",
+      "category": "cost",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-039",
+      "description": "Adopt and submit an Equal Employment Opportunity Policy Statement consistent with Appendix E Form 4 and comply with all applicable non-discrimination and Human Rights Law requirements.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-040",
+      "description": "Certify existence and implementation of a written sexual harassment prevention policy and annual training meeting NY Labor Law \u00a7201-g; submit Statement on Sexual Harassment (Form 5).",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-041",
+      "description": "Certify compliance with Iran Divestment Act (not on Prohibited Entities List and will not use listed subcontractors).",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-042",
+      "description": "Certify non-participation in international boycotts per Labor Law \u00a7220-f and State Finance Law \u00a7139-h.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-043",
+      "description": "Comply with MacBride Fair Employment Principles for any operations in Northern Ireland.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "low"
+    },
+    {
+      "id": "REQ-044",
+      "description": "Certify compliance with prohibition on purchase/use of tropical hardwoods under State Finance Law \u00a7165, including subcontractor compliance where applicable.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "low"
+    },
+    {
+      "id": "REQ-045",
+      "description": "Disclose and avoid conflicts of interest; certify no prohibited Water Board official interest or improper payments/gifts; refrain from political or religious activities using contract funds.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-046",
+      "description": "Submit signed Certificate of Non-Collusion (Appendix E Form 2) affirming independent pricing and no collusive behavior.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-047",
+      "description": "Comply with NYS Lobbying Law (State Finance Law \u00a7\u00a7139-j, 139-k), including permissible contacts only and required certifications; acknowledge NFWB\u2019s right to terminate for intentional false/incomplete certification.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-048",
+      "description": "Accept NFWB\u2019s termination rights for cause, convenience, and Lobbying Law violations, and the governing law/venue provisions (NY, Niagara/Erie County courts).",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-049",
+      "description": "Accept service of process by registered or certified mail and keep NFWB informed of current address for notices.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "low"
+    },
+    {
+      "id": "REQ-050",
+      "description": "Acknowledge no waiver of NFWB rights by delay or partial exercise unless in writing.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "low"
+    },
+    {
+      "id": "REQ-051",
+      "description": "Comply with Mandatory State Financial Assistance Terms and Conditions for Contracts Funded with NYS Financial Assistance Only (Non-Construction), including MWBE Combined Goal of 30% and SDVOB goal of 6%, and associated EEO, utilization plans, monthly MWBE-SDVOB reporting, good faith efforts, and liquidated damages provisions.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-052",
+      "description": "Submit MWBE and SDVOB utilization plans or properly completed waiver requests with the proposal; comply with monthly MWBE-SDVOB reporting requirements.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-053",
+      "description": "Ensure neither the firm nor any subcontractors are suspended/debarred or ineligible under Labor Law \u00a7220-b or Executive Law \u00a7316; do not contract with such parties.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-054",
+      "description": "Submit Acknowledgement of Addenda form indicating all addenda received or that none were received.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-055",
+      "description": "Submit the RFP Acknowledgement and Certification form (Appendix E Form 6) affirming the proposal is a firm offer, understanding of RFP terms, and truthfulness of information.",
+      "category": "compliance",
+      "is_mandatory": true,
+      "priority": "high"
+    },
+    {
+      "id": "REQ-056",
+      "description": "Be prepared for informal interviews/presentations with NFWB staff/Board to discuss concepts and alternative methods for furnishing services, and respond promptly to questions via the designated contact.",
+      "category": "management",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "REQ-057",
+      "description": "Document Outfall/SSO findings in GIS-compatible format and integrate with NFWB systems as needed.",
+      "category": "technical",
+      "is_mandatory": true,
+      "priority": "medium"
+    }
+  ],
+  "evaluation_criteria": [
+    {
+      "criterion": "Situational understanding",
+      "weight": 20.0,
+      "description": "Demonstrated understanding of the project context, Order on Consent, LaSalle sewersheds, I&I and SSO issues, and regulatory drivers."
+    },
+    {
+      "criterion": "Demonstrated experience, capabilities, and qualifications",
+      "weight": 40.0,
+      "description": "Relevant experience with similar SSES, I&I mitigation, NYSDEC/EPG-funded projects, and qualifications of firm, key staff, and subconsultants."
+    },
+    {
+      "criterion": "Completeness of the proposal",
+      "weight": 20.0,
+      "description": "Inclusion and quality of all required proposal elements, forms, MWBE/SDVOB plans, schedules, budgets, and responsiveness to all RFP tasks and requirements."
+    },
+    {
+      "criterion": "Total proposed cost",
+      "weight": 20.0,
+      "description": "Overall not-to-exceed fee for Phase 1 and option pricing for Phases 2 and 3, and perceived value/cost-effectiveness of the proposed approach."
+    }
+  ],
+  "submission_requirements": {
+    "deadline": "Monday, December 5, 2022 by 2:00 p.m.",
+    "format": "Sealed hard-copy package (1 original + 6 copies) plus 1 electronic copy on CD/USB; bar chart schedule; spreadsheet task/hour and budget matrix; required signed forms and utilization plans.",
+    "page_limit": null,
+    "sections_required": [
+      "Situation understanding",
+      "Understanding of applicable regulations and standards",
+      "Project approach, scope, and project organization",
+      "Demonstrated experience on similar projects",
+      "Experience & qualifications of subconsultants/contractors",
+      "Specific experience of key project professionals",
+      "Schedule (bar chart)",
+      "Effort & budget breakdown (task/hour matrix, not-to-exceed fee, $10,000 contingency for Task 6)",
+      "Completed Appendix E forms",
+      "MWBE and SDVOB utilization plans or waiver requests",
+      "Statement of Qualifications as defined in Appendix E"
+    ]
+  },
+  "key_differentiators": [
+    "Show deep understanding of the Order on Consent history, NYSDEC\u2019s shift to R-value methodology, and sewershed-based remediation strategy, tying the technical approach directly to these drivers.",
+    "Propose a clear, aggressive yet realistic schedule that aligns SSES completion with NYSDEC review timelines and NFWB\u2019s desire to construct improvements in 2023\u2013early 2024 and finish monitoring by June 2024.",
+    "Offer a sophisticated, data-driven SSES methodology (e.g., integration of smoke testing, flow monitoring, CCTV, GIS analytics, and focused SSES) that targets cost-effective I&I reduction and quantifies benefits in terms of R-values and SSO reduction.",
+    "Demonstrate strong prior experience delivering SSES/I&I projects under NYSDEC oversight and EPG or similar funding, with specific examples and references.",
+    "Present a robust stakeholder communication and public notification plan (residents, police, fire, NYSDEC) that minimizes disruption and manages risk during field work.",
+    "Provide clear, well-organized deliverables structure (engineering report, GIS datasets, monitoring reports) explicitly mapped to the NYS Engineering Report Outline and NYSDEC expectations.",
+    "Exceed MWBE (30%) and SDVOB (6%) participation goals where feasible, with identified certified partners and a credible plan to meet utilization and reporting obligations.",
+    "Highlight strong health & safety, confined space entry, and traffic control practices, including sample safety plans and training credentials for field staff.",
+    "Offer innovative but practical approaches for post-construction monitoring and cost-effectiveness analysis, including how results will inform future phases (2 and 3) and long-term SSO mitigation strategy.",
+    "Provide transparent, defensible pricing with clear task-level effort estimates and options that show economies of scale or efficiencies if multiple phases are awarded."
+  ]
+}
