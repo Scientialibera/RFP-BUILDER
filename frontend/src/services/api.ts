@@ -25,7 +25,18 @@ import type {
   RegenerateResponse,
 } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+function normalizeApiBase(rawBase?: string): string {
+  const base = (rawBase || '').trim();
+  if (!base) return '/api';
+  if (base === '/api') return '/api';
+  if (/^https?:\/\//i.test(base)) {
+    const trimmed = base.replace(/\/+$/, '');
+    return /\/api$/i.test(trimmed) ? trimmed : `${trimmed}/api`;
+  }
+  return base;
+}
+
+const API_BASE = normalizeApiBase(import.meta.env.VITE_API_BASE_URL);
 
 const api = axios.create({
   baseURL: API_BASE,

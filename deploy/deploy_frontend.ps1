@@ -25,22 +25,22 @@ $ErrorActionPreference = "Stop"
 # ============================================================================
 
 # TODO: Replace these with your real values
-$TENANT_ID = "da48a11d-a542-482e-b762-ed2f7db76734"
-$SUBSCRIPTION_ID = "02562ae4-c185-435a-98a1-f5243be83a16"
+$TENANT_ID = ""
+$SUBSCRIPTION_ID = ""
 
 if ($Environment -eq "dev") {
-    $RG = "AURA-Bot"
-    $ACR_NAME = "auraboreg"
-    $WEBAPP_NAME = "aurabot-web-dev"
+    $RG = ""
+    $ACR_NAME = ""
+    $WEBAPP_NAME = ""
     $IMAGE_TAG = "dev"
-    $API_URL = "https://aurabot-api-dev.azurewebsites.net"
+    $API_URL = ""
 }
 else {
     $RG = "REPLACE_WITH_PROD_RG"
     $ACR_NAME = "REPLACE_WITH_PROD_ACR_NAME"
     $WEBAPP_NAME = "REPLACE_WITH_PROD_WEBAPP"
     $IMAGE_TAG = "prod"
-    $API_URL = "REPLACE_WITH_PROD_API_URL"
+    $API_URL = "REPLACE_WITH_PROD_API_URL/api"
 }
 
 $ACR_URL = "$ACR_NAME.azurecr.io"
@@ -126,7 +126,22 @@ if (-not $SkipConfig) {
         --container-registry-url "https://$ACR_URL" `
         --container-registry-user $acrCreds.username `
         --container-registry-password $acrCreds.password | Out-Null
-    
+
+    # Clear stale startup command so Dockerfile CMD/ENTRYPOINT is used.
+    $configId = (az webapp config show -g $RG -n $WEBAPP_NAME --query "id" -o tsv 2>$null).Trim()
+    if (-not [string]::IsNullOrWhiteSpace($configId)) {
+        az resource update --ids $configId --set properties.appCommandLine="" -o none | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "[OK] Cleared startup command override (appCommandLine)" -ForegroundColor Green
+        }
+        else {
+            Write-Warning "Failed to clear appCommandLine for $WEBAPP_NAME."
+        }
+    }
+    else {
+        Write-Warning "Could not resolve config id to clear appCommandLine for $WEBAPP_NAME."
+    }
+
     Write-Host "[OK] Container configured: $FULL_IMAGE" -ForegroundColor Green
     
     # Build environment variables (runtime overrides if needed)

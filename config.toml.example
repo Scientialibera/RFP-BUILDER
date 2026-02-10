@@ -125,7 +125,7 @@ use_blob_storage = true
 # Keep local run artifacts as well (recommended for local testing/debugging)
 use_local_storage = true
 # Azure Storage account name (without .blob.core.windows.net)
-blob_account_name = "azureaurablob"
+blob_account_name = ""
 # Container to hold RFP run artifacts
 blob_container_name = "rfps"
 # Prefix under container where run folders are uploaded

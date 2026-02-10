@@ -215,6 +215,78 @@ npm run build
 npm run lint
 ```
 
+## Azure Deployment
+
+Deployment scripts live in `deploy/`:
+
+- `deploy/deploy_backend.ps1`
+- `deploy/deploy_frontend.ps1`
+
+### Prerequisites
+
+- `az login` completed
+- Access to target subscription/resource group
+- Docker installed and running
+- Existing Azure resources (or matching names updated in scripts):
+  - Web Apps
+  - ACR
+  - Azure OpenAI account
+  - Storage account for run artifacts
+
+### Backend deploy
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File deploy/deploy_backend.ps1 -Environment dev
+```
+
+Useful flags:
+
+- `-SkipDockerBuild`
+- `-SkipPush`
+- `-SkipConfig`
+- `-SkipRoleAssignments`
+- `-ConfigPath C:\path\to\config.toml`
+
+What backend deploy now does automatically:
+
+- Builds/pushes backend image to ACR
+- Updates Web App container image
+- Clears stale Web App startup override (`appCommandLine`) so Docker `CMD` is used
+- Pushes `config.toml` values to App Settings (including complex list/dict values)
+- Restarts Web App
+- Applies managed identity roles only when missing (no redundant re-apply):
+  - `Cognitive Services OpenAI User`
+  - `Storage Blob Data Contributor`
+  - `AcrPull`
+
+### Frontend deploy
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File deploy/deploy_frontend.ps1 -Environment dev
+```
+
+What frontend deploy now does automatically:
+
+- Builds/pushes frontend image to ACR
+- Builds with `VITE_API_BASE_URL` pointing to backend `/api` base
+- Updates Web App container image
+- Clears stale Web App startup override (`appCommandLine`) so nginx container starts correctly
+- Sets runtime app settings and restarts Web App
+
+### Config behavior in Azure
+
+- Local/dev: if `config.toml` exists, backend loads it.
+- Azure: backend can run without `config.toml`, reading App Settings as environment variables.
+- Environment variables override TOML when both exist.
+
+### Post-deploy smoke checks
+
+```powershell
+Invoke-WebRequest -UseBasicParsing https://<backend-app>.azurewebsites.net/health
+Invoke-WebRequest -UseBasicParsing https://<backend-app>.azurewebsites.net/api/config
+Invoke-WebRequest -UseBasicParsing https://<frontend-app>.azurewebsites.net
+```
+
 ## Troubleshooting
 
 ### Vite proxy `ECONNREFUSED` for `/api/*`
@@ -233,6 +305,27 @@ Install Mermaid CLI and ensure `mmdc` is on PATH:
 ```bash
 npm install -g @mermaid-js/mermaid-cli
 ```
+
+### Azure frontend shows `Application Error` with `pm2: not found`
+
+Cause: stale App Service startup command overriding Docker image startup.
+
+Fix:
+
+```powershell
+$cfgId = az webapp config show -g <rg> -n <frontend-app> --query id -o tsv
+az resource update --ids $cfgId --set properties.appCommandLine="" -o none
+az webapp restart -g <rg> -n <frontend-app>
+```
+
+### Azure frontend shows `Failed to load application configuration`
+
+Check:
+
+- Frontend app is running (not `503`)
+- Backend `/api/config` returns `200`
+- Frontend build arg/app setting points to backend with `/api` suffix
+  - Example: `https://<backend-app>.azurewebsites.net/api`
 
 ### Image extraction failures
 

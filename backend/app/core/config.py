@@ -6,6 +6,8 @@ Loads settings from config.toml with support for Azure OpenAI and direct OpenAI.
 from pathlib import Path
 from typing import Optional
 import os
+import json
+import base64
 import tomli
 from pydantic import BaseModel, Field
 
@@ -208,14 +210,134 @@ def find_config_file() -> Path:
     )
 
 
+def _parse_env_value(raw: str):
+    text = raw.strip()
+    normalized = text.strip("'\"")
+    if normalized.startswith("__JSON_B64__"):
+        payload = normalized[len("__JSON_B64__"):].strip()
+        if payload:
+            try:
+                decoded = base64.b64decode(payload).decode("utf-8")
+                return json.loads(decoded)
+            except Exception:
+                return normalized
+    lowered = text.lower()
+    if lowered in {"true", "false"}:
+        return lowered == "true"
+    if lowered in {"null", "none"}:
+        return None
+    if text.startswith("[") or text.startswith("{"):
+        try:
+            return json.loads(text)
+        except Exception:
+            pass
+    try:
+        if "." in text:
+            return float(text)
+        return int(text)
+    except ValueError:
+        return text
+
+
+def _assign_nested(target: dict, path: list[str], value):
+    current = target
+    for key in path[:-1]:
+        if key not in current or not isinstance(current[key], dict):
+            current[key] = {}
+        current = current[key]
+    current[path[-1]] = value
+
+
+def _deep_merge(base: dict, override: dict) -> dict:
+    merged = dict(base)
+    for key, value in override.items():
+        if (
+            key in merged
+            and isinstance(merged[key], dict)
+            and isinstance(value, dict)
+        ):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def _load_env_overrides() -> dict:
+    """
+    Load config overrides from environment variables.
+
+    Supported generic patterns:
+    - SECTION__FIELD=value
+    - RFP_SECTION__FIELD=value
+    - APPSETTING_SECTION__FIELD=value
+
+    Also maps common Azure/OpenAI env vars.
+    """
+    overrides: dict = {}
+
+    allowed_sections = {
+        "azure",
+        "openai",
+        "app",
+        "features",
+        "msal",
+        "api_auth",
+        "workflow",
+        "storage",
+    }
+
+    for key, raw in os.environ.items():
+        candidate = key
+        if candidate.startswith("APPSETTING_"):
+            candidate = candidate[len("APPSETTING_"):]
+        if candidate.startswith("RFP_"):
+            candidate = candidate[len("RFP_"):]
+        if "__" not in candidate:
+            continue
+        parts = [p.strip().lower() for p in candidate.split("__") if p.strip()]
+        if len(parts) < 2:
+            continue
+        if parts[0] not in allowed_sections:
+            continue
+        _assign_nested(overrides, parts, _parse_env_value(raw))
+
+    # Common convenience mappings (single vars used in Azure App Settings).
+    common = {
+        "AZURE_OPENAI_ENDPOINT": ["azure", "endpoint"],
+        "AZURE_OPENAI_API_VERSION": ["azure", "api_version"],
+        "AZURE_OPENAI_DEPLOYMENT": ["azure", "deployment"],
+        "AZURE_OPENAI_MODEL": ["azure", "model"],
+        "AZURE_OPENAI_API_KEY": ["azure", "api_key"],
+        "OPENAI_API_KEY": ["openai", "api_key"],
+        "OPENAI_MODEL": ["openai", "model"],
+        "OPENAI_BASE_URL": ["openai", "base_url"],
+        "PORT": ["app", "port"],
+        "WEBSITES_PORT": ["app", "port"],
+    }
+    for env_name, path in common.items():
+        raw = os.getenv(env_name)
+        if raw is None or raw == "":
+            continue
+        _assign_nested(overrides, path, _parse_env_value(raw))
+
+    return overrides
+
+
 def load_config(config_path: Optional[Path] = None) -> Config:
     """Load configuration from TOML file."""
+    file_data: dict = {}
     if config_path is None:
-        config_path = find_config_file()
-    
-    with open(config_path, "rb") as f:
-        data = tomli.load(f)
-    
+        try:
+            config_path = find_config_file()
+        except FileNotFoundError:
+            config_path = None
+
+    if config_path is not None and config_path.exists():
+        with open(config_path, "rb") as f:
+            file_data = tomli.load(f)
+
+    env_overrides = _load_env_overrides()
+    data = _deep_merge(file_data, env_overrides)
     return Config(**data)
 
 
