@@ -1,0 +1,3312 @@
+{
+  "summary": "Imported from Excel",
+  "requirements": [
+    {
+      "id": "GA-1",
+      "description": "Ability to establish a multi-entity structure with configurable financial rollups by region, subregion, and department.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-2",
+      "description": "Ability to create and manage departments, regions, projects, cost centers, and organizational reporting structures within a single legal entity.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-3",
+      "description": "Ability to add new subsidiaries/legal entities as sub-entities under an existing parent entity.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-4",
+      "description": "Ability to add, modify, or include account, department, region, subregion, project.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-5",
+      "description": "Ability to configure approval workflows for changes to the entity hierarchy.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-6",
+      "description": "Ability to modify the account structure and maintain account hierarchies.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-7",
+      "description": "Ability to control user access to posting attributes within the chart of accounts.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-8",
+      "description": "Ability to leverage GL account rollups for reporting and analysis.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-9",
+      "description": "Ability to create journal entries with appropriate description codes.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-10",
+      "description": "Ability to configure recurring journal entries (monthly, quarterly, annually) based on fixed or calculated values.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-11",
+      "description": "Ability to automatically post recurring journal entries on a defined schedule.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-12",
+      "description": "Ability to use templates for creating journal entries.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-13",
+      "description": "Ability to review and approve templates for recurring automated journal entries.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-14",
+      "description": "Ability to create and post manual journal entries.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-15",
+      "description": "Ability to attach supporting documentation to journal entries.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-16",
+      "description": "Ability to notify both the requester and approver when manual journal entries are posted.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-17",
+      "description": "Ability to integrate workflows for the review, approval, and adjustment of journal entries.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-18",
+      "description": "Ability to post journal entries to multiple entities in a single upload.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-19",
+      "description": "Ability to automatically flag and notify users of anomalies or discrepancies.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-20",
+      "description": "Ability to manage gl permissions by role, including tasks such as creating new accounts.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-21",
+      "description": "Ability to configure automated department, entity, or customer allocation rules (e.g., based on headcount, employee hours, customer square footage)",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-22",
+      "description": "Ability to automatically reverse journal entries on a specified date.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-23",
+      "description": "Ability to create recurring accrual journal entries with reversal in the following period.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-24",
+      "description": "Ability to post journal entries in draft mode pending approval.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-25",
+      "description": "Ability to perform mass journal uploads using Excel or CSV templates.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-26",
+      "description": "Ability to post adjusting journal entries separately and identify them distinctly in reporting.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-27",
+      "description": "Ability to support statistical accounts for non-monetary data.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-28",
+      "description": "Ability to assign journal entry types or tags (e.g., standard, adjusting, reclass, accrual).",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-29",
+      "description": "Ability to set journal entry posting limits by role/user.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-30",
+      "description": "Ability to allocate payroll labor costs (including burden, overtime, and incentives) to projects based on labor distribution rules or timesheet inputs.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-31",
+      "description": "Ability to restrict the creation of new projects and require approval.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-32",
+      "description": "Ability to setup fixed assets and intangible assets with assets identifier, Serial Number, Manufacturer, \u00a0Asset Class, Asset Type, Location, etc.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-33",
+      "description": "Ability to run fixed asset depreciation by company, asset class, or both",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-34",
+      "description": "Ability to track when an asset is removed from service",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-35",
+      "description": "Ability to report on assets by cost center",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-36",
+      "description": "Ability to create depreciation and amortization schedules that depreciate or amortize assets monthly automatically",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-37",
+      "description": "Ability to assign depreciation methods and useful lives by asset class.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-38",
+      "description": "Ability to generate Fixed Asset register with Asset Classes, Cost, Accumulated Depreciation, YTD Depreciation",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-39",
+      "description": "Ability for the ERP to generate depreciation journal entries",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-40",
+      "description": "Ability for the ERP to generate amortization journal entries",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-41",
+      "description": "Ability to record purchases, transfers and disposals of assets",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-42",
+      "description": "Ability to write off\u00a0and dispose of\u00a0assets",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-43",
+      "description": "Ability to generate point in time depreciation and cost reporting during close process",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-44",
+      "description": "Ability to manage intercompany fixed assets allocation",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-45",
+      "description": "Ability to manage deferred tax asset and liability, as well as, deferred tax amortization",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-46",
+      "description": "Ability to maintain separate books for tax versus book depreciation",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-47",
+      "description": "Ability to maintain component/sub-asset relationships.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-48",
+      "description": "Ability to bulk update asset attributes",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-49",
+      "description": "Ability to automate intercompany matching by counterparty",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-50",
+      "description": "Ability for intercompany matchings to be approved by counterparty within the system",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-51",
+      "description": "Ability to automate rejection notifications by counterparty to defined users",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "GA-52",
+      "description": "Ability to label intercompany accounts with transaction types that denote intercompany activity",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-53",
+      "description": "Ability to tag supporting documentation against intra entity transactions (e.g. payroll download, invoices, etc.)",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-54",
+      "description": "Ability to generate intra-entity matching reports",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "GA-55",
+      "description": "Ability to perform automated intercompany reconciliations",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-56",
+      "description": "Ability to review consolidations automatically",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-57",
+      "description": "Ability to view any intercompany report discrepancies before the GL closes to minimize variances",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-58",
+      "description": "Ability to standardize input of invoice data related to expense allocation or other intercompany transactions",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-59",
+      "description": "Ability for automated workflows for intercompany transaction approvals",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-60",
+      "description": "Ability to perform multi-lateral netting intercompany transactions",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-61",
+      "description": "Ability to automatically eliminate intercompany balances during consolidation.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-62",
+      "description": "Ability to create and track intercompany loans with amortization schedule",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-63",
+      "description": "Ability to automate intercompany settlements and markup reconciliation between Kastle and CheckVideo (including schedule-based true-ups).",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-64",
+      "description": "Ability to perform standard reconciliations through a systematic and automated process- accrual, prepaid, cash, AR, AP, tax payable and receivable",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-65",
+      "description": "Ability to run account activity reports for all accounts in the GL for use for in preparing account reconciliations",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-66",
+      "description": "Ability to run subledger account detail reports for use for in preparing account reconciliations",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-67",
+      "description": "Ability to run subledger A/P reports to balance payables and validate the GL A/P balance as part of the A/P reconciliation process",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-68",
+      "description": "Ability to run subledger A/R reports to balance receivables and validate the GL A/R balance as part of the A/R reconciliation process",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-69",
+      "description": "Ability to certify reconciliations with preparer and reviewer sign-off.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-70",
+      "description": "Ability to maintain a complete audit trail of reconciliation changes.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-71",
+      "description": "Ability to map bank transactions in the GL and automate necessary journal entries",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-72",
+      "description": "Ability to automatically match and reconcile bank transactions imported from the banks",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-73",
+      "description": "Ability to load cleared AP checks to facilitate bank reconciliation",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-74",
+      "description": "Ability to report on uncleared checks",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-75",
+      "description": "Ability to record bank fees, bank transfers, interest income in an automated fashion from BAI2 file",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-76",
+      "description": "Ability to manage the monthly close process including capabilities for creating checklists, assigning tasks, setting up workflow, and providing insight/visibility into the process",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-77",
+      "description": "Ability to track close cycle KPIs",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-78",
+      "description": "Ability of system to generate and post elimination entries",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-79",
+      "description": "Ability to support an automated process for eliminating entries between companies so that consolidated financial statements can be produced.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-80",
+      "description": "Ability to establish elimination rules to facilitate consolidated reporting (i.e. intercompany sales/purchases, Due to/due From etc.)",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-81",
+      "description": "Ability to consolidate financial results, post eliminating entries, and provide consolidated reporting",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-82",
+      "description": "Ability to report on varying levels (i.e., Consolidated Company, state, etc.)",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-83",
+      "description": "Ability to close various parts of the GL throughout the close",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-84",
+      "description": "Ability to define and enforce financial close calendars with owner assignments.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-85",
+      "description": "Ability to automatically carry forward open tasks and checklist items.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-86",
+      "description": "Ability to support a rolling close approach with continuous subledger reconciliation",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-87",
+      "description": "Ability to create financial statements - Income Statement, Balance Sheet, Statements of Cash flow",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-88",
+      "description": "Ability to reconcile local vs US GAAP financials",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-89",
+      "description": "Ability to run account activity reports for all accounts in the GL for use in reconciliations, analysis etc.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-90",
+      "description": "Ability to report on both\u00a0consolidated and stand-alone Legal Entity\u00a0financials",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-91",
+      "description": "Ability to produce ad hoc financial reports \u2013 point in time (adjusted EBITDA, gross margin, etc.)",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-92",
+      "description": "Ability to create and share ad hoc financial reports",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-93",
+      "description": "Ability to review year to date financial reporting",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-94",
+      "description": "Ability to review last twelve months (LTM) financial comparisons",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-95",
+      "description": "Ability to have drill down capabilities in financial reporting",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-96",
+      "description": "Ability to restrict access to specific financial reporting by user or user group",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-97",
+      "description": "Ability to schedule recurring distribution of financial reports via email.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-98",
+      "description": "Ability to include commentary and footnotes in financial reports",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "GA-99",
+      "description": "Ability to export financials in multiple formats (PDF, Excel, Word, etc.)",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "GA-100",
+      "description": "Ability to report profitability by region, subregion, customer vertical, and project.",
+      "category": "General Accounting",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-1",
+      "description": "Ability to systematically create and modify customer account records with required validations and approval workflow.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-2",
+      "description": "Ability to integrate customer account creation and updates from CRM to ERP, without duplicate record creation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-3",
+      "description": "Ability to update customer data in the ERP when changes occur in CRM, based on controlled and auditable rules.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-4",
+      "description": "Ability to validate new customer setup requests through approval workflow (Credit, Tax, Terms, Billing Preferences).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-5",
+      "description": "Ability to add and manage customer building / site locations independently from the legal customer record.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-6",
+      "description": "Ability to store key customer information\r\n- Customer ID\r\n- Entity\r\n- State and county\r\n- Billing Address\r\n- Service address\r\n- Contracts\r\n- Contract Start and End Date\r\n- Billing Rate\r\n- Billing type",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-7",
+      "description": "Ability to assign custom industry / vertical / compliance attributes to customers profiles.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-8",
+      "description": "Ability to maintain customer site / building locations and associate multiple projects to a single building.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-9",
+      "description": "Ability to establish Customer Parent/Child hierarchies to support complex ownership or management structures (property management companies).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-10",
+      "description": "Ability to enforce customer credit limits during order, project, and service activation processes.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-11",
+      "description": "Ability to establish a workflow for the systematic customer setup process, including customer credit and terms approval.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-12",
+      "description": "Ability to track sales tax-exempt customer status and manage certificate documentation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-13",
+      "description": "Ability to maintain and update tax rates by state, county, and city.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-14",
+      "description": "Ability to integrate with an external tax engine to automatically calculate sales tax and manage exemption validation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-15",
+      "description": "Ability to generate, store, and manage W-9 and compliance documentation as part of the customer record",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-16",
+      "description": "Ability to tag and report on customers by based on various aspects such as sector, geography, etc.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-17",
+      "description": "Ability to track and manage customer payment terms and credit conditions.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-18",
+      "description": "Ability to report on credit exposure (open AR balance, sales orders, pending billing, payment terms)",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-19",
+      "description": "Ability to automatically flag customers who violate payment terms or fall into at-risk credit status.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-20",
+      "description": "Ability to identify and prevent duplicate customer accounts based on configurable matching rules.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-21",
+      "description": "Ability to identify invoice delivery method on the customer account (i.e., mail, email, etc.)",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-22",
+      "description": "Ability to maintain customer-specific billing format, language, remittance, and payment method preferences.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-23",
+      "description": "Ability to automatically hold work orders, scheduled services, or new project activation when customer is over credit limit.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-24",
+      "description": "Ability to define customer credit limits and automatically enforce them during sales/order processing.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-25",
+      "description": "Ability to maintain customer asset records and portfolio reporting",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-26",
+      "description": "Ability to assign account manager or sales rep ownership and track changes over time.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-27",
+      "description": "Ability to synchronize contract data from CRM / CPQ to ERP without creating duplicate customer records.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-28",
+      "description": "Ability to create and assign a contract record to a customer profile",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-29",
+      "description": "Ability to associate multiple contracts to a single building/site location.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-30",
+      "description": "Ability to create a Project or Service record automatically when a contract is marked as closed/won.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-31",
+      "description": "Ability to identify \u201ccontract ready\u201d, \u201cinstall pending\u201d, and \u201cservice not yet activated\u201d status values on the contract.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-32",
+      "description": "Ability to capture and version changes to contract rates, scope, or service levels with approval routing.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-33",
+      "description": "Ability to retain audit history of contract terms, rate changes, renewal events, and escalation adjustments.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-34",
+      "description": "Ability to support multiple billing methods per contract, including monthly recurring (RMR), quarterly, anually, usage-based, milestone, and time and materials.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-35",
+      "description": "Ability to modify contract terms (rate, term, SOV allocation, services included) with routed approval workflow.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-36",
+      "description": "Ability to capture and propagate blended recurring revenue (RMR) and escalators from CPQ through CRM to ERP",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-37",
+      "description": "Ability to store contracts with searchable metadata (contract #, customer, building, renewal date, agreement type).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-38",
+      "description": "Ability to extract, store, and report on contract attributes including service levels, pricing terms, escalation clauses, and renewal options.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-39",
+      "description": "Ability to automatically generate contract renewal notifications and escalate contracts for review prior to expiration.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-40",
+      "description": "Ability to enforce automatic escalators (CPI %, fixed %, contract clause-based) at contract anniversary.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-41",
+      "description": "Ability to suspend billing when service is paused or building access is revoked, without canceling the contract.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-42",
+      "description": "Ability to terminate contracts mid-term and automatically prorate final billing.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-43",
+      "description": "Ability to integrate with the CRM to automatically create project records in ERP when an Opportunity or Quote is set to \u201cWon\u201d.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-44",
+      "description": "Ability to integrate with the CRM to automatically create a project using the quote\u2019s pricing, estimated labor (hours and dollars), detailed parts (BOM) and expenses",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-45",
+      "description": "Ability to set up project records with scope, estimated labor, estimated parts, customer site details, and scheduling readiness indicators.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-46",
+      "description": "Ability to create and link sales orders and projects from quotes and proposals for seamless project initiation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-47",
+      "description": "Ability to restrict or require approval prior to creation of new project records.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-48",
+      "description": "Ability to link project records to customers",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-49",
+      "description": "Ability to identify \"assets\" installed as part of the project and link assets to customer records",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-50",
+      "description": "Ability to view all \"customer Assets\" in a centralized location",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-51",
+      "description": "Ability to standardize project setup and execution using templates",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-52",
+      "description": "Abilty to configure change-order workflows allowing multiple concurrent change orders",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-53",
+      "description": "Ability to maintain original cost estimate for project, but also have updated versions of the estimated costs as the project progresses",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-54",
+      "description": "Ability to record change orders with incremental cost and revenue impact tracked against the same project.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-55",
+      "description": "Ability to maintain and track project milestones efficiently, including revenue recognition and billing cycles.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-56",
+      "description": "Ability to track, update, and report on planned, budgeted, and actual hours for labor and resources",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-57",
+      "description": "Ability to record project labor, parts, subcontractor costs, and miscellaneous expenses directly against the project.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-58",
+      "description": "Ability for technicians to enter labor and parts usage through Field Service, with costs flowing automatically to ERP for accumulation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-59",
+      "description": "Ability to review and validate labor and parts entries prior to financial posting.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-60",
+      "description": "Ability to post invoices for project activities and materials directly against the project.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-61",
+      "description": "Ability to maintain a continuous project that remains open to capture ongoing cost until installation completes (multi-phase).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-62",
+      "description": "Ability to report on project-level revenue, costs, labor efficiency, and margin.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-63",
+      "description": "Ability to analyze estimated vs actual cost, labor hours, and parts usage at the project level.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-64",
+      "description": "Ability to automate revenue recognition and invoicing based on project percentage complete (labor and parts consumed)",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-65",
+      "description": "Ability to integrate project management with real-time forecasting and task management",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-66",
+      "description": "Ability to track invoiced amounts and remaining PO balances for projects",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-67",
+      "description": "Ability to tie the Bill of Materials to Field Service consumption so technicians can only select from approved project parts.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-68",
+      "description": "Ability to return unused parts from a project to inventory with accurate cost reversal.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-69",
+      "description": "Ability to support both van inventory workflows and warehouse to project direct staging with consistent cost and audit tracking.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-70",
+      "description": "Ability to track  partial installation and device-level activation",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-71",
+      "description": "Ability to maintain a centralized repository for project documents and handover packages",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-72",
+      "description": "Ability to support flexible project closure and reopening with controlled phases",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-73",
+      "description": "Ability to generate and maintain Schedule of Values (SOV) at the project line level and update SOV without losing billing audit history.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-74",
+      "description": "Ability to calculate and track retainage held, released, and remaining balance at the project level.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-75",
+      "description": "Ability to automatically transition projects records to to service records upon project closeout",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-76",
+      "description": "Ability to automate and streamline the transition from installation to service contracts, including tracking partial completions and warranty start dates.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-77",
+      "description": "Ability to associate \"customer assets\" to service records",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-78",
+      "description": "Ability to integrate with the CRM to create service orders linked to service records",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-79",
+      "description": "Ability to integrate with Field Services to capture labor and parts reported by Technicians to complete service orders",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-80",
+      "description": "Ability to allocate labor cost (wages + burden) to projects or service records.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-81",
+      "description": "Ability to differentiate billable vs. non-billable labor time.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-82",
+      "description": "Ability for supervisors to review and approve technician time and service logs prior to billing.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-83",
+      "description": "Ability to associate and record materials/supplies consumed during service to the service record",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-84",
+      "description": "Ability to prorate first/last month billing based on service start/stop dates.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-85",
+      "description": "Ability to automatically restart billing when service resumes.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-86",
+      "description": "Ability to support asset lifecycle tracking and warranty management",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-87",
+      "description": "Ability to report on Monthly Recurring Revenue Rollforward (Beginning RMR, New RMR, Escalation, Attrition, Ending RMR)",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-88",
+      "description": "Ability to support building ownership changes with future owner fields and service hold",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-89",
+      "description": "Ability to flag subsidized or discounted projects for revenue allocation",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-90",
+      "description": "Ability to invoice customers based on:\r\n- Total project value\r\n-Percent complete or milestone achievement (including cost-to-cost, hours, or quantity-based progress).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-91",
+      "description": "Ability to support both internal (intercompany) and external customer billing flows using the same project structure.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-92",
+      "description": "Ability to attach timesheets, labor detail, parts/material usage, and subcontractor invoices to billing support packages.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-93",
+      "description": "Ability to invoice inventory and materials directly to the project/customer.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-94",
+      "description": "Ability to automatically calculate tax on invoices.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-95",
+      "description": "Ability to generate complex billing formats (AIA, T&M, fixed price, retainage-based)",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-96",
+      "description": "Ability to create custom invoice templates/formats and assign default invoice template to each customer",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-97",
+      "description": "Ability to include labor/parts detail within invoices.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-98",
+      "description": "Ability to add billing comments / scope notes to invoices.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-99",
+      "description": "Ability to manage project billing schedules (SOV, milestones, progress draws).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-100",
+      "description": "Ability to track billed vs unbilled value.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-101",
+      "description": "Ability to support multi-address/multi-contact billing and consolidated invoices across projects",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-102",
+      "description": "Ability to split invoice lines into services vs materials.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-103",
+      "description": "Ability to support usage-based or metered billing methods (door access counts, etc).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-104",
+      "description": "Ability to automate state-specific tax calculation for labor and parts",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-105",
+      "description": "Capabilities related to customer portal for invoice history, reprints, and service reports that can be accessed by customers",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-106",
+      "description": "Ability to itemize recurring revenue invoices with equipment-level detail and escalator history",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-107",
+      "description": "Ability to support AIA billing with automatic schedule of values and integration to AIA portals",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-108",
+      "description": "Ability to enforce billing readiness checks (labor posted, parts posted, approvals complete) before an invoice can be generated.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-109",
+      "description": "Ability to route draft invoices for PM / Sales / Finance approval before posting.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-110",
+      "description": "Ability to calculate prorated recurring billing for partial monthly service activation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-111",
+      "description": "Ability to record receipts from check, credit card, ACH\u00a0and wire.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-112",
+      "description": "Ability to integrate with bank lockbox / file feed to import and auto-create cash batches.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-113",
+      "description": "Ability to apply lump sum payments to several invoices",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-114",
+      "description": "Ability to feed cash batches from various banks direct into ERP",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-115",
+      "description": "Ability to auto-match cash to invoices using amount, reference #, customer, or remittance advice.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-116",
+      "description": "Ability to manually apply cash when auto-match exceptions occur.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-117",
+      "description": "Ability for customers to access a portal, view open invoices, make payments, and have payments reflected real-time.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-118",
+      "description": "Ability to configure and maintain granular access controls within the customer payment portal",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-119",
+      "description": "Ability to view and report invoices in \u201ccash in transit\u201d status.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-120",
+      "description": "Ability to generate / send customer statements\u00a0electronically.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-121",
+      "description": "Ability to un-apply and re-apply payments to invoices after posting.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-122",
+      "description": "Ability to flag and manage overpayments.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-123",
+      "description": "Ability to apply overpayments to open invoices or hold them as credit.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-124",
+      "description": "Ability to generate refunds to customers for overpayments.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-125",
+      "description": "Ability to automatically place customer accounts on service hold when unresolved past-due balance exceeds credit threshold.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-126",
+      "description": "Ability to view A/R aging by customer, project, region, segment, and account owner.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-127",
+      "description": "Ability to configure automated past-due notifications and follow-up reminders based on aging thresholds.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-128",
+      "description": "Ability to establish A/R performance dashboards with visibility to open AR, WIP (unbilled), and disputed balances.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-129",
+      "description": "Ability to establish A/R reserve for written-off amounts",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-130",
+      "description": "Ability to view total cash receipts including applied, partially applied, and unapplied balances.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-131",
+      "description": "Ability to write-off customer balances.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-132",
+      "description": "Ability to route write-off requests through review and approval workflow.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-133",
+      "description": "Ability to configure multi-level write-off approval routing across Finance and Operations.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-134",
+      "description": "Ability to notify approvers when write-off requests are pending action.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-135",
+      "description": "Ability to establish write-off codes to indicate the reason a write-off has occurred\u00a0(e.g. customer concession, bad debt)",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-136",
+      "description": "Ability to support automated dunning with configurable stages and VIP exceptions",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-137",
+      "description": "Ability to segment collections strategies based on customer type (Broker, Building Owner, Property Manager, Direct Contract).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-138",
+      "description": "Ability to track collection notes, disputes, call logs, and escalation history in the customer record.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-139",
+      "description": "Ability to generate revenue schedules based on contract start, billing frequency, contract term, and service activation date.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-140",
+      "description": "Ability to systematically recognize deferred revenue monthly and maintain contract liability balance.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-141",
+      "description": "Ability to true-up revenue based on revised estimates-to-complete.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-142",
+      "description": "Ability to record journal entries related to revenue recognition and billing to the appropriate sub-ledger accounts in an automated manner",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-143",
+      "description": "Ability to systematically identify and record bad debt.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-144",
+      "description": "Ability to support revenue recognition based on project progress (% complete, milestone, or labor + materials consumed).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-145",
+      "description": "Ability to align revenue recognition to the Schedule of Values (SOV) when applicable.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-146",
+      "description": "Ability to report on revenue recognition forecast by contract, customer, site, and service type.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-147",
+      "description": "Ability to run revenue reports by state, customer, service type, and region.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-148",
+      "description": "Ability to report on A/R Aging with drill-down to site or portfolio level.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-149",
+      "description": "Ability to report Bad Debt",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-150",
+      "description": "Ability to run customer / region consolidated reporting",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-151",
+      "description": "Ability to produce utilization reports by technician, team, or crew (actual vs. scheduled hours).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-152",
+      "description": "Ability to analyze project profitability by customer, project, region, and service type.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-153",
+      "description": "Ability to generate multi-site portfolio reporting with asset and revenue metrics",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-154",
+      "description": "Ability to report inventory turnover, shrinkage, and materials usage by project, warehouse, and technician.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-155",
+      "description": "Ability to report on SLA performance (on-time %, missed visits, rework %, service response time).",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "O2C-156",
+      "description": "Ability to maintain and update tax rates by state, county, and city.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "O2C-157",
+      "description": "Ability to integrate with an external tax engine to automatically calculate sales tax and manage exemption validation.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "O2C-158",
+      "description": "Ability for the system to comply with SOC 1 and SOC 2 control requirements.",
+      "category": "Order to Cash",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-1",
+      "description": "Ability to support vendor classification (material supplier, subcontractor/cleaning partner, professional services).",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-2",
+      "description": "Ability to qualify and maintian preferred vendors",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-3",
+      "description": "Ability to define and maintain vendor parent/child or multi-location vendor relationships.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-4",
+      "description": "Ability to create, modify, and maintain vendor master data.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-5",
+      "description": "Ability to establish approval workflows for new vendor onboarding and vendor record changes.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-6",
+      "description": "Ability to view linked transactions, invoices, purchase orders, project assignments, and payments at the vendor level.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-7",
+      "description": "Ability to add internal notes, compliance reminders, or vendor management documentation to vendor records.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-8",
+      "description": "Ability to scan and provide image of invoice to approvers",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-9",
+      "description": "Ability to store and attach vendor documentation (W-9, COI, certifications, background checks) and track expiration dates.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-10",
+      "description": "Ability to automatically flag, place on hold, or prevent vendor use when COI or compliance documentation expires.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-11",
+      "description": "Ability to track contractors\u00a0and produce 1099 tax forms and vendor detail reports",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-12",
+      "description": "Ability to store vendor / 1099 licensing and certification information",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-13",
+      "description": "Ability to manage and support onboarding, maintenance, and approval of vendors",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-14",
+      "description": "Ability to automate vendor onboarding with compliance and approval workflows",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-15",
+      "description": "Ability to support multiple payment methods (Checks, ACH, P-Card etc.) and payment terms (i.e. prepaid, Net 30, 2/10 Net 30 etc.)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-16",
+      "description": "Ability to identify and prevent duplicate vendor records",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-17",
+      "description": "Ability to assign and manage vendor payment terms, discount eligibility, and preferred payment methods.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-18",
+      "description": "Ability to set up an intercompany vendor(s)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-19",
+      "description": "Ability to configure system to assign certain categories or tags to vendors that would enable reporting and capability to drill down",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-20",
+      "description": "Ability to associate subcontractor/vendor charges to a project for cost tracking and billing alignment.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-21",
+      "description": "Ability to prevent vendor selection in purchasing or invoice workflows based on compliance hold, performance score, or manual override flag.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-22",
+      "description": "Ability to identify and prevent duplicate vendor records across entities/regions.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-23",
+      "description": "Ability to systematically generate purchase requisitions",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-24",
+      "description": "Ability to enforce purchase requisition and approval for indirect spend",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-25",
+      "description": "Ability to route purchase requisitions for approval based on delegation of authority (role, region, spend threshold).",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-26",
+      "description": "Ability to convert approved purchase requisitions to purchase orders.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-27",
+      "description": "Ability to generate, send, and maintain purchase orders to vendors.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-28",
+      "description": "Ability to systematically approve requisitions based on an approval matrix",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-29",
+      "description": "Ability to approve Requisitions via email link/mobile app",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-30",
+      "description": "Ability to set up automated, tiered approval routing based on user role and purchase amount\u00a0(delegation of authority considerations)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-31",
+      "description": "Ability to integrate with the CRM to track initiated purchase requests for projects",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-32",
+      "description": "Ability to generate a purchase order from a purchase requisition",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-33",
+      "description": "Ability to manually generate purchase orders",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-34",
+      "description": "Ability to process and maintain blanket POs",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-35",
+      "description": "Ability to schedule recurring / standing POs for consumables replenishment.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-36",
+      "description": "Ability to create a Purchase Order to capture the terms and conditions for a long term future purchasing engagement with a supplier.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-37",
+      "description": "Ability to systematically approve POs based on an approval matrix",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-38",
+      "description": "Ability to associate purchase orders directly with project account for cost visibility.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-39",
+      "description": "Ability to receive goods into multiple receiving locations (warehouse, regional storage, customer site).",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-40",
+      "description": "Ability to flag discrepancies between ordered and received quantities and route exceptions for review.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-41",
+      "description": "Ability to approve POs via email link/mobile app",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-42",
+      "description": "Ability to provide a view of purchases pending approval",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-43",
+      "description": "Ability to identify open POs for management (e.g., release, close)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-44",
+      "description": "Ability to close purchase orders based on various criteria (i.e., dates, vendor, company, purchase category etc.)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-45",
+      "description": "Support for recurring purchase schedules",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-46",
+      "description": "Ability to associate POs to inventory SKUs for resale tracking",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-47",
+      "description": "Ability to trigger reorder suggestions based on usage history / minimum stock thresholds.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-48",
+      "description": "Ability to maintain supplier catalogs with contracted item pricing.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-49",
+      "description": "Ability to track spend by vendor, region, project, and service line.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-50",
+      "description": "Ability to intake vendor invoices via email upload, scanner, or electronic invoice file.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-51",
+      "description": "Ability to automatically perform 3-way match between invoice, PO, and receipt",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-52",
+      "description": "Ability to route exceptions from 3-way match (price/quantity mismatch) for review and correction.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-53",
+      "description": "Ability to host dynamic invoice approval workflows tailored based on various criteria including dollar value, cost center, and invoice type (PO vs. non-PO Invoice)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-54",
+      "description": "Ability to scan an invoice into ERP to extract and populate key invoice fields (invoice #, dates, amounts, etc.)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-55",
+      "description": "Ability to code invoices scanned into the ERP into the proper GL account",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-56",
+      "description": "Ability to store invoice attachments, proof of service documents, and site manager approvals directly linked to the invoice record.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-57",
+      "description": "Ability for invoice coding to be modified during approval workflow with tracked audit history.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-58",
+      "description": "Ability to manually code/update GL codes with single or multiple items",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-59",
+      "description": "Ability to apply default GL coding rules based on vendor, item, or service type",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-60",
+      "description": "Ability to identify and prevent duplicate invoices based on invoice number, vendor, and date.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-61",
+      "description": "Ability to save frequently used and most recently used expense categories & GL accounts; make available for easy use",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-62",
+      "description": "Ability to assign GL codes by selecting expense categories for each individual expense line item and by the date of the expense.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-63",
+      "description": "Ability to utilize ERP OCR or AI capabilities or integrate with an invoice scanning/OCR/conversion system",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-64",
+      "description": "Ability to route AP invoices for approval based on region, spend threshold, and vendor type (subcontractor vs material vendor).",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-65",
+      "description": "Ability to apply partial approval rules where regional manager approves service confirmation and finance approves coding.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-66",
+      "description": "Ability to designate an invoice (vendor) as auto-approve (e.g. utility invoices)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-67",
+      "description": "Ability to generate automated notifications to Approvers that there are invoices pending review",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-68",
+      "description": "Ability to utilize mobile devices for reviewers/approvers to review/approve invoices",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-69",
+      "description": "Ability to create system generated escalation emails sent to reviewers/approvers/supervisors when invoices are not approved based on pre-determined time frames",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-70",
+      "description": "Ability to void payments",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-71",
+      "description": "Allow read only access to invoice history for staff not requiring approver rights",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-72",
+      "description": "Ability to systematically delegate approval responsibilities in case an approver is on PTO or Leave",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-73",
+      "description": "Ability to reroute invoice approvals if an invoice is not approved within the designated timeframe.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-74",
+      "description": "Ability to add comments on invoices to communicate discrepancies or adjustments required",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-75",
+      "description": "Ability for an approver to approve, modify, place on hold, decline, and provide commentary (e.g. partial payment, pose questions to AP) on invoices",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-76",
+      "description": "Ability to provide alerts on matching exceptions including categories of exceptions",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-77",
+      "description": "Ability to provide dashboard reporting and aging of exceptions and assign owners/responsibility",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-78",
+      "description": "Ability to attach invoice images to transactions",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-79",
+      "description": "Ability to attach and store scanned invoice and receipt documentation on respective records in ERP",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-80",
+      "description": "Ability to annotate invoice coding exceptions for audit trail and training/reduction monitoring.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-81",
+      "description": "Ability to remit vendor payments via Checks, Direct Deposit, ACH, Wires, etc.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-82",
+      "description": "Ability to generate vendor payment batches by entity, bank account, payment method, or region.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-83",
+      "description": "Ability to generate Positive Pay files and transmit to banks.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-84",
+      "description": "Ability to pay vendors in batch",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-85",
+      "description": "Ability to roll up multiple invoices for a vendor to be paid on a single payment",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-86",
+      "description": "Ability to separate payment approval workflow for subcontractor invoices vs. materials vendors.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-87",
+      "description": "Ability to track and report subcontractor invoice spend by building, region, and contract portfolio.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-88",
+      "description": "Ability to separate payment batches by payment method\u00a0(e.g.\u00a0check, ACH, wire, etc.)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-89",
+      "description": "Ability to separate and manage multiple disbursement bank accounts by legal entity or region.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-90",
+      "description": "Ability to run payment proposals and determine value of cash discounts available",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-91",
+      "description": "Ability to route payment proposals for approvals",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-92",
+      "description": "Ability to integrate Concur / Expense settlement files directly into AP payment proposals, preserving employee / cardholder details.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-93",
+      "description": "Ability to automatically post payment accounting entries to the general ledger.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-94",
+      "description": "Ability to apply early payment discounts based on terms and show discount impact prior to payment run.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-95",
+      "description": "Ability to report payment on hold by reason code and comments",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-96",
+      "description": "Ability to report payment activity by vendor, region, cost center, or contract portfolio.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-97",
+      "description": "Ability to generate remittance notices for payments and send to vendor via email",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-98",
+      "description": "Ability to void payments and automatically reverse the associated accounting entry.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-99",
+      "description": "Ability to withhold or hold payment pending building / service confirmation from operations or field service.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-100",
+      "description": "Ability to distribute payment remittance notifications to vendors via email.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-101",
+      "description": "Ability to perform receipt of materials and equipment against Purchase Orders, including quantity, date, and location.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-102",
+      "description": "Ability to route service receipts to building operations / field supervisors for confirmation before invoice approval.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-103",
+      "description": "Ability to note partial receipt, incomplete service, or incorrect delivery details.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-104",
+      "description": "Ability to attach delivery documents, photos, project completion notes, or proof of work performed to the receipt record.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-105",
+      "description": "Ability to escalate disputed receipts to purchasing or operations for review.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-106",
+      "description": "Ability to report on open receipts, receipts pending approval, and receipts tied to disputed invoices.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-107",
+      "description": "Ability to integrate with barcode / QR scanning where physical inventory exists (warehouse sites only).",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-108",
+      "description": "Ability to create workflow for missed deliveries, damaged goods, or work not performed, including routing to responsible parties.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-109",
+      "description": "Ability to support receipts across multiple projects and locations and link receipts to the correct project / contract.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-110",
+      "description": "Ability to integrate approved expense reports from Concur into ERP AP module, preserving employee, department, project, and GL coding.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-111",
+      "description": "Ability to import P-Card transaction settlement files into ERP for journal creation and cost allocation.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-112",
+      "description": "Ability to maintain a mapping table between expense categories in Concur and GL accounts in ERP.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-113",
+      "description": "Ability to associate P-Cards to employees, departments, regions, and cost centers for reporting and audit.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-114",
+      "description": "Ability for ERP to store and reference receipt attachments sent from Concur or Card Statement Feeds.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-115",
+      "description": "Ability to flag disputed charges, personal spend, or unauthorized spend and route for review.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-116",
+      "description": "Ability to generate reporting: spend by category, cost center, region, cardholder, and vendor.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-117",
+      "description": "Ability to automatically create AP or JE postings from the expense feed.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-118",
+      "description": "Ability to exclude or segregate travel expenses from cost-to-complete calculations",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-119",
+      "description": "Ability to support AI-driven expense classification and receipt enforcement",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-120",
+      "description": "Ability to support integration updates when new departments, cost centers, GL accounts, or employees are added.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-121",
+      "description": "Ability to reconcile Corporate Card statements and flag mismatches or missing receipts.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-122",
+      "description": "Ability to provide a view of consolidated aging\u00a0(all entities)\u00a0with\u00a0ability to\u00a0drill down by vendor and legal entity",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-123",
+      "description": "Ability to produce vendor history and AP aging by vendor reporting",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-124",
+      "description": "Ability to provide dashboard reporting and aging of invoice exceptions and assign owners/responsibility",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-125",
+      "description": "Ability to report on subcontractor spend vs. approved budget at the project level",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-126",
+      "description": "Ability to report on open Purchase Orders, including partially received and unreceived balances.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-127",
+      "description": "Ability to report on Goods/Service Received Not Yet Invoiced (GRNI) and link to accruals at month-end.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-128",
+      "description": "Ability to track and report on invoice exceptions and disputes, including aging, reason codes, and responsible owners.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-129",
+      "description": "Ability to report on vendor payment holds with reason codes, dates, and responsible approver.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-130",
+      "description": "Ability to generate reports based on various purchasing attributes (i.e. Purchase Category, Vendor, GL Account number etc.)",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-131",
+      "description": "Ability to provide cash forecast reporting/historical vendor payments trending",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-132",
+      "description": "Ability to report on cash requirements for scheduled vendor payments (weekly payables forecast).",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-133",
+      "description": "Ability to report on goods received but not invoiced",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-134",
+      "description": "Ability to generate a vendor scorecard to evaluate vendor performance",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-135",
+      "description": "Ability to produce\u00a0PO\u00a0reports at detail and summary levels with the ability to generate dashboard reports",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-136",
+      "description": "Ability to generate other standard AP reports, including payment summaries and spend by vendor analyses.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-137",
+      "description": "Ability to report on P-Card transactions by employee, department, region, expense type, and vendor. Generate customizable reports for expense analysis, budgeting, etc.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "P2P-138",
+      "description": "Ability to reconcile Concur expense reimbursement totals to ERP posted entries for close & audit.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-139",
+      "description": "Ability to generate vendor performance scorecards, including timeliness, accuracy, quality of service, and dispute rates.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "P2P-140",
+      "description": "Ability to export reports in multiple formats, including Excel and PDF.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "P2P-141",
+      "description": "Ability to schedule recurring report distribution to designated approvers or leadership groups.",
+      "category": "Procure to Pay",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "INV-1",
+      "description": "Ability to maintain items with standard attributes (description, unit of measure, category, vendor, cost).",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-2",
+      "description": "Ability to define parent\u2013child item relationships to support product variants (finish, configuration, etc.).",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-3",
+      "description": "Ability to maintain alternate / substitute parts for stockout situations.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-4",
+      "description": "Ability to break down, store, and track inventory as SKUs/KPNs.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-5",
+      "description": "Ability to maintain unit of measure conversions.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-6",
+      "description": "Ability to track and calculate landed cost, including freight, tariffs, handling, and labor.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-7",
+      "description": "Ability to support kit assembly to combine multiple items (camera + SD card + bracket) into a single finished item.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-8",
+      "description": "Ability to maintain flexible costing methods (FIFO, standard cost, or weighted average).",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-9",
+      "description": "Ability to receive drop-shipped goods and assign to the correct project.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-10",
+      "description": "Ability to integrate material usage from field service / project closeout back into ERP inventory.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-11",
+      "description": "Ability to integrate item records, kitting, and pricing with the CPQ system",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-12",
+      "description": "Ability to track inventory commitments to projects before actual issuance.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-13",
+      "description": "Ability to track partial usage of bulk materials and retain remaining quantity rather than expensing the entire item to a project.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-14",
+      "description": "Ability to set reorder points, safety stock, and lead times to trigger replenishment.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-15",
+      "description": "Ability to run light demand planning based on usage and installation pipeline.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-16",
+      "description": "Ability to generate system-driven purchase requisitions when inventory drops below replenishment thresholds.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "INV-17",
+      "description": "Ability to track inventory across multiple warehouses and regions.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-18",
+      "description": "Ability to track technician van inventory as inventory-holding locations \u2014 with visibility into usage and replenishment.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-19",
+      "description": "System capability to support barcode scanning and automation for receiving and inventory tracking",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-20",
+      "description": "Ability to configure flexible warehouse management processes that accommodate regional differences",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-21",
+      "description": "Ability to manage inventory transfers between regional warehouses, van sites, and project locations",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-22",
+      "description": "Ability to integrate warehouse and inventory data with field service operations",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-23",
+      "description": "Ability to track bin / location inside warehouse",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-24",
+      "description": "Ability to manage RMA / returns workflows for damaged/incorrect shipments and record credits issued.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-25",
+      "description": "Ability to report on inventory quantity on hand, committed, in transit, and available to allocate.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-26",
+      "description": "Ability to report on inventory usage by project for margin analysis.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "INV-27",
+      "description": "Ability to report on inventory aging and slow-moving items.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "INV-28",
+      "description": "Ability to track purchase price variance (PPV) by vendor and item.",
+      "category": "Inventory",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-1",
+      "description": "Ability to integrate with a CPM / Planning system (Planful or other platforms)",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-2",
+      "description": "Ability to integrate with a self-service tool to create dashboards and visualizations",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-3",
+      "description": "Ability to create budgets at the Entity, Region, and Project levels",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-4",
+      "description": "Ability to roll up  budgets into a consolidated budget view",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-5",
+      "description": "Ability to configure approval workflows for budgets",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-6",
+      "description": "Ability for a system-based collaborative and interactive budgeting and forecasting process",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-7",
+      "description": "Ability to define user access for creating and editing budgets and forecasts",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-8",
+      "description": "Ability to revise and analyze budget and forecasts during specified periods",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-9",
+      "description": "Ability to release working versions of the budget and forecast to defined users",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-10",
+      "description": "Ability to view real-time status of key tasks in centralized dashboard",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-11",
+      "description": "Ability to track budget and forecast version changes with an audit trail",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-12",
+      "description": "Ability to perform actual to actual and actual to budget comparisons on prior time periods: month, quarter, years",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-13",
+      "description": "Ability to take and maintain budget and forecast snapshots to memorialize historical budget views",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-14",
+      "description": "Ability to integrate GL actuals data within system for automation of budget to actuals analysis",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-15",
+      "description": "Ability for drilldown capabilities to the transaction and invoice level",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-16",
+      "description": "Ability to maintain and archive core budget drivers and assumptions within budgeting, planning, and forecasting calculations within the system",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-17",
+      "description": "Ability to automatically distribute budgets to designated cost center leads on a monthly basis",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-18",
+      "description": "Ability to run P&Ls and revenue forecasts at both state and corporate levels",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-19",
+      "description": "Ability to report on actuals vs budget and/or forecasts",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-20",
+      "description": "Ability to re-forecast or adjust current forecasts",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-21",
+      "description": "Ability to prepare multi-year budgets and forecasts within the system at different time periods including monthly, quarterly, and annual budgets and forecasts.",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-22",
+      "description": "Support for inventory demand forecasting based on historical usage and seasonality",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-23",
+      "description": "Ability to integrate the ERP with CRM and Field Service for workforce planning",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-24",
+      "description": "Ability to archive previous workforce planning forecasts",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-25",
+      "description": "Ability to perform top-side forecast adjustments to workforce planning by state",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-26",
+      "description": "Ability to integrate scheduling data for labor forecasting by project",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-27",
+      "description": "Ability to build budgets by customer or contract",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-28",
+      "description": "Ability to track profitability at the customer/contract level",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-29",
+      "description": "Ability to forecast contract renewals and expected customer churn",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-30",
+      "description": "Ability to model pricing changes on long-term contracts",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-31",
+      "description": "Ability to allocate overhead costs to customer contracts for margin analysis",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-32",
+      "description": "Ability to modify guidelines and metrics for selected KPIs",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-33",
+      "description": "Ability to add and centralize commentary on KPI trends or variances",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-34",
+      "description": "Ability for only defined users to add comments and modify KPI guidelines",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-35",
+      "description": "Ability to have automatic distribution of proposed KPIs and reports to defined users",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-36",
+      "description": "Ability to define security/view access to KPI Dashboard by user and group",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-37",
+      "description": "Ability to auto-create and pull relevant KPI reports from KPI Dashboard",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-38",
+      "description": "Ability for prepare end-user specific dashboards which can be customized for user and role",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-39",
+      "description": "Ability for users to independently run pre-established reports on state performance using dashboard functionality.",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-40",
+      "description": "Ability to standardized report templates for consistency in pulling key data points (e.g. state/entity revenue)",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-41",
+      "description": "Ability to view real-time financial KPIs within ERP and KPI Dashboard including historical trends",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "high"
+    },
+    {
+      "id": "BDS-42",
+      "description": "KPIs for service quality: missed visits, rework %, on-time arrival",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "low"
+    },
+    {
+      "id": "BDS-43",
+      "description": "KPIs for product sales: sell-through rate, stockouts, returns",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-44",
+      "description": "Support for Board and Executive summary packages with snapshots, comments, and trends",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    },
+    {
+      "id": "BDS-45",
+      "description": "Automated forecast vs. prior year variance narratives with drill-through",
+      "category": "Business Decision Support",
+      "is_mandatory": false,
+      "priority": "medium"
+    }
+  ],
+  "evaluation_criteria": null,
+  "submission_requirements": null,
+  "key_differentiators": null
+}

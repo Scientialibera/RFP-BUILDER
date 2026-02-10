@@ -1,9 +1,8 @@
 /**
- * Progress indicator for workflow steps
+ * Progress indicator for workflow steps - Right panel status style
  */
 
-import React from 'react';
-import { CheckCircle, Circle, Loader } from 'lucide-react';
+import { CheckCircle2, Circle, Loader, Check } from 'lucide-react';
 
 interface Step {
   id: string;
@@ -19,45 +18,47 @@ interface ProgressStepsProps {
 
 export function ProgressSteps({ steps, currentStep, completedSteps }: ProgressStepsProps) {
   return (
-    <div className="space-y-4">
-      {steps.map((step, index) => {
+    <div className="space-y-3">
+      {steps.map((step) => {
         const isCompleted = completedSteps.includes(step.id);
         const isCurrent = currentStep === step.id;
-        
+
         return (
-          <div key={step.id} className="flex items-start">
-            <div className="flex-shrink-0 mr-4">
-              {isCompleted ? (
-                <CheckCircle className="h-6 w-6 text-green-500" />
-              ) : isCurrent ? (
-                <Loader className="h-6 w-6 text-primary-500 animate-spin" />
-              ) : (
-                <Circle className="h-6 w-6 text-gray-300" />
-              )}
-            </div>
-            <div className="flex-1">
-              <p
-                className={`text-sm font-medium ${
+          <div key={step.id} className="flex items-center justify-between">
+            <div className="flex items-center min-w-0">
+              <div className="flex-shrink-0 mr-3">
+                {isCompleted ? (
+                  <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
+                    <Check className="h-3 w-3 text-white" />
+                  </div>
+                ) : isCurrent ? (
+                  <Loader className="h-5 w-5 text-primary-500 animate-spin" />
+                ) : (
+                  <Circle className="h-5 w-5 text-gray-300" />
+                )}
+              </div>
+              <span
+                className={`text-sm ${
                   isCompleted
-                    ? 'text-green-600'
+                    ? 'text-gray-700 font-medium'
                     : isCurrent
-                    ? 'text-primary-600'
-                    : 'text-gray-500'
+                    ? 'text-primary-600 font-medium'
+                    : 'text-gray-400'
                 }`}
               >
                 {step.name}
-              </p>
-              {step.description && (
-                <p className="text-xs text-gray-500 mt-1">{step.description}</p>
+              </span>
+            </div>
+            {/* Right side check indicator */}
+            <div className="flex-shrink-0 ml-2">
+              {isCompleted ? (
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+              ) : isCurrent ? (
+                <div className="h-4 w-4 rounded-full border-2 border-primary-300 animate-pulse" />
+              ) : (
+                <Circle className="h-4 w-4 text-gray-200" />
               )}
             </div>
-            {index < steps.length - 1 && (
-              <div
-                className={`absolute left-[11px] top-6 w-0.5 h-8 ${
-                  isCompleted ? 'bg-green-500' : 'bg-gray-200'
-                }`}
-              />
-            )}
           </div>
         );
       })}

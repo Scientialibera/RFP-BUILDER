@@ -1,16 +1,15 @@
 /**
- * RFP Response Viewer Component
+ * Response viewer for generated RFP outputs.
  */
 
-import ReactMarkdown from 'react-markdown';
-import { Download, FileText, CheckCircle, AlertCircle } from 'lucide-react';
-import type { RFPResponse, RFPAnalysis } from '../types';
+import { AlertCircle, CheckCircle, Download, FileText } from 'lucide-react';
+import type { RFPAnalysis, RFPResponse } from '../types';
 import { getDownloadUrl } from '../services/api';
 
 interface ResponseViewerProps {
   response: RFPResponse;
   analysis?: RFPAnalysis;
-  pdfUrl?: string;  // Legacy - now actually DOCX URL
+  pdfUrl?: string; // Legacy prop name; currently points to DOCX URL
   processingTime?: number;
 }
 
@@ -20,13 +19,11 @@ export function ResponseViewer({
   pdfUrl,
   processingTime,
 }: ResponseViewerProps) {
-  // Determine if it's a DOCX or PDF based on URL
   const isDocx = pdfUrl?.endsWith('.docx');
   const downloadLabel = isDocx ? 'Download DOCX' : 'Download Document';
-  
+
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">Generated RFP Response</h2>
@@ -40,7 +37,7 @@ export function ResponseViewer({
           <a
             href={getDownloadUrl(pdfUrl)}
             download
-            className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors shadow-sm"
           >
             <Download className="h-4 w-4 mr-2" />
             {downloadLabel}
@@ -48,18 +45,14 @@ export function ResponseViewer({
         )}
       </div>
 
-      {/* Analysis Summary */}
       {analysis && (
-        <div className="bg-blue-50 rounded-lg p-4 space-y-3">
-          <h3 className="font-medium text-blue-900">RFP Analysis Summary</h3>
-          <p className="text-sm text-blue-800">{analysis.summary}</p>
-          
+        <div className="bg-primary-50 rounded-xl p-5 space-y-3 border border-primary-100">
+          <h3 className="font-medium text-primary-900">RFP Analysis Summary</h3>
+          <p className="text-sm text-primary-800">{analysis.summary}</p>
           <div className="grid grid-cols-2 gap-4 mt-4">
             <div>
-              <p className="text-xs font-medium text-blue-700 uppercase">Requirements</p>
-              <p className="text-lg font-semibold text-blue-900">
-                {analysis.requirements.length}
-              </p>
+              <p className="text-xs font-medium text-primary-700 uppercase">Requirements</p>
+              <p className="text-lg font-semibold text-primary-900">{analysis.requirements.length}</p>
               <div className="mt-2 space-y-1">
                 {analysis.requirements.slice(0, 3).map((req) => (
                   <div key={req.id} className="flex items-center text-xs">
@@ -68,32 +61,27 @@ export function ResponseViewer({
                     ) : (
                       <CheckCircle className="h-3 w-3 text-green-500 mr-1" />
                     )}
-                    <span className="text-blue-700 truncate">{req.description}</span>
+                    <span className="text-primary-700 truncate">{req.description}</span>
                   </div>
                 ))}
-                {analysis.requirements.length > 3 && (
-                  <p className="text-xs text-blue-600">
-                    +{analysis.requirements.length - 3} more
-                  </p>
-                )}
               </div>
             </div>
-            
+
             {analysis.submission_requirements && (
               <div>
-                <p className="text-xs font-medium text-blue-700 uppercase">Submission</p>
+                <p className="text-xs font-medium text-primary-700 uppercase">Submission</p>
                 {analysis.submission_requirements.deadline && (
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-primary-800">
                     Deadline: {analysis.submission_requirements.deadline}
                   </p>
                 )}
                 {analysis.submission_requirements.page_limit && (
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-primary-800">
                     Page Limit: {analysis.submission_requirements.page_limit}
                   </p>
                 )}
                 {analysis.submission_requirements.format && (
-                  <p className="text-sm text-blue-800">
+                  <p className="text-sm text-primary-800">
                     Format: {analysis.submission_requirements.format}
                   </p>
                 )}
@@ -103,39 +91,17 @@ export function ResponseViewer({
         </div>
       )}
 
-      {/* Sections */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
           <div className="flex items-center">
             <FileText className="h-5 w-5 text-gray-500 mr-2" />
-            <span className="font-medium text-gray-700">
-              {response.sections.length} Sections
-            </span>
+            <span className="font-medium text-gray-700">Generated Document Code</span>
           </div>
         </div>
-        
-        <div className="divide-y divide-gray-100">
-          {response.sections.map((section, index) => (
-            <div key={index} className="p-4">
-              {section.section_type !== 'body' && (
-                <h3
-                  className={`font-semibold mb-2 ${
-                    section.section_type === 'h1'
-                      ? 'text-xl text-gray-900'
-                      : section.section_type === 'h2'
-                      ? 'text-lg text-gray-800'
-                      : 'text-base text-gray-700'
-                  }`}
-                >
-                  {section.section_title}
-                </h3>
-              )}
-              <div className="markdown-content prose prose-sm max-w-none">
-                <ReactMarkdown>{section.section_content}</ReactMarkdown>
-              </div>
-            </div>
-          ))}
-        </div>
+
+        <pre className="p-4 text-xs overflow-x-auto whitespace-pre-wrap text-gray-800">
+          {response.document_code}
+        </pre>
       </div>
     </div>
   );

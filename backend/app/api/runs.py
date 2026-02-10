@@ -9,17 +9,21 @@ Provides endpoints to:
 
 import json
 import logging
+import shutil
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Body
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.config import get_config
+from app.services.blob_storage import get_blob_storage
 from app.workflows.executors import CodeInterpreterExecutor
 from app.core.llm_client import create_llm_client
+from app.models.schemas import RFPAnalysis, ProposalPlan, GeneratedCodePackage
+from app.api.rfp import _build_code_package, _enrich_code_package_with_previews
 
 
 logger = logging.getLogger(__name__)
@@ -49,6 +53,7 @@ class RunSummary(BaseModel):
     created_at: str
     has_docx: bool
     has_plan: bool
+    code_available: bool
     critique_count: int
     revision_count: int
 
@@ -92,6 +97,36 @@ class RunsListResponse(BaseModel):
     total: int
 
 
+class AnalysisVersionEntry(BaseModel):
+    """Persisted requirements extraction version."""
+    version_id: str
+    created_at: str
+    analysis: RFPAnalysis
+    comment: Optional[str] = None
+
+
+class PlanVersionEntry(BaseModel):
+    """Persisted planner version."""
+    version_id: str
+    created_at: str
+    plan: ProposalPlan
+    comment: Optional[str] = None
+
+
+class RunWorkflowStateResponse(BaseModel):
+    """Workflow state payload to resume a run in Custom Flow."""
+    run_id: str
+    analysis: Optional[RFPAnalysis] = None
+    plan: Optional[ProposalPlan] = None
+    analysis_versions: list[AnalysisVersionEntry] = Field(default_factory=list)
+    plan_versions: list[PlanVersionEntry] = Field(default_factory=list)
+    document_code: str = ""
+    code_stage: Optional[str] = None
+    code_package: GeneratedCodePackage = Field(default_factory=GeneratedCodePackage)
+    documents: list[DocumentSummary] = Field(default_factory=list)
+    docx_download_url: Optional[str] = None
+
+
 # ============================================================================
 # Helper Functions
 # ============================================================================
@@ -100,6 +135,39 @@ def _get_runs_dir() -> Path:
     """Get the runs output directory."""
     config = get_config()
     return Path(config.app.output_dir)
+
+
+def _safe_path_part(value: str, field_name: str) -> str:
+    """Validate a path segment to prevent traversal."""
+    safe = Path(value).name
+    if safe != value:
+        raise HTTPException(status_code=400, detail=f"Invalid {field_name}: {value}")
+    return safe
+
+
+def _resolve_run_dir(run_id: str) -> Path:
+    """Resolve run directory safely under the runs root."""
+    runs_dir = _get_runs_dir().resolve()
+    safe_run_id = _safe_path_part(run_id, "run_id")
+    run_dir = (runs_dir / safe_run_id).resolve()
+    if not run_dir.is_relative_to(runs_dir):
+        raise HTTPException(status_code=400, detail="Invalid run path")
+    return run_dir
+
+
+def _ensure_run_dir_available(run_id: str) -> Path:
+    """Ensure run artifacts are available locally, hydrating from blob when needed."""
+    run_dir = _resolve_run_dir(run_id)
+    if run_dir.exists():
+        return run_dir
+
+    storage = get_blob_storage()
+    if storage.enabled:
+        hydrated = storage.hydrate_run_directory(run_id, run_dir)
+        if hydrated and run_dir.exists():
+            return run_dir
+
+    raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
 
 
 def _parse_run_timestamp(run_id: str) -> Optional[datetime]:
@@ -111,6 +179,53 @@ def _parse_run_timestamp(run_id: str) -> Optional[datetime]:
     except ValueError:
         pass
     return None
+
+
+def _get_blob_run_info(run_id: str) -> Optional[RunSummary]:
+    """Build run summary directly from blob artifacts."""
+    if not run_id.startswith("run_"):
+        return None
+
+    storage = get_blob_storage()
+    if not storage.enabled:
+        return None
+
+    blob_names = storage.list_run_blob_names(run_id)
+    if not blob_names:
+        return None
+
+    ts = _parse_run_timestamp(run_id)
+    created_at = ts.isoformat() if ts else ""
+
+    has_docx = any(name.endswith("/word_document/proposal.docx") for name in blob_names)
+    has_plan = any(name.endswith("/metadata/plan.json") for name in blob_names)
+    code_available = any("/code_snapshots/" in name and name.endswith("_document_code.py") for name in blob_names)
+
+    critique_count = 0
+    critiques_payload = storage.download_blob_bytes(run_id, "metadata/critiques.json")
+    if critiques_payload:
+        try:
+            critiques = json.loads(critiques_payload.decode("utf-8"))
+            if isinstance(critiques, list):
+                critique_count = len(critiques)
+        except Exception:
+            critique_count = 0
+
+    revision_ids = {
+        name.split("/revisions/", 1)[1].split("/", 1)[0]
+        for name in blob_names
+        if "/revisions/" in name
+    }
+
+    return RunSummary(
+        run_id=run_id,
+        created_at=created_at,
+        has_docx=has_docx,
+        has_plan=has_plan,
+        code_available=code_available,
+        critique_count=critique_count,
+        revision_count=len(revision_ids),
+    )
 
 
 def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
@@ -132,6 +247,12 @@ def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
     # Check for plan
     plan_path = run_dir / "metadata" / "plan.json"
     has_plan = plan_path.exists()
+
+    # Check for generated response code
+    code_dir = run_dir / "code_snapshots"
+    code_available = False
+    if code_dir.exists():
+        code_available = any(code_dir.glob("*_document_code.py"))
     
     # Count critiques
     critiques_path = run_dir / "metadata" / "critiques.json"
@@ -155,6 +276,7 @@ def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
         created_at=created_at,
         has_docx=has_docx,
         has_plan=has_plan,
+        code_available=code_available,
         critique_count=critique_count,
         revision_count=revision_count
     )
@@ -163,27 +285,34 @@ def _get_run_info(run_dir: Path) -> Optional[RunSummary]:
 def _get_documents_list(run_dir: Path) -> list[DocumentSummary]:
     """Get list of documents in a run."""
     docs_manifest = run_dir / "documents" / "documents_manifest.json"
+    docs: list[DocumentSummary] = []
+    seen: set[str] = set()
+
     if docs_manifest.exists():
         try:
             with open(docs_manifest, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return [
-                    DocumentSummary(filename=d["filename"], file_type=d["type"])
-                    for d in data.get("documents", [])
-                ]
+            for item in data.get("documents", []):
+                filename = item.get("filename")
+                file_type = item.get("type")
+                if not isinstance(filename, str) or not isinstance(file_type, str):
+                    continue
+                docs.append(DocumentSummary(filename=filename, file_type=file_type))
+                seen.add(filename)
         except Exception:
             pass
-    
-    # Fallback: scan documents directory
+
+    # Include any PDFs missing from manifest as unknown to preserve legacy runs.
     docs_dir = run_dir / "documents"
     if docs_dir.exists():
-        return [
-            DocumentSummary(filename=f.name, file_type="unknown")
-            for f in docs_dir.iterdir()
-            if f.is_file() and f.suffix.lower() == ".pdf"
-        ]
-    
-    return []
+        for file in docs_dir.iterdir():
+            if not file.is_file() or file.suffix.lower() != ".pdf":
+                continue
+            if file.name in seen:
+                continue
+            docs.append(DocumentSummary(filename=file.name, file_type="unknown"))
+
+    return docs
 
 
 def _get_revisions_list(run_dir: Path) -> list[RevisionInfo]:
@@ -235,6 +364,141 @@ def _get_next_revision_id(run_dir: Path) -> str:
     return f"rev_{max_num + 1:03d}"
 
 
+def _load_json_model(file_path: Path, model_cls):
+    """Load a JSON file and validate it as a pydantic model."""
+    if not file_path.exists():
+        return None
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return model_cls.model_validate(data)
+    except Exception as exc:
+        logger.warning("Failed to load %s as %s: %s", file_path.name, model_cls.__name__, exc)
+        return None
+
+
+def _load_json_list(file_path: Path) -> list[dict]:
+    if not file_path.exists():
+        return []
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        if isinstance(payload, list):
+            return [item for item in payload if isinstance(item, dict)]
+    except Exception as exc:
+        logger.warning("Failed to load JSON list %s: %s", file_path, exc)
+    return []
+
+
+def _load_analysis_versions(run_dir: Path) -> list[AnalysisVersionEntry]:
+    versions_path = run_dir / "metadata" / "analysis_versions.json"
+    loaded = _load_json_list(versions_path)
+    versions: list[AnalysisVersionEntry] = []
+    for item in loaded:
+        try:
+            versions.append(AnalysisVersionEntry.model_validate(item))
+        except Exception as exc:
+            logger.warning("Invalid analysis version entry in %s: %s", versions_path, exc)
+
+    if versions:
+        return versions
+
+    analysis_path = run_dir / "metadata" / "analysis.json"
+    analysis = _load_json_model(analysis_path, RFPAnalysis)
+    if not analysis:
+        return []
+
+    created_at = ""
+    try:
+        created_at = datetime.fromtimestamp(analysis_path.stat().st_mtime).isoformat()
+    except Exception:
+        pass
+
+    return [
+        AnalysisVersionEntry(
+            version_id="analysis_v001",
+            created_at=created_at,
+            analysis=analysis,
+            comment=None,
+        )
+    ]
+
+
+def _load_plan_versions(run_dir: Path) -> list[PlanVersionEntry]:
+    versions_path = run_dir / "metadata" / "plan_versions.json"
+    loaded = _load_json_list(versions_path)
+    versions: list[PlanVersionEntry] = []
+    for item in loaded:
+        try:
+            versions.append(PlanVersionEntry.model_validate(item))
+        except Exception as exc:
+            logger.warning("Invalid plan version entry in %s: %s", versions_path, exc)
+
+    if versions:
+        return versions
+
+    plan_path = run_dir / "metadata" / "plan.json"
+    plan = _load_json_model(plan_path, ProposalPlan)
+    if not plan:
+        return []
+
+    created_at = ""
+    try:
+        created_at = datetime.fromtimestamp(plan_path.stat().st_mtime).isoformat()
+    except Exception:
+        pass
+
+    return [
+        PlanVersionEntry(
+            version_id="plan_v001",
+            created_at=created_at,
+            plan=plan,
+            comment=None,
+        )
+    ]
+
+
+def _load_run_code_snapshot(run_dir: Path, stage: str = "99_final") -> tuple[str, Optional[str]]:
+    """Load a code snapshot from a run and return code + resolved stage."""
+    safe_stage = _safe_path_part(stage, "stage")
+    code_path = run_dir / "code_snapshots" / f"{safe_stage}_document_code.py"
+
+    if not code_path.exists():
+        code_dir = run_dir / "code_snapshots"
+        if code_dir.exists():
+            code_files = sorted(code_dir.glob("*.py"))
+            if code_files:
+                code_path = code_files[-1]
+                safe_stage = code_path.stem.replace("_document_code", "")
+            else:
+                return "", None
+        else:
+            return "", None
+
+    try:
+        with open(code_path, "r", encoding="utf-8") as f:
+            return f.read(), safe_stage
+    except Exception as exc:
+        logger.warning("Failed to read code snapshot %s: %s", code_path, exc)
+        return "", None
+
+
+def _sync_run_to_blob(run_dir: Path) -> None:
+    storage = get_blob_storage()
+    if not storage.enabled:
+        return
+    try:
+        storage.sync_run_directory(run_dir)
+        if not get_config().storage.use_local_storage:
+            try:
+                shutil.rmtree(run_dir)
+                logger.info("Removed local run directory after blob sync: %s", run_dir)
+            except Exception as cleanup_exc:
+                logger.warning("Failed to remove local run directory %s: %s", run_dir, cleanup_exc)
+    except Exception as exc:
+        logger.warning("Blob sync failed for run %s: %s", run_dir.name, exc)
+
+
 # ============================================================================
 # Endpoints
 # ============================================================================
@@ -250,18 +514,29 @@ async def list_runs(
     Returns runs sorted by creation time (newest first).
     """
     runs_dir = _get_runs_dir()
-    
-    if not runs_dir.exists():
-        return RunsListResponse(runs=[], total=0)
-    
-    # Get all run directories
-    all_runs = []
-    for item in runs_dir.iterdir():
-        if item.is_dir():
+    all_runs: list[RunSummary] = []
+    seen_run_ids: set[str] = set()
+
+    if runs_dir.exists():
+        for item in runs_dir.iterdir():
+            if not item.is_dir():
+                continue
             run_info = _get_run_info(item)
+            if not run_info:
+                continue
+            all_runs.append(run_info)
+            seen_run_ids.add(run_info.run_id)
+
+    storage = get_blob_storage()
+    if storage.enabled:
+        for run_id in storage.list_run_ids():
+            if run_id in seen_run_ids:
+                continue
+            run_info = _get_blob_run_info(run_id)
             if run_info:
                 all_runs.append(run_info)
-    
+                seen_run_ids.add(run_id)
+
     # Sort by created_at (newest first)
     all_runs.sort(key=lambda r: r.created_at, reverse=True)
     
@@ -277,11 +552,7 @@ async def get_run_details(run_id: str):
     """
     Get detailed information about a specific run.
     """
-    runs_dir = _get_runs_dir()
-    run_dir = runs_dir / run_id
-    
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    run_dir = _ensure_run_dir_available(run_id)
     
     summary = _get_run_info(run_dir)
     if not summary:
@@ -293,9 +564,9 @@ async def get_run_details(run_id: str):
     # Get revisions
     revisions = _get_revisions_list(run_dir)
     
-    # Check if code is available
-    code_path = run_dir / "code_snapshots" / "99_final_document_code.py"
-    code_available = code_path.exists()
+    # Check if any code snapshot is available (prefer 99_final, fallback to latest).
+    code_text, resolved_stage = _load_run_code_snapshot(run_dir, stage="99_final")
+    code_available = bool(code_text and resolved_stage)
     
     # Build download URL if docx exists
     docx_download_url = None
@@ -324,39 +595,55 @@ async def get_run_code(run_id: str, stage: str = "99_final"):
         run_id: The run ID
         stage: The code stage (default: "99_final" for final code)
     """
-    runs_dir = _get_runs_dir()
-    run_dir = runs_dir / run_id
+    run_dir = _ensure_run_dir_available(run_id)
     
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
-    
-    code_path = run_dir / "code_snapshots" / f"{stage}_document_code.py"
-    
-    if not code_path.exists():
-        # Try to find any code file
-        code_dir = run_dir / "code_snapshots"
-        if code_dir.exists():
-            code_files = list(code_dir.glob("*.py"))
-            if code_files:
-                # Return the last one (highest numbered)
-                code_files.sort()
-                code_path = code_files[-1]
-                stage = code_path.stem.replace("_document_code", "")
-            else:
-                raise HTTPException(status_code=404, detail="No code files found in this run")
-        else:
-            raise HTTPException(status_code=404, detail="Code snapshots directory not found")
-    
-    try:
-        with open(code_path, "r", encoding="utf-8") as f:
-            code = f.read()
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to read code: {str(e)}")
+    code, resolved_stage = _load_run_code_snapshot(run_dir, stage=stage)
+    if not code or not resolved_stage:
+        raise HTTPException(status_code=404, detail="No code files found in this run")
     
     return RunCodeResponse(
         run_id=run_id,
         code=code,
-        stage=stage
+        stage=resolved_stage
+    )
+
+
+@router.get("/{run_id}/workflow-state", response_model=RunWorkflowStateResponse)
+async def get_run_workflow_state(run_id: str):
+    """
+    Get persisted workflow state for loading a run into Custom Flow.
+    """
+    run_dir = _ensure_run_dir_available(run_id)
+
+    analysis_versions = _load_analysis_versions(run_dir)
+    plan_versions = _load_plan_versions(run_dir)
+    analysis = analysis_versions[-1].analysis if analysis_versions else _load_json_model(run_dir / "metadata" / "analysis.json", RFPAnalysis)
+    plan = plan_versions[-1].plan if plan_versions else _load_json_model(run_dir / "metadata" / "plan.json", ProposalPlan)
+    documents = _get_documents_list(run_dir)
+
+    code, code_stage = _load_run_code_snapshot(run_dir, stage="99_final")
+    code_package = GeneratedCodePackage()
+    if code:
+        code_package = _enrich_code_package_with_previews(
+            _build_code_package(code),
+            image_dir=run_dir / "image_assets",
+            docx_path=run_dir / "word_document" / "proposal.docx",
+        )
+
+    docx_path = run_dir / "word_document" / "proposal.docx"
+    docx_download_url = f"/api/rfp/download/{run_id}/proposal.docx" if docx_path.exists() else None
+
+    return RunWorkflowStateResponse(
+        run_id=run_id,
+        analysis=analysis,
+        plan=plan,
+        analysis_versions=analysis_versions,
+        plan_versions=plan_versions,
+        document_code=code,
+        code_stage=code_stage,
+        code_package=code_package,
+        documents=documents,
+        docx_download_url=docx_download_url,
     )
 
 
@@ -370,11 +657,7 @@ async def regenerate_document(
     
     Creates a new revision under the run directory.
     """
-    runs_dir = _get_runs_dir()
-    run_dir = runs_dir / run_id
-    
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
+    run_dir = _ensure_run_dir_available(run_id)
     
     # Create revision directory
     revision_id = _get_next_revision_id(run_dir)
@@ -390,11 +673,8 @@ async def regenerate_document(
         raise HTTPException(status_code=500, detail=f"Failed to save code: {str(e)}")
     
     # Create a mock RFPResponse with the code
-    from app.models.schemas import RFPResponse, RFPSection
-    mock_response = RFPResponse(
-        sections=[RFPSection(section_title="Generated", section_content="", section_type="body")],
-        document_code=request.code
-    )
+    from app.models.schemas import RFPResponse
+    mock_response = RFPResponse(document_code=request.code)
     
     # Execute the code
     client = create_llm_client()
@@ -417,12 +697,14 @@ async def regenerate_document(
         # Get the actual docx filename
         docx_files = list(revision_dir.glob("*.docx"))
         docx_filename = docx_files[0].name if docx_files else "proposal.docx"
+
+        _sync_run_to_blob(run_dir)
         
         return RegenerateResponse(
             success=True,
             message=f"Document regenerated successfully as {revision_id}",
             revision_id=revision_id,
-            docx_download_url=f"/api/runs/{run_id}/revisions/{revision_id}/{docx_filename}"
+            docx_download_url=f"/api/runs/{run_dir.name}/revisions/{revision_id}/{docx_filename}"
         )
         
     except HTTPException:
@@ -435,18 +717,32 @@ async def regenerate_document(
 @router.get("/{run_id}/revisions/{revision_id}/{filename}")
 async def download_revision(run_id: str, revision_id: str, filename: str):
     """Download a document from a specific revision."""
-    runs_dir = _get_runs_dir()
-    file_path = runs_dir / run_id / "revisions" / revision_id / filename
+    run_dir = _ensure_run_dir_available(run_id)
+    safe_revision_id = _safe_path_part(revision_id, "revision_id")
+    safe_filename = _safe_path_part(filename, "filename")
+    file_path = (run_dir / "revisions" / safe_revision_id / safe_filename).resolve()
+    if not file_path.is_relative_to(run_dir):
+        raise HTTPException(status_code=400, detail="Invalid file path")
     
+    if not file_path.exists():
+        storage = get_blob_storage()
+        if storage.enabled:
+            relative = f"revisions/{safe_revision_id}/{safe_filename}"
+            data = storage.download_blob_bytes(run_id, relative)
+            if data:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(file_path, "wb") as f:
+                    f.write(data)
+
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     
-    if not filename.endswith('.docx'):
+    if not safe_filename.endswith('.docx'):
         raise HTTPException(status_code=400, detail="Only DOCX downloads allowed")
     
     return FileResponse(
         path=file_path,
-        filename=filename,
+        filename=safe_filename,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
@@ -454,14 +750,27 @@ async def download_revision(run_id: str, revision_id: str, filename: str):
 @router.get("/{run_id}/documents/{filename}")
 async def download_source_document(run_id: str, filename: str):
     """Download a source document (RFP, example, context) from a run."""
-    runs_dir = _get_runs_dir()
-    file_path = runs_dir / run_id / "documents" / filename
+    run_dir = _ensure_run_dir_available(run_id)
+    safe_filename = _safe_path_part(filename, "filename")
+    file_path = (run_dir / "documents" / safe_filename).resolve()
+    if not file_path.is_relative_to(run_dir):
+        raise HTTPException(status_code=400, detail="Invalid file path")
     
+    if not file_path.exists():
+        storage = get_blob_storage()
+        if storage.enabled:
+            relative = f"documents/{safe_filename}"
+            data = storage.download_blob_bytes(run_id, relative)
+            if data:
+                file_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(file_path, "wb") as f:
+                    f.write(data)
+
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="Document not found")
     
     return FileResponse(
         path=file_path,
-        filename=filename,
+        filename=safe_filename,
         media_type="application/pdf"
     )

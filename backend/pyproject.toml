@@ -10,15 +10,15 @@ dependencies = [
     "pydantic>=2.5.0",
     "pydantic-settings>=2.1.0",
     "tomli>=2.0.1",
-    "agent-framework-core>=0.1.0",
+    "agent-framework-core>=1.0.0b260130",
     "openai>=1.12.0",
     "azure-identity>=1.15.0",
+    "azure-storage-blob>=12.24.0",
     "pypdf>=4.0.0",
     "pdf2image>=1.17.0",
     "pdfplumber>=0.11.4",
     "Pillow>=10.0.0",
     "reportlab>=4.0.0",
-    "pymmdc>=0.1.0",
     "aiofiles>=23.2.1",
     "python-jose[cryptography]>=3.3.0",
     "httpx>=0.26.0",
@@ -27,6 +27,7 @@ dependencies = [
     "seaborn>=0.13.0",
     "pandas>=2.1.0",
     "numpy>=1.24.0",
+    "python-docx>=1.1.2",
 ]
 
 [project.optional-dependencies]

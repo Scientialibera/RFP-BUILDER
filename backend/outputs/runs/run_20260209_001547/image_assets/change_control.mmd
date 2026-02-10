@@ -1,0 +1,13 @@
+
+flowchart TD
+  Start[Change Request Created] --> Review[Reviewed by PMs]
+  Review --> Approved[Approved for Analysis]
+  Approved -- No --> Close[Change Order Closed]
+  Approved -- Yes --> Analyze[CR Analyzed & Estimated]
+  Analyze --> Submit[Submit to PMs]
+  Submit --> PMLimit[Within PM Approval Limit?]
+  PMLimit -- No --> Steering[Sent to Steering Committee]
+  Steering --> SteeringApproved[Approved?]
+  SteeringApproved -- No --> Close
+  SteeringApproved -- Yes --> Execute[CR Executed]
+  PMLimit -- Yes --> Execute

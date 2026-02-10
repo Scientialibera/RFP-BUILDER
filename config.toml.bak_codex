@@ -1,0 +1,63 @@
+[azure]
+endpoint = "https://aura-codex.openai.azure.com/"
+model = "gpt-5.1"
+deployment = "gpt-5.1"
+api_version = "2024-02-15-preview"
+
+[openai]
+api_key = ""
+model = "gpt-5.1"
+base_url = ""
+
+[app]
+debug = false
+host = "127.0.0.1"
+port = 8000
+max_file_size_mb = 50
+allowed_extensions = ["pdf"]
+upload_dir = "./uploads"
+output_dir = "./outputs/runs"
+
+[features]
+enable_images = false
+enable_tables = true
+image_dpi = 150
+max_images = 20
+min_table_rows = 2
+min_table_cols = 2
+image_ratio_examples = 0.5
+image_ratio_rfp = 0.25
+image_ratio_context = 0.25
+enable_auth = false
+front_end_auth = false
+admin_permission = ""
+toggle_requirements_chunking = false
+max_tokens_reqs_chunking = 6000
+toggle_generation_chunking = false
+max_tokens_generation_chunking = 6000
+generator_intro_pages = 3
+generation_page_overlap = 1
+max_sections_per_chunk = 3
+
+[msal]
+client_id = ""
+tenant_id = ""
+redirect_uri = "http://localhost:3000"
+scopes = ["User.Read"]
+
+[api_auth]
+enabled = false
+header_name = "X-API-Key"
+token_type = "bearer"
+jwt_secret = ""
+required_fields = []
+
+[workflow]
+llm_timeout = 350
+max_retries = 3
+verbose = false
+log_all_steps = true
+enable_planner = true
+enable_critiquer = false
+max_critiques = 1
+max_error_loops = 2

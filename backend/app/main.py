@@ -3,6 +3,7 @@ FastAPI Application Entry Point.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -46,6 +47,17 @@ def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     config = get_config()
     
+    cors_env = os.getenv("RFP_CORS_ALLOWED_ORIGINS", "")
+    if cors_env.strip():
+        cors_origins = [origin.strip() for origin in cors_env.split(",") if origin.strip()]
+    else:
+        cors_origins = [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173",
+        ]
+    
     app = FastAPI(
         title="RFP Builder API",
         description="Enterprise RFP generation powered by AI workflows",
@@ -58,12 +70,7 @@ def create_app() -> FastAPI:
     # CORS middleware
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:3000",
-            "http://localhost:5173",
-            "http://127.0.0.1:3000",
-            "http://127.0.0.1:5173",
-        ],
+        allow_origins=cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

@@ -5,6 +5,7 @@ Loads settings from config.toml with support for Azure OpenAI and direct OpenAI.
 
 from pathlib import Path
 from typing import Optional
+import os
 import tomli
 from pydantic import BaseModel, Field
 
@@ -15,6 +16,7 @@ class AzureConfig(BaseModel):
     model: str = "gpt-4o"
     deployment: str = ""
     api_version: str = "2024-02-15-preview"
+    api_key: str = Field(default_factory=lambda: os.getenv("AZURE_OPENAI_API_KEY", ""))
     
     @property
     def is_configured(self) -> bool:
@@ -67,6 +69,9 @@ class FeaturesConfig(BaseModel):
     image_ratio_rfp: float = 0.25
     image_ratio_context: float = 0.25
     enable_auth: bool = False
+    front_end_auth: bool = False
+    front_end_required_role: str = ""
+    admin_permission: str = ""
     toggle_requirements_chunking: bool = False
     max_tokens_reqs_chunking: int = 12000
     toggle_generation_chunking: bool = False
@@ -158,6 +163,15 @@ class WorkflowConfig(BaseModel):
     max_error_loops: int = 2
 
 
+class StorageConfig(BaseModel):
+    """Azure Blob storage settings."""
+    use_blob_storage: bool = False
+    use_local_storage: bool = True
+    blob_account_name: str = ""
+    blob_container_name: str = "rfps"
+    blob_runs_prefix: str = "runs"
+
+
 class Config(BaseModel):
     """Root configuration object."""
     azure: AzureConfig = Field(default_factory=AzureConfig)
@@ -167,6 +181,7 @@ class Config(BaseModel):
     msal: MSALConfig = Field(default_factory=MSALConfig)
     api_auth: APIAuthConfig = Field(default_factory=APIAuthConfig)
     workflow: WorkflowConfig = Field(default_factory=WorkflowConfig)
+    storage: StorageConfig = Field(default_factory=StorageConfig)
     
     @property
     def use_azure(self) -> bool:

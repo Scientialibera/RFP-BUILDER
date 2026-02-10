@@ -1,0 +1,36 @@
+{
+  "documents": [
+    {
+      "filename": "Kastle Vendor Request for Proposal - System Implementation.pdf",
+      "type": "rfp"
+    },
+    {
+      "filename": "RFI RFP Template 1.pdf",
+      "type": "example"
+    },
+    {
+      "filename": "Argano IRC RFP Response 14 Feb 2024.pdf",
+      "type": "example"
+    },
+    {
+      "filename": "NA_Argano Response to Smithsonian RFP_19 Oct 2023.pdf",
+      "type": "example"
+    },
+    {
+      "filename": "Training and Education from Argano.pdf",
+      "type": "context"
+    },
+    {
+      "filename": "Attachment C - Argano PSI RFP Services Cost Estimate_2023_10_31.pdf",
+      "type": "context"
+    },
+    {
+      "filename": "Change Mangement by Argano.pdf",
+      "type": "context"
+    },
+    {
+      "filename": "Argano MSA_022023.pdf",
+      "type": "context"
+    }
+  ]
+}

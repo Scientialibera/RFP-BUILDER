@@ -31,9 +31,13 @@ PLAN_PROPOSAL_USER_PROMPT = """Based on the RFP analysis, create a detailed prop
 Create a comprehensive plan that:
 1. Defines all sections the proposal should have
 2. Maps each section to the requirements it addresses
-3. Notes relevant RFP page references
+3. Notes relevant RFP page numbers
 4. Suggests specific visualizations (mermaid diagrams, seaborn charts, tables) for each section
 5. Develops a win strategy
+
+For each section's rfp_pages, return ONLY integer page numbers from PAGE TO CITE markers.
+Do NOT return section titles, labels, or free-text references.
+Do NOT write Python code or pseudo-code. This step is planning only.
 
 Use the plan_proposal function to structure your output.
 """
@@ -57,7 +61,7 @@ Generate complete Python code that creates a professional Word document:
 1. Address all identified requirements
 2. Match the style and format of the example RFPs
 3. Incorporate our company's capabilities and differentiators
-4. Include at least 2-3 Mermaid diagrams (using render_mermaid helper) AND 1-2 seaborn charts AND tables
+4. Include visuals selectively (diagrams/charts/tables) only where they improve clarity and decision-making
 
 Write all charts and diagrams INLINE in the code - do NOT use placeholder strings.
 
@@ -84,10 +88,12 @@ GENERATE_WITH_PLAN_USER_PROMPT = """Based on the RFP analysis, proposal plan, an
 
 Generate complete Python code following the proposal plan structure:
 1. Implement ALL sections from the plan
-2. Include the suggested visualizations for each section
+2. Use the plan's suggested visualizations selectively (do NOT include all suggestions)
 3. Address all requirements mapped in the plan
 4. Emphasize the key themes identified in the plan
 5. Match the style and format of the example RFPs
+
+Keep visual density controlled. Choose the highest-value visuals only and avoid overloading the document.
 
 Write all charts and diagrams INLINE in the code - do NOT use placeholder strings.
 

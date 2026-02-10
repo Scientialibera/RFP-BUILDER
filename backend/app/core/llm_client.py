@@ -4,6 +4,7 @@ Creates appropriate OpenAI client based on configuration (Azure or direct OpenAI
 """
 
 from typing import Optional
+import os
 from openai import AsyncAzureOpenAI, AsyncOpenAI
 
 from app.core.config import Config, get_config
@@ -50,9 +51,16 @@ def create_llm_client(config: Optional[Config] = None) -> AsyncOpenAI | AsyncAzu
         config = get_config()
     
     if config.use_azure:
-        # Use Azure OpenAI with DefaultAzureCredential
+        # Use Azure OpenAI with API key if provided; otherwise fall back to DefaultAzureCredential.
+        api_key = config.azure.api_key.strip() or os.getenv("AZURE_OPENAI_API_KEY", "").strip()
+        if api_key:
+            return AsyncAzureOpenAI(
+                azure_endpoint=config.azure.endpoint,
+                api_key=api_key,
+                api_version=config.azure.api_version,
+            )
+
         token_provider = AzureTokenProvider()
-        
         return AsyncAzureOpenAI(
             azure_endpoint=config.azure.endpoint,
             azure_ad_token_provider=token_provider,
